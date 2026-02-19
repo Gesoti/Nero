@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Cyprus Water Levels{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="/static/js/charts.js" defer></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .progress-bar { transition: width 0.8s ease-out; }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body class="h-full bg-slate-50 text-slate-900">
+
+<!-- Navigation -->
+<nav class="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-2 font-bold text-lg text-slate-800 hover:text-slate-600 transition-colors">
+            <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z"/>
+            </svg>
+            CyprusWater
+        </a>
+        <div class="flex items-center gap-4">
+            {% block nav_right %}{% endblock %}
+            <a href="/about" class="text-sm text-slate-500 hover:text-slate-700 transition-colors">About</a>
+        </div>
+    </div>
+</nav>
+
+{% block content %}{% endblock %}
+
+<!-- Footer -->
+<footer class="mt-16 border-t border-slate-200 bg-white py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-slate-400">
+        Data: <a href="https://cyprus-water.appspot.com" target="_blank" rel="noopener" class="hover:text-slate-600 underline underline-offset-2">Water Development Department, Cyprus</a> (CC BY 2.0)
+        {% block footer_extra %}{% endblock %}
+    </div>
+</footer>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

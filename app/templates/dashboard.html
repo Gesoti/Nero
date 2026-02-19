@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Cyprus Water Levels — Dashboard{% endblock %}
+
+{% block nav_right %}
+{% if totals %}
+    {% set pct_display = (totals.total_percentage * 100) | round(1) %}
+    {% if totals.total_percentage < 0.20 %}
+        {% set pill = "bg-red-100 text-red-700 border border-red-300" %}
+        {% set dot = "bg-red-500" %}
+        {% set label = "Critical" %}
+    {% elif totals.total_percentage < 0.40 %}
+        {% set pill = "bg-amber-100 text-amber-700 border border-amber-300" %}
+        {% set dot = "bg-amber-500" %}
+        {% set label = "Warning" %}
+    {% else %}
+        {% set pill = "bg-emerald-100 text-emerald-700 border border-emerald-300" %}
+        {% set dot = "bg-emerald-500" %}
+        {% set label = "Healthy" %}
+    {% endif %}
+    <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold {{ pill }}">
+        <span class="w-2 h-2 rounded-full {{ dot }} animate-pulse"></span>
+        {{ pct_display }}% — {{ label }}
+    </span>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if totals %}
+    {% set pct_display = (totals.total_percentage * 100) | round(1) %}
+    {% if totals.total_percentage < 0.20 %}
+        {% set hero_bar = "bg-red-400" %}
+        {% set hero_num = "text-red-400" %}
+    {% elif totals.total_percentage < 0.40 %}
+        {% set hero_bar = "bg-amber-400" %}
+        {% set hero_num = "text-amber-400" %}
+    {% else %}
+        {% set hero_bar = "bg-emerald-400" %}
+        {% set hero_num = "text-emerald-400" %}
+    {% endif %}
+{% else %}
+    {% set pct_display = "—" %}
+    {% set hero_bar = "bg-slate-400" %}
+    {% set hero_num = "text-slate-400" %}
+{% endif %}
+
+<!-- Crisis Hero Banner -->
+<section class="bg-gradient-to-br from-red-950 to-slate-900 text-white py-12 px-4">
+    <div class="max-w-7xl mx-auto">
+        <p class="text-red-300 uppercase tracking-widest text-xs font-semibold mb-2">Live System Status</p>
+        <h1 class="text-3xl sm:text-4xl font-bold mb-1">Cyprus Water Crisis</h1>
+        <p class="text-slate-400 text-sm mb-8">Real-time reservoir monitoring across all 17 major dams</p>
+
+        <div class="mb-8">
+            <span class="text-7xl font-black tracking-tight {{ hero_num }}">{{ pct_display }}{% if totals %}%{% endif %}</span>
+            <p class="text-slate-400 mt-1">of total capacity remaining</p>
+        </div>
+
+        <!-- System progress bar -->
+        <div class="w-full bg-white/10 rounded-full h-3 mb-8 overflow-hidden">
+            <div
+                class="h-3 rounded-full progress-bar {{ hero_bar }}"
+                style="width: 0%"
+                data-target="{{ pct_display if totals else 0 }}"
+            ></div>
+        </div>
+
+        <!-- Stat boxes -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+                <p class="text-slate-400 text-xs uppercase tracking-wider mb-1">Stored</p>
+                <p class="text-2xl font-bold">
+                    {{ "%.1f"|format(totals.total_storage_mcm) if totals else "—" }}
+                    <span class="text-sm font-normal text-slate-400">MCM</span>
+                </p>
+            </div>
+            <div class="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+                <p class="text-slate-400 text-xs uppercase tracking-wider mb-1">Total Capacity</p>
+                <p class="text-2xl font-bold">
+                    {{ "%.1f"|format(totals.total_capacity_mcm) if totals else "—" }}
+                    <span class="text-sm font-normal text-slate-400">MCM</span>
+                </p>
+            </div>
+            <div class="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+                <p class="text-slate-400 text-xs uppercase tracking-wider mb-1">Last Updated</p>
+                <p class="text-sm font-medium truncate">
+                    {{ last_updated[:10] if last_updated else "Syncing..." }}
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- System Trend Chart -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <h2 class="text-lg font-semibold text-slate-800">System Capacity — Historical Trend</h2>
+            <div class="flex gap-2">
+                <button onclick="setRange('1Y')"
+                        class="range-btn px-3 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-600 hover:bg-slate-100 active:scale-95 transition-all duration-75">1Y</button>
+                <button onclick="setRange('3Y')"
+                        class="range-btn px-3 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-600 hover:bg-slate-100 active:scale-95 transition-all duration-75">3Y</button>
+                <button onclick="setRange('All')"
+                        class="range-btn range-btn-active px-3 py-1 rounded-lg text-xs font-medium bg-blue-600 text-white border border-blue-600 active:scale-95 transition-all duration-75">All</button>
+            </div>
+        </div>
+        <div style="height: 400px; position: relative;">
+            <canvas id="systemChart"></canvas>
+        </div>
+    </div>
+</section>
+
+<!-- Dam Grid -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pb-12">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+        <h2 class="text-xl font-semibold text-slate-800">All {{ dams|length }} Dams</h2>
+        <div class="flex items-center gap-4 text-xs text-slate-500 flex-wrap">
+            <span class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>Critical &lt;20%
+            </span>
+            <span class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>Warning 20–40%
+            </span>
+            <span class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>Healthy &gt;40%
+            </span>
+        </div>
+    </div>
+
+    {% if dams %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for dam in dams %}
+            {% set pct = (dam.percentage * 100) | round(1) %}
+            {% if dam.severity == 'critical' %}
+                {% set border = "border-red-200" %}
+                {% set bg = "bg-red-50" %}
+                {% set bar = "bg-red-500" %}
+                {% set txt = "text-red-700" %}
+                {% set badge = "bg-red-100 text-red-700" %}
+            {% elif dam.severity == 'warning' %}
+                {% set border = "border-amber-200" %}
+                {% set bg = "bg-amber-50" %}
+                {% set bar = "bg-amber-500" %}
+                {% set txt = "text-amber-700" %}
+                {% set badge = "bg-amber-100 text-amber-700" %}
+            {% else %}
+                {% set border = "border-emerald-200" %}
+                {% set bg = "bg-emerald-50" %}
+                {% set bar = "bg-emerald-500" %}
+                {% set txt = "text-emerald-700" %}
+                {% set badge = "bg-emerald-100 text-emerald-700" %}
+            {% endif %}
+            <a href="/dam/{{ dam.name_en }}"
+               class="block rounded-xl border {{ border }} {{ bg }} p-4
+                      hover:-translate-y-0.5 hover:shadow-md transition-all duration-200
+                      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <p class="font-semibold text-slate-800 leading-tight hover:text-blue-600 transition-colors">{{ dam.name_en }}</p>
+                        <p class="text-xs text-slate-400 mt-0.5">{{ dam.name_el }}</p>
+                    </div>
+                    <span class="text-xs font-bold px-2 py-0.5 rounded-full {{ badge }} ml-2 whitespace-nowrap">{{ pct }}%</span>
+                </div>
+
+                <div class="w-full bg-slate-200 rounded-full h-2 mb-3 overflow-hidden">
+                    <div class="h-2 rounded-full progress-bar {{ bar }}"
+                         style="width: 0%"
+                         data-target="{{ pct }}"></div>
+                </div>
+
+                <div class="text-xs text-slate-500 space-y-0.5">
+                    <p>Stored: <span class="font-medium {{ txt }}">{{ "%.2f"|format(dam.storage_mcm) }} MCM</span></p>
+                    <p>Capacity: <span class="font-medium text-slate-600">{{ "%.1f"|format(dam.capacity_mcm) }} MCM</span></p>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-16 text-slate-400">
+        <p class="text-lg">Data syncing… Check back shortly.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
+
+{% block footer_extra %}
+<span class="mx-2 text-slate-300">·</span>
+Last synced: {{ last_updated[:19].replace("T", " ") if last_updated else "never" }}
+{% endblock %}
+
+{% block scripts %}
+<script>
+const systemHistoryData = {{ system_history_json | safe }};
+
+// Animate all progress bars after first paint
+requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+        document.querySelectorAll('.progress-bar').forEach(bar => {
+            bar.style.width = (parseFloat(bar.dataset.target) || 0) + '%';
+        });
+    });
+});
+
+window.systemChartInstance = null;
+
+function setRange(range) {
+    const now = new Date();
+    let cutoff = null;
+    if (range === '1Y') cutoff = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+    if (range === '3Y') cutoff = new Date(now.getFullYear() - 3, now.getMonth(), now.getDate());
+    const filtered = cutoff ? systemHistoryData.filter(d => new Date(d.date) >= cutoff) : systemHistoryData;
+
+    document.querySelectorAll('.range-btn').forEach(btn => {
+        const active = btn.textContent.trim() === range;
+        btn.className = active
+            ? 'range-btn px-3 py-1 rounded-lg text-xs font-medium bg-blue-600 text-white border border-blue-600 active:scale-95 transition-all duration-75'
+            : 'range-btn px-3 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-600 hover:bg-slate-100 active:scale-95 transition-all duration-75';
+    });
+
+    if (window.systemChartInstance) window.systemChartInstance.destroy();
+    window.systemChartInstance = initSystemChart('systemChart', filtered);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    window.systemChartInstance = initSystemChart('systemChart', systemHistoryData);
+});
+</script>
+{% endblock %}

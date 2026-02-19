@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}About — Cyprus Water Levels{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <h1 class="text-3xl font-bold text-slate-900 mb-2">About Cyprus Water Levels</h1>
+    <p class="text-slate-500 mb-8">An open-source dashboard for monitoring Cyprus reservoir levels.</p>
+
+    <div class="space-y-6 text-slate-700">
+
+        <section class="bg-white rounded-2xl border border-slate-200 p-6">
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">Data Source</h2>
+            <p class="leading-relaxed">Water level data is sourced from the <strong>Water Development Department of Cyprus</strong>
+            via their public API at <code class="text-xs bg-slate-100 px-1 py-0.5 rounded">cyprus-water.appspot.com/api</code>.
+            Data is refreshed every 6 hours and historical records span from October 2009 to present.</p>
+            <p class="mt-3 text-sm">
+                License: <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noopener"
+                   class="text-blue-600 hover:underline">Creative Commons Attribution 2.0 (CC BY 2.0)</a>
+            </p>
+        </section>
+
+        <section class="bg-white rounded-2xl border border-slate-200 p-6">
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">Severity Thresholds</h2>
+            <ul class="space-y-3 text-sm">
+                <li class="flex items-start gap-3">
+                    <span class="w-4 h-4 rounded-full bg-red-500 flex-shrink-0 mt-0.5"></span>
+                    <span><strong class="text-red-700">Critical</strong> — below 20% capacity. Immediate risk to water supply security.</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="w-4 h-4 rounded-full bg-amber-500 flex-shrink-0 mt-0.5"></span>
+                    <span><strong class="text-amber-700">Warning</strong> — 20–40% capacity. Reduced reserves; conservation measures advised.</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="w-4 h-4 rounded-full bg-emerald-500 flex-shrink-0 mt-0.5"></span>
+                    <span><strong class="text-emerald-700">Healthy</strong> — above 40% capacity. Normal operational levels.</span>
+                </li>
+            </ul>
+        </section>
+
+        <section class="bg-white rounded-2xl border border-slate-200 p-6">
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">Data Notes</h2>
+            <ul class="space-y-2 text-sm text-slate-600 list-disc list-inside">
+                <li>Historical timeseries data contains ~133 periodic snapshots (not daily) from 2018 onwards.</li>
+                <li>Daily granularity accumulates from ongoing 6-hour syncs.</li>
+                <li>"Agia Marina" dam appears in statistics data but has no metadata entry — its volumes are included in system totals but the dam does not appear in the individual grid.</li>
+                <li>Percentage values are on a 0–100% scale; storage and inflow are in million cubic metres (MCM).</li>
+            </ul>
+        </section>
+
+        <section class="bg-white rounded-2xl border border-slate-200 p-6">
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">Technology</h2>
+            <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-slate-600">
+                <div><span class="text-slate-400">Backend</span><br><strong>FastAPI + APScheduler</strong></div>
+                <div><span class="text-slate-400">Database</span><br><strong>SQLite (WAL mode)</strong></div>
+                <div><span class="text-slate-400">Templates</span><br><strong>Jinja2 (SSR)</strong></div>
+                <div><span class="text-slate-400">Styling</span><br><strong>Tailwind CSS CDN</strong></div>
+                <div><span class="text-slate-400">Charts</span><br><strong>Chart.js + date-fns adapter</strong></div>
+                <div><span class="text-slate-400">HTTP client</span><br><strong>httpx (async)</strong></div>
+            </div>
+        </section>
+
+    </div>
+
+    <div class="mt-8">
+        <a href="/" class="text-sm text-blue-600 hover:underline">← Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}
