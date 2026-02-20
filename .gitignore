@@ -14,3 +14,9 @@ data/
 
 # Environment overrides
 .env
+
+# Tailwind standalone CLI binary (downloaded, not committed)
+tailwindcss
+
+# Tailwind CSS source entry point (generated artifact, not committed)
+app/static/css/input.css

@@ -19,6 +19,7 @@ from app.api_client import close_client
 from app.config import settings
 from app.db import init_database, is_database_empty
 from app.routes.pages import router as page_router
+from app.security import security_headers_middleware
 from app.sync import incremental_sync, initial_seed
 
 logging.basicConfig(
@@ -68,10 +69,11 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Cyprus Water Levels", lifespan=lifespan)
 
+app.middleware("http")(security_headers_middleware)
 app.include_router(page_router)
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 
 @app.exception_handler(404)
 async def not_found(request: Request, exc: Exception) -> HTMLResponse:
-    return _templates.TemplateResponse("404.html", {"request": request}, status_code=404)
+    return _templates.TemplateResponse(request, "404.html", {}, status_code=404)

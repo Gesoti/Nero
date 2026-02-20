@@ -1,0 +1,46 @@
+[Unit]
+Description=Cyprus Water Levels Dashboard (FastAPI + Uvicorn)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=waterlevels
+Group=waterlevels
+WorkingDirectory=/opt/waterlevels
+
+# Secrets file — never appears in `systemctl status` output
+EnvironmentFile=/etc/waterlevels/env
+
+# uv must be in PATH for ExecStartPre
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+
+# Force production settings regardless of any .env file on the server
+Environment="WL_DEBUG=false"
+Environment="WL_HOST=127.0.0.1"
+Environment="WL_PORT=8000"
+
+# Stable uv cache directory (system user has no home dir)
+Environment="UV_CACHE_DIR=/opt/waterlevels/.uv-cache"
+
+# Sync pinned deps before every start — --frozen prevents lock-file mutation
+ExecStartPre=/usr/local/bin/uv sync --frozen --no-dev
+
+# Start directly from venv (faster than `uv run`, no uv overhead on hot path)
+ExecStart=/opt/waterlevels/.venv/bin/python main.py
+
+Type=simple
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=30
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=waterlevels
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

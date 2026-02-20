@@ -37,9 +37,9 @@ async def dashboard(request: Request):
     last_updated = get_last_sync_time()
 
     return templates.TemplateResponse(
+        request,
         "dashboard.html",
         {
-            "request": request,
             "dams": dams,
             "totals": totals,
             "system_history_json": json.dumps(system_history),
@@ -58,9 +58,9 @@ async def dam_detail_page(request: Request, name_en: str):
     severity = get_severity(dam.percentage)
 
     return templates.TemplateResponse(
+        request,
         "dam_detail.html",
         {
-            "request": request,
             "dam": dam,
             "severity": severity,
             "history_json": json.dumps(history),
@@ -70,4 +70,9 @@ async def dam_detail_page(request: Request, name_en: str):
 
 @router.get("/about")
 async def about(request: Request):
-    return templates.TemplateResponse("about.html", {"request": request})
+    return templates.TemplateResponse(request, "about.html", {})
+
+
+@router.get("/privacy")
+async def privacy(request: Request):
+    return templates.TemplateResponse(request, "privacy.html", {})

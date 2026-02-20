@@ -7,7 +7,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/css/tailwind.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script src="/static/js/charts.js" defer></script>
@@ -19,6 +19,88 @@
     {% block head %}{% endblock %}
 </head>
 <body class="h-full bg-slate-50 text-slate-900">
+
+<!-- ── Cookie Consent Banner ─────────────────────────────────── -->
+<div id="cookie-banner"
+     class="fixed bottom-0 inset-x-0 z-50 bg-slate-900 border-t border-slate-700 shadow-lg hidden"
+     role="dialog"
+     aria-label="Cookie consent">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4
+              flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <p class="text-sm text-slate-300 leading-relaxed">
+      This site uses cookies for advertising via Google AdSense.
+      By clicking <strong class="text-white">Accept</strong> you consent to our
+      <a href="/privacy" class="underline hover:text-white transition-colors">Privacy Policy</a>.
+    </p>
+    <div class="flex gap-2 shrink-0">
+      <button id="cookie-decline"
+              class="px-4 py-2 text-sm rounded-lg border border-slate-600 text-slate-300
+                     hover:bg-slate-800 hover:text-white transition-colors">
+        Decline
+      </button>
+      <button id="cookie-accept"
+              class="px-4 py-2 text-sm rounded-lg bg-blue-600 hover:bg-blue-500
+                     text-white font-medium transition-colors">
+        Accept
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var KEY = 'wl_cookie_consent';
+  var consent = null;
+  try { consent = localStorage.getItem(KEY); } catch (e) {}
+
+  function loadAdSense() {
+    // AdSense publisher script — injected only after user consent.
+    // Replace ca-pub-XXXXXXXXXXXXXXXXXX with your real publisher ID when you
+    // have your AdSense account approved.
+    if (document.querySelector('script[data-adsense]')) return; // already loaded
+    var s = document.createElement('script');
+    s.async = true;
+    s.crossOrigin = 'anonymous';
+    s.dataset.adsense = '1';
+    s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'
+           + '?client=ca-pub-XXXXXXXXXXXXXXXXXX';
+    document.head.appendChild(s);
+  }
+
+  if (consent === 'accepted') {
+    loadAdSense();
+  } else if (!consent) {
+    // No decision yet — show the banner after DOM is ready
+    document.addEventListener('DOMContentLoaded', function () {
+      var banner = document.getElementById('cookie-banner');
+      if (banner) banner.classList.remove('hidden');
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var banner  = document.getElementById('cookie-banner');
+    var accept  = document.getElementById('cookie-accept');
+    var decline = document.getElementById('cookie-decline');
+
+    if (accept) {
+      accept.addEventListener('click', function () {
+        try { localStorage.setItem(KEY, 'accepted'); } catch (e) {}
+        if (banner) banner.classList.add('hidden');
+        loadAdSense();
+      });
+    }
+
+    if (decline) {
+      decline.addEventListener('click', function () {
+        try { localStorage.setItem(KEY, 'declined'); } catch (e) {}
+        if (banner) banner.classList.add('hidden');
+      });
+    }
+  });
+}());
+</script>
+<!-- ── End Cookie Consent ──────────────────────────────────────── -->
 
 <!-- Navigation -->
 <nav class="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
@@ -42,6 +124,8 @@
 <footer class="mt-16 border-t border-slate-200 bg-white py-6">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-slate-400">
         Data: <a href="https://cyprus-water.appspot.com" target="_blank" rel="noopener" class="hover:text-slate-600 underline underline-offset-2">Water Development Department, Cyprus</a> (CC BY 2.0)
+        <span class="mx-2 text-slate-300">·</span>
+        <a href="/privacy" class="hover:text-slate-600 underline underline-offset-2">Privacy Policy</a>
         {% block footer_extra %}{% endblock %}
     </div>
 </footer>
