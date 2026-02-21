@@ -1,0 +1,20 @@
+# AWS region (must match your AMI)
+aws_region = "eu-west-1"
+
+# Ubuntu 24.04 LTS AMI for eu-west-1 (find yours: aws ec2 describe-images --filters "Name=name,Values=ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*" --query 'Images | sort_by(@, &CreationDate) | [-1].ImageId')
+ami_id = "ami-0xxxxxxxxxxxxxxxxx"
+
+# Name of your EC2 key pair (must already exist in AWS)
+key_pair_name = "my-key"
+
+# Domain name for SSL certificate
+domain_name = "water.example.com"
+
+# Docker Hub image (pushed by CI/CD)
+app_image = "yourusername/waterlevels:latest"
+
+# Restrict SSH to your IP (recommended). Use /32 for a single IP.
+ssh_allowed_cidr = "0.0.0.0/0"
+
+# Email for CloudWatch CPU alarm notifications (leave empty to skip)
+alert_email = ""

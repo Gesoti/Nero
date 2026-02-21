@@ -20,3 +20,11 @@ tailwindcss
 
 # Tailwind CSS source entry point (generated artifact, not committed)
 app/static/css/input.css
+
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/*.tfvars
+terraform/.terraform.lock.hcl
+terraform/backend.hcl
