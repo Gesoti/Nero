@@ -43,3 +43,12 @@ class TestPrivacyRoute:
     async def test_privacy_returns_200(self, async_client):
         r = await async_client.get("/privacy")
         assert r.status_code == 200
+
+
+class TestHealthRoute:
+    async def test_health_returns_200_json(self, async_client):
+        r = await async_client.get("/health")
+        assert r.status_code == 200
+        body = r.json()
+        assert body["status"] == "ok"
+        assert "last_sync" in body

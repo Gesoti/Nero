@@ -8,6 +8,7 @@ import json
 import logging
 
 from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
 
 from app.db import (
@@ -76,3 +77,9 @@ async def about(request: Request):
 @router.get("/privacy")
 async def privacy(request: Request):
     return templates.TemplateResponse(request, "privacy.html", {})
+
+
+@router.get("/health")
+async def health():
+    last_sync = get_last_sync_time()
+    return JSONResponse({"status": "ok", "last_sync": last_sync})
