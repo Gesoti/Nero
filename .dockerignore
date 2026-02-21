@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+data/
+tests/
+deploy/
+terraform/
+.git/
+.github/
+.pytest_cache/
+*.md
+tailwindcss
+.env
+*.pyc
