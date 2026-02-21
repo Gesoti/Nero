@@ -4,7 +4,33 @@ Deploy the WaterLevels dashboard to AWS using Terraform (IaC) and Docker.
 
 **Architecture**: EC2 t2.micro + Nginx + Let's Encrypt + Docker container, with a separate EBS volume for SQLite persistence.
 
-## Prerequisites
+## Local Testing with LocalStack
+
+Test the full stack locally before deploying to AWS. No AWS account needed.
+
+**Prerequisites**: Docker, Docker Compose, Terraform >= 1.7
+
+```bash
+# Deploy locally (builds image, starts LocalStack + app, provisions infra)
+./scripts/local-deploy.sh
+
+# App is available at http://localhost:8000
+# LocalStack dashboard at http://localhost:4566
+
+# Tear down everything
+./scripts/local-teardown.sh
+```
+
+What this tests:
+- Docker image builds and runs correctly
+- App health check passes
+- Terraform modules validate and apply against LocalStack (VPC, EC2, EBS, EIP, IAM, CloudWatch)
+
+---
+
+## AWS Production Deployment
+
+### Prerequisites
 
 - **AWS CLI** configured with credentials (`aws configure`)
 - **Terraform** >= 1.7 installed
