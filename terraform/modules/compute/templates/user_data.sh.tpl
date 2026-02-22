@@ -72,7 +72,7 @@ ln -sf /snap/bin/certbot /usr/bin/certbot || true
 
 # Attempt certificate issuance — will fail gracefully if DNS not yet pointing
 certbot --nginx -d ${domain_name} --non-interactive --agree-tos \
-  --register-unsafely-without-email --redirect || {
+  --email ${alert_email} --redirect || {
   echo "WARNING: Certbot failed (DNS may not be ready). Run manually after DNS setup:"
   echo "  sudo certbot --nginx -d ${domain_name}"
 }

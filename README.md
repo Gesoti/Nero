@@ -35,7 +35,7 @@ Open [http://localhost:8000](http://localhost:8000).
 
 ```bash
 uv sync --extra dev              # install test dependencies
-uv run pytest tests/ -v          # run all tests (40 tests, <0.2s)
+uv run pytest tests/ -v          # run all tests (41 tests, <0.2s)
 ```
 
 ## Rebuilding CSS

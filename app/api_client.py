@@ -126,6 +126,12 @@ class UpstreamAPIError(Exception):
     pass
 
 
+def _validate_url(raw: str) -> str:
+    """Return raw if it is a safe https URL, otherwise return empty string."""
+    stripped = raw.strip()
+    return stripped if stripped.startswith("https://") else ""
+
+
 # ── Date parsing helpers ──────────────────────────────────────────────────────
 def _parse_api_date(raw: str) -> date:
     """Parse 'Feb 17, 2026 12:00:00 AM' → date(2026, 2, 17)"""
@@ -180,8 +186,8 @@ async def fetch_dams() -> list[DamInfo]:
             year_built=int(item.get("yearOfConstruction", 0) or 0),
             river_name_el=item.get("riverNameEl", ""),
             type_el=item.get("typeEl", ""),
-            image_url=item.get("imageUrl", ""),
-            wikipedia_url=item.get("wikipediaUrl", ""),
+            image_url=_validate_url(item.get("imageUrl", "")),
+            wikipedia_url=_validate_url(item.get("wikipediaUrl", "")),
         ))
     logger.info("Fetched %d dams", len(dams))
     return dams

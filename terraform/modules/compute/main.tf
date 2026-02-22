@@ -27,7 +27,10 @@ resource "aws_iam_role_policy" "cloudwatch_logs" {
         "logs:PutLogEvents",
         "logs:DescribeLogStreams"
       ]
-      Resource = "arn:aws:logs:*:*:*"
+      Resource = [
+        "arn:aws:logs:${data.aws_region.current.name}:*:log-group:/waterlevels/app",
+        "arn:aws:logs:${data.aws_region.current.name}:*:log-group:/waterlevels/app:*"
+      ]
     }]
   })
 }
@@ -60,6 +63,7 @@ resource "aws_instance" "app" {
     domain_name = var.domain_name
     app_image   = var.app_image
     aws_region  = data.aws_region.current.name
+    alert_email = var.alert_email
   })
 
   tags = { Name = "${var.project_name}-app" }
