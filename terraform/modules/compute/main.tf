@@ -47,10 +47,13 @@ resource "aws_instance" "app" {
   vpc_security_group_ids = [var.security_group_id]
   iam_instance_profile   = aws_iam_instance_profile.ec2.name
 
-  root_block_device {
-    volume_size = 8
-    volume_type = "gp3"
-    encrypted   = true
+  dynamic "root_block_device" {
+    for_each = var.local_mode ? [] : [1]
+    content {
+      volume_size = 8
+      volume_type = "gp3"
+      encrypted   = true
+    }
   }
 
   user_data = templatefile("${path.module}/templates/user_data.sh.tpl", {
@@ -71,6 +74,7 @@ data "aws_region" "current" {}
 # ── EBS data volume (SQLite persistence) ─────────────────────────────────────
 
 resource "aws_ebs_volume" "data" {
+  count             = var.local_mode ? 0 : 1
   availability_zone = aws_instance.app.availability_zone
   size              = 1
   type              = "gp3"
@@ -84,8 +88,9 @@ resource "aws_ebs_volume" "data" {
 }
 
 resource "aws_volume_attachment" "data" {
+  count       = var.local_mode ? 0 : 1
   device_name = "/dev/xvdf"
-  volume_id   = aws_ebs_volume.data.id
+  volume_id   = aws_ebs_volume.data[0].id
   instance_id = aws_instance.app.id
 }
 

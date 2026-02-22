@@ -63,4 +63,5 @@ module "compute" {
   alert_email       = var.alert_email
   subnet_id         = module.networking.subnet_id
   security_group_id = module.networking.security_group_id
+  local_mode        = true
 }

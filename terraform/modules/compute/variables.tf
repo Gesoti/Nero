@@ -43,3 +43,9 @@ variable "security_group_id" {
   description = "Security group ID for the instance"
   type        = string
 }
+
+variable "local_mode" {
+  description = "Disable features unsupported by LocalStack (encryption, gp3, prevent_destroy)"
+  type        = bool
+  default     = false
+}
