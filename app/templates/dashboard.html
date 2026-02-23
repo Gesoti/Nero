@@ -109,8 +109,16 @@
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <h2 class="text-lg font-semibold text-slate-800">System Capacity — Historical Trend</h2>
-            <div class="flex gap-2">
+            <div class="flex items-center gap-3">
+                <h2 class="text-lg font-semibold text-slate-800">System Capacity</h2>
+                <div class="flex bg-slate-100 rounded-lg p-0.5">
+                    <button onclick="setChartMode('trend')" id="mode-trend"
+                            class="chart-mode-btn px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm transition-all duration-150">Trend</button>
+                    <button onclick="setChartMode('yoy')" id="mode-yoy"
+                            class="chart-mode-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">Year on Year</button>
+                </div>
+            </div>
+            <div id="range-buttons" class="flex gap-2">
                 <button onclick="setRange('1Y')"
                         class="range-btn px-3 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-600 hover:bg-slate-100 active:scale-95 transition-all duration-75">1Y</button>
                 <button onclick="setRange('3Y')"
@@ -227,23 +235,48 @@ requestAnimationFrame(() => {
 });
 
 window.systemChartInstance = null;
+window.currentChartMode = 'trend';
+window.currentRange = 'All';
+
+function setChartMode(mode) {
+    window.currentChartMode = mode;
+    // Update toggle styling
+    document.querySelectorAll('.chart-mode-btn').forEach(btn => {
+        btn.className = 'chart-mode-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150';
+    });
+    const activeBtn = document.getElementById('mode-' + mode);
+    if (activeBtn) activeBtn.className = 'chart-mode-btn px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm transition-all duration-150';
+
+    // Show/hide range buttons (only relevant for trend mode)
+    document.getElementById('range-buttons').style.display = mode === 'trend' ? 'flex' : 'none';
+
+    renderSystemChart();
+}
 
 function setRange(range) {
-    const now = new Date();
-    let cutoff = null;
-    if (range === '1Y') cutoff = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-    if (range === '3Y') cutoff = new Date(now.getFullYear() - 3, now.getMonth(), now.getDate());
-    const filtered = cutoff ? systemHistoryData.filter(d => new Date(d.date) >= cutoff) : systemHistoryData;
-
+    window.currentRange = range;
     document.querySelectorAll('.range-btn').forEach(btn => {
         const active = btn.textContent.trim() === range;
         btn.className = active
             ? 'range-btn px-3 py-1 rounded-lg text-xs font-medium bg-blue-600 text-white border border-blue-600 active:scale-95 transition-all duration-75'
             : 'range-btn px-3 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-600 hover:bg-slate-100 active:scale-95 transition-all duration-75';
     });
+    renderSystemChart();
+}
 
+function renderSystemChart() {
     if (window.systemChartInstance) window.systemChartInstance.destroy();
-    window.systemChartInstance = initSystemChart('systemChart', filtered);
+
+    if (window.currentChartMode === 'yoy') {
+        window.systemChartInstance = initYoYChart('systemChart', systemHistoryData);
+    } else {
+        const now = new Date();
+        let cutoff = null;
+        if (window.currentRange === '1Y') cutoff = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+        if (window.currentRange === '3Y') cutoff = new Date(now.getFullYear() - 3, now.getMonth(), now.getDate());
+        const filtered = cutoff ? systemHistoryData.filter(d => new Date(d.date) >= cutoff) : systemHistoryData;
+        window.systemChartInstance = initSystemChart('systemChart', filtered);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
