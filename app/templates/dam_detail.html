@@ -74,6 +74,21 @@
                         <button onclick="setDamRange('All')"
                                 class="dam-range-btn px-3 py-1 rounded-lg text-xs font-medium bg-blue-600 text-white border border-blue-600 active:scale-95 transition-all duration-75">All</button>
                     </div>
+                    <div id="dam-yoy-controls" class="flex flex-wrap items-center gap-2" style="display:none">
+                        <select id="dam-yoy-year-a" onchange="renderDamChart()"
+                                class="px-2 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-700 bg-white"></select>
+                        <span class="text-xs text-slate-400">vs</span>
+                        <select id="dam-yoy-year-b" onchange="renderDamChart()"
+                                class="px-2 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-700 bg-white"></select>
+                        <div class="flex bg-slate-100 rounded-lg p-0.5 ml-2">
+                            <button onclick="setDamGranularity('day')"
+                                    class="dam-gran-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">Day</button>
+                            <button onclick="setDamGranularity('month')"
+                                    class="dam-gran-btn px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm transition-all duration-150">Month</button>
+                            <button onclick="setDamGranularity('year')"
+                                    class="dam-gran-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">Year</button>
+                        </div>
+                    </div>
                 </div>
                 <div style="height: 350px; position: relative;">
                     <canvas id="damChart"></canvas>
@@ -204,6 +219,20 @@ requestAnimationFrame(() => {
 window.damChartInstance = null;
 window.currentDamMode = 'trend';
 window.currentDamRange = 'All';
+window.currentDamGranularity = 'month';
+
+function populateDamYearSelects() {
+    const years = getAvailableYears(damHistoryData);
+    const selA = document.getElementById('dam-yoy-year-a');
+    const selB = document.getElementById('dam-yoy-year-b');
+    if (!selA || !selB || years.length < 2) return;
+    years.forEach(y => {
+        selA.add(new Option(y, y));
+        selB.add(new Option(y, y));
+    });
+    selA.value = years[0];
+    selB.value = years[1];
+}
 
 function setDamChartMode(mode) {
     window.currentDamMode = mode;
@@ -214,6 +243,7 @@ function setDamChartMode(mode) {
     if (activeBtn) activeBtn.className = 'dam-mode-btn px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm transition-all duration-150';
 
     document.getElementById('dam-range-buttons').style.display = mode === 'trend' ? 'flex' : 'none';
+    document.getElementById('dam-yoy-controls').style.display = mode === 'yoy' ? 'flex' : 'none';
 
     renderDamChart();
 }
@@ -229,11 +259,26 @@ function setDamRange(range) {
     renderDamChart();
 }
 
+function setDamGranularity(gran) {
+    window.currentDamGranularity = gran;
+    document.querySelectorAll('.dam-gran-btn').forEach(btn => {
+        const active = btn.textContent.trim().toLowerCase() === gran;
+        btn.className = active
+            ? 'dam-gran-btn px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm transition-all duration-150'
+            : 'dam-gran-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150';
+    });
+    renderDamChart();
+}
+
 function renderDamChart() {
     if (window.damChartInstance) window.damChartInstance.destroy();
 
     if (window.currentDamMode === 'yoy') {
-        window.damChartInstance = initYoYChart('damChart', damHistoryData);
+        const yearA = parseInt(document.getElementById('dam-yoy-year-a').value, 10);
+        const yearB = parseInt(document.getElementById('dam-yoy-year-b').value, 10);
+        window.damChartInstance = initComparisonChart(
+            'damChart', damHistoryData, yearA, yearB, window.currentDamGranularity
+        );
     } else {
         const now = new Date();
         let cutoff = null;
@@ -245,6 +290,7 @@ function renderDamChart() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    populateDamYearSelects();
     window.damChartInstance = initDamChart('damChart', damHistoryData, damSeverity);
 });
 </script>

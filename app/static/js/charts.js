@@ -126,97 +126,211 @@ function initDamChart(canvasId, data, severity) {
     });
 }
 
-// ── Year-on-Year comparison chart ──────────────────────────────────────────
+// ── Two-Year Comparison chart ──────────────────────────────────────────
 
-/** Palette for year lines — newest year gets the first (boldest) color. */
-const YOY_COLORS = [
-    '#3b82f6', // blue-500    (current year)
-    '#ef4444', // red-500
-    '#10b981', // emerald-500
-    '#f59e0b', // amber-500
-    '#8b5cf6', // violet-500
-    '#ec4899', // pink-500
-    '#06b6d4', // cyan-500
-    '#84cc16', // lime-500
-    '#f97316', // orange-500
-];
+const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 /**
- * Group [{date, value}] by calendar year and normalise all dates to
- * a common reference year (2000) so Chart.js overlays them on one axis.
+ * Extract sorted unique years from [{date, value}] data.
  * @param {Array<{date: string, value: number}>} data
- * @returns {Map<number, Array<{x: string, y: number}>>}  year → points
+ * @returns {number[]}  descending order (newest first)
  */
-function groupByYear(data) {
-    const groups = new Map();
-    for (const d of data) {
-        const dt = new Date(d.date);
-        const year = dt.getFullYear();
-        // Normalise to year 2000 so all years share the same x-axis
-        const norm = `2000-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
-        if (!groups.has(year)) groups.set(year, []);
-        groups.get(year).push({ x: norm, y: d.value });
-    }
-    return groups;
+function getAvailableYears(data) {
+    const years = new Set();
+    for (const d of data) years.add(new Date(d.date).getFullYear());
+    return Array.from(years).sort((a, b) => b - a);
 }
 
 /**
- * Initialise a year-on-year overlay chart.
- * Each year is a separate line, x-axis shows Jan–Dec.
- * @param {string} canvasId
+ * Filter data to a single year and normalise dates to reference year 2000.
  * @param {Array<{date: string, value: number}>} data
+ * @param {number} year
+ * @returns {Array<{x: string, y: number}>}
+ */
+function filterYear(data, year) {
+    const points = [];
+    for (const d of data) {
+        const dt = new Date(d.date);
+        if (dt.getFullYear() !== year) continue;
+        const norm = `2000-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+        points.push({ x: norm, y: d.value });
+    }
+    return points;
+}
+
+/**
+ * Aggregate [{x: '2000-MM-DD', y}] by granularity.
+ * - 'day':   pass through unchanged
+ * - 'month': average per calendar month → 12 points (labelled Jan–Dec)
+ * - 'year':  single average across all points
+ * @param {Array<{x: string, y: number}>} points
+ * @param {'day'|'month'|'year'} granularity
+ * @returns {Array<{x: string, y: number}>}
+ */
+function aggregateByGranularity(points, granularity) {
+    if (granularity === 'day') return points;
+
+    if (granularity === 'month') {
+        const buckets = new Map(); // month (0-11) → [values]
+        for (const p of points) {
+            const m = new Date(p.x).getMonth();
+            if (!buckets.has(m)) buckets.set(m, []);
+            buckets.get(m).push(p.y);
+        }
+        const result = [];
+        for (const [m, vals] of Array.from(buckets.entries()).sort((a, b) => a[0] - b[0])) {
+            const avg = vals.reduce((s, v) => s + v, 0) / vals.length;
+            result.push({ x: MONTH_LABELS[m], y: Math.round(avg * 10) / 10 });
+        }
+        return result;
+    }
+
+    // 'year' granularity — single point
+    if (points.length === 0) return [];
+    const avg = points.reduce((s, p) => s + p.y, 0) / points.length;
+    return [{ x: 'Avg', y: Math.round(avg * 10) / 10 }];
+}
+
+/**
+ * Compute per-point difference (A - B) with colour coding.
+ * @param {Array<{x: string, y: number}>} seriesA
+ * @param {Array<{x: string, y: number}>} seriesB
+ * @returns {{data: Array<{x: string, y: number}>, colors: string[]}}
+ */
+function computeDifference(seriesA, seriesB) {
+    const mapB = new Map();
+    for (const p of seriesB) mapB.set(p.x, p.y);
+
+    const data = [];
+    const colors = [];
+    for (const p of seriesA) {
+        const bVal = mapB.get(p.x);
+        if (bVal === undefined) continue;
+        const diff = Math.round((p.y - bVal) * 10) / 10;
+        data.push({ x: p.x, y: diff });
+        colors.push(diff >= 0 ? '#10b98166' : '#ef444466'); // emerald/red with alpha
+    }
+    return { data, colors };
+}
+
+/**
+ * Initialise a two-year comparison chart (mixed bar + line).
+ * @param {string} canvasId
+ * @param {Array<{date: string, value: number}>} data  Full dataset
+ * @param {number} yearA  Primary year (shown as solid line)
+ * @param {number} yearB  Comparison year (shown as dashed line)
+ * @param {'day'|'month'|'year'} granularity
  * @returns {Chart|null}
  */
-function initYoYChart(canvasId, data) {
+function initComparisonChart(canvasId, data, yearA, yearB, granularity) {
     const ctx = document.getElementById(canvasId);
     if (!ctx || !data || data.length === 0) return null;
 
-    const groups = groupByYear(data);
-    const years = Array.from(groups.keys()).sort((a, b) => b - a); // newest first
+    const rawA = filterYear(data, yearA);
+    const rawB = filterYear(data, yearB);
+    const aggA = aggregateByGranularity(rawA, granularity);
+    const aggB = aggregateByGranularity(rawB, granularity);
+    const diff = computeDifference(aggA, aggB);
 
-    const datasets = years.map((year, i) => {
-        const color = YOY_COLORS[i % YOY_COLORS.length];
-        const isCurrentYear = i === 0;
-        return {
-            label: String(year),
-            data: groups.get(year),
-            borderColor: color,
-            backgroundColor: color + '1a',
-            borderWidth: isCurrentYear ? 3 : 1.5,
+    const useTimeAxis = granularity === 'day';
+    const labels = useTimeAxis ? undefined : aggA.map(p => p.x);
+
+    const datasets = [
+        {
+            type: 'line',
+            label: String(yearA),
+            data: aggA,
+            borderColor: '#3b82f6',
+            backgroundColor: '#3b82f61a',
+            borderWidth: 3,
             fill: false,
-            pointRadius: 0,
+            pointRadius: granularity === 'day' ? 0 : 4,
             pointHitRadius: 10,
             tension: 0.3,
-            borderDash: isCurrentYear ? [] : [4, 2],
+            yAxisID: 'y',
+            order: 1,
+        },
+        {
+            type: 'line',
+            label: String(yearB),
+            data: aggB,
+            borderColor: '#94a3b8',
+            backgroundColor: '#94a3b81a',
+            borderWidth: 2,
+            borderDash: [6, 3],
+            fill: false,
+            pointRadius: granularity === 'day' ? 0 : 3,
+            pointHitRadius: 10,
+            tension: 0.3,
+            yAxisID: 'y',
+            order: 2,
+        },
+        {
+            type: 'bar',
+            label: 'Difference',
+            data: diff.data,
+            backgroundColor: diff.colors,
+            borderColor: diff.colors.map(c => c.replace('66', 'cc')),
+            borderWidth: 1,
+            borderRadius: 3,
+            yAxisID: 'y2',
+            order: 3,
+            barPercentage: 0.6,
+        },
+    ];
+
+    const xScale = useTimeAxis
+        ? {
+            type: 'time',
+            time: { unit: 'month', tooltipFormat: 'dd MMM', displayFormats: { month: 'MMM' } },
+            grid: { display: false },
+            ticks: { color: '#94a3b8', maxTicksLimit: 12 },
+        }
+        : {
+            type: 'category',
+            grid: { display: false },
+            ticks: { color: '#94a3b8' },
         };
-    });
+
+    // Compute sensible y2 range — symmetric around 0
+    const maxAbsDiff = diff.data.reduce((m, p) => Math.max(m, Math.abs(p.y)), 0);
+    const y2Limit = Math.max(Math.ceil(maxAbsDiff / 5) * 5, 10);
 
     return new Chart(ctx, {
-        type: 'line',
-        data: { datasets },
+        type: 'bar',
+        data: { labels, datasets },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             interaction: { mode: 'index', intersect: false },
             scales: {
-                x: {
-                    type: 'time',
-                    time: { unit: 'month', tooltipFormat: 'dd MMM', displayFormats: { month: 'MMM' } },
-                    grid: { display: false },
-                    ticks: { color: '#94a3b8', maxTicksLimit: 12 },
-                },
+                x: xScale,
                 y: {
+                    position: 'left',
                     min: 0,
                     max: 100,
                     ticks: { color: '#94a3b8', callback: v => v + '%' },
                     grid: { color: '#f1f5f9' },
+                    title: { display: true, text: 'Capacity %', color: '#94a3b8', font: { size: 11 } },
+                },
+                y2: {
+                    position: 'right',
+                    min: -y2Limit,
+                    max: y2Limit,
+                    ticks: {
+                        color: '#94a3b8',
+                        callback: v => (v > 0 ? '+' : '') + v + 'pp',
+                    },
+                    grid: { drawOnChartArea: false },
+                    title: { display: true, text: 'Difference (pp)', color: '#94a3b8', font: { size: 11 } },
                 },
             },
             plugins: {
                 legend: {
                     display: true,
                     position: 'top',
-                    labels: { usePointStyle: true, pointStyle: 'line', boxWidth: 30, color: '#475569', font: { size: 11 } },
+                    labels: { usePointStyle: true, boxWidth: 30, color: '#475569', font: { size: 11 } },
                 },
                 tooltip: {
                     backgroundColor: '#1e293b',
@@ -224,13 +338,21 @@ function initYoYChart(canvasId, data) {
                     bodyColor: '#f8fafc',
                     padding: 10,
                     callbacks: {
-                        title: ctx => {
-                            if (!ctx.length) return '';
-                            // Show "15 Mar" without the reference year
-                            const d = new Date(ctx[0].parsed.x);
-                            return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+                        title: items => {
+                            if (!items.length) return '';
+                            if (useTimeAxis) {
+                                const d = new Date(items[0].parsed.x);
+                                return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+                            }
+                            return items[0].label;
                         },
-                        label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`,
+                        label: item => {
+                            if (item.dataset.label === 'Difference') {
+                                const v = item.parsed.y;
+                                return ` Diff: ${v > 0 ? '+' : ''}${v.toFixed(1)}pp`;
+                            }
+                            return ` ${item.dataset.label}: ${item.parsed.y.toFixed(1)}%`;
+                        },
                     },
                 },
             },

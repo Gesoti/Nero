@@ -126,6 +126,21 @@
                 <button onclick="setRange('All')"
                         class="range-btn range-btn-active px-3 py-1 rounded-lg text-xs font-medium bg-blue-600 text-white border border-blue-600 active:scale-95 transition-all duration-75">All</button>
             </div>
+            <div id="yoy-controls" class="flex flex-wrap items-center gap-2" style="display:none">
+                <select id="yoy-year-a" onchange="renderSystemChart()"
+                        class="px-2 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-700 bg-white"></select>
+                <span class="text-xs text-slate-400">vs</span>
+                <select id="yoy-year-b" onchange="renderSystemChart()"
+                        class="px-2 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-700 bg-white"></select>
+                <div class="flex bg-slate-100 rounded-lg p-0.5 ml-2">
+                    <button onclick="setGranularity('day')"
+                            class="gran-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">Day</button>
+                    <button onclick="setGranularity('month')"
+                            class="gran-btn px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm transition-all duration-150">Month</button>
+                    <button onclick="setGranularity('year')"
+                            class="gran-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">Year</button>
+                </div>
+            </div>
         </div>
         <div style="height: 400px; position: relative;">
             <canvas id="systemChart"></canvas>
@@ -237,18 +252,31 @@ requestAnimationFrame(() => {
 window.systemChartInstance = null;
 window.currentChartMode = 'trend';
 window.currentRange = 'All';
+window.currentGranularity = 'month';
+
+function populateYearSelects() {
+    const years = getAvailableYears(systemHistoryData);
+    const selA = document.getElementById('yoy-year-a');
+    const selB = document.getElementById('yoy-year-b');
+    if (!selA || !selB || years.length < 2) return;
+    years.forEach(y => {
+        selA.add(new Option(y, y));
+        selB.add(new Option(y, y));
+    });
+    selA.value = years[0];      // newest
+    selB.value = years[1];      // second newest
+}
 
 function setChartMode(mode) {
     window.currentChartMode = mode;
-    // Update toggle styling
     document.querySelectorAll('.chart-mode-btn').forEach(btn => {
         btn.className = 'chart-mode-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150';
     });
     const activeBtn = document.getElementById('mode-' + mode);
     if (activeBtn) activeBtn.className = 'chart-mode-btn px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm transition-all duration-150';
 
-    // Show/hide range buttons (only relevant for trend mode)
     document.getElementById('range-buttons').style.display = mode === 'trend' ? 'flex' : 'none';
+    document.getElementById('yoy-controls').style.display = mode === 'yoy' ? 'flex' : 'none';
 
     renderSystemChart();
 }
@@ -264,11 +292,26 @@ function setRange(range) {
     renderSystemChart();
 }
 
+function setGranularity(gran) {
+    window.currentGranularity = gran;
+    document.querySelectorAll('.gran-btn').forEach(btn => {
+        const active = btn.textContent.trim().toLowerCase() === gran;
+        btn.className = active
+            ? 'gran-btn px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm transition-all duration-150'
+            : 'gran-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150';
+    });
+    renderSystemChart();
+}
+
 function renderSystemChart() {
     if (window.systemChartInstance) window.systemChartInstance.destroy();
 
     if (window.currentChartMode === 'yoy') {
-        window.systemChartInstance = initYoYChart('systemChart', systemHistoryData);
+        const yearA = parseInt(document.getElementById('yoy-year-a').value, 10);
+        const yearB = parseInt(document.getElementById('yoy-year-b').value, 10);
+        window.systemChartInstance = initComparisonChart(
+            'systemChart', systemHistoryData, yearA, yearB, window.currentGranularity
+        );
     } else {
         const now = new Date();
         let cutoff = null;
@@ -280,6 +323,7 @@ function renderSystemChart() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    populateYearSelects();
     window.systemChartInstance = initSystemChart('systemChart', systemHistoryData);
 });
 </script>
