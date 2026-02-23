@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Dam Map — Cyprus Water Levels{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css"
+      integrity="sha384-sHL9NAb7lN7rfvG5ber3mMVz3Z3TG3gkntv0JQuN5wXoJhVIzpMVEB+oFbHh3LCb"
+      crossorigin="anonymous" />
+<style>
+    #map { height: calc(100vh - 3.5rem - 4rem); min-height: 400px; }
+</style>
+{% endblock %}
+
+{% block nav_right %}
+<a href="/" class="text-sm text-slate-500 hover:text-slate-700 transition-colors">&larr; Dashboard</a>
+{% endblock %}
+
+{% block content %}
+<div id="map"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"
+        integrity="sha384-cxOPjt7s7Iz3dZavrOFmvR+EtLbHEVSy1e3qGPDMt1hEiMRJEREBZ+drqMqTZGn"
+        crossorigin="anonymous"></script>
+<script>
+(function () {
+    'use strict';
+
+    var dams = {{ dams_json | safe }};
+
+    var SEVERITY_COLORS = {
+        critical: '#ef4444',
+        warning:  '#f59e0b',
+        healthy:  '#10b981'
+    };
+
+    // Centre on Cyprus
+    var map = L.map('map').setView([34.85, 33.05], 9);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 17,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    dams.forEach(function (dam) {
+        if (!dam.lat || !dam.lng) return;
+
+        var color = SEVERITY_COLORS[dam.severity] || SEVERITY_COLORS.healthy;
+        var pct = (dam.percentage * 100).toFixed(1);
+
+        var marker = L.circleMarker([dam.lat, dam.lng], {
+            radius: 10,
+            fillColor: color,
+            color: '#fff',
+            weight: 2,
+            fillOpacity: 0.85
+        }).addTo(map);
+
+        marker.bindPopup(
+            '<div style="text-align:center;min-width:140px">' +
+                '<strong style="font-size:14px">' + dam.name_en + '</strong><br>' +
+                '<span style="color:#64748b;font-size:12px">' + dam.name_el + '</span><br>' +
+                '<span style="font-size:22px;font-weight:800;color:' + color + '">' + pct + '%</span><br>' +
+                '<span style="color:#94a3b8;font-size:11px">' +
+                    dam.storage_mcm.toFixed(1) + ' / ' + dam.capacity_mcm.toFixed(1) + ' MCM' +
+                '</span><br>' +
+                '<a href="/dam/' + encodeURIComponent(dam.name_en) + '" ' +
+                   'style="color:#3b82f6;font-size:12px;text-decoration:underline">View details &rarr;</a>' +
+            '</div>',
+            { closeButton: false, maxWidth: 200 }
+        );
+
+        // Show percentage label on the marker
+        marker.bindTooltip(pct + '%', {
+            permanent: true,
+            direction: 'top',
+            offset: [0, -10],
+            className: 'dam-tooltip'
+        });
+    });
+
+    // Legend
+    var legend = L.control({ position: 'bottomright' });
+    legend.onAdd = function () {
+        var div = L.DomUtil.create('div');
+        div.style.cssText = 'background:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,.2);font-size:12px;line-height:1.8';
+        div.innerHTML =
+            '<strong style="font-size:13px">Fill Level</strong><br>' +
+            '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#ef4444;margin-right:6px;vertical-align:middle"></span>Critical &lt;20%<br>' +
+            '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f59e0b;margin-right:6px;vertical-align:middle"></span>Warning 20–40%<br>' +
+            '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#10b981;margin-right:6px;vertical-align:middle"></span>Healthy &gt;40%';
+        return div;
+    };
+    legend.addTo(map);
+}());
+</script>
+<style>
+    .dam-tooltip {
+        background: rgba(30, 41, 59, 0.9) !important;
+        color: #f8fafc !important;
+        border: none !important;
+        border-radius: 4px !important;
+        padding: 2px 6px !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
+    }
+    .dam-tooltip::before {
+        border-top-color: rgba(30, 41, 59, 0.9) !important;
+    }
+</style>
+{% endblock %}

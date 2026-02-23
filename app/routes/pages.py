@@ -69,6 +69,20 @@ async def dam_detail_page(request: Request, name_en: str):
     )
 
 
+@router.get("/map")
+async def map_view(request: Request):
+    dams_raw = get_all_dams_with_current_stats()
+    dams = [
+        {**dam.__dict__, "severity": get_severity(dam.percentage)}
+        for dam in dams_raw
+    ]
+    return templates.TemplateResponse(
+        request,
+        "map.html",
+        {"dams_json": json.dumps(dams)},
+    )
+
+
 @router.get("/about")
 async def about(request: Request):
     return templates.TemplateResponse(request, "about.html", {})

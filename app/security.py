@@ -22,7 +22,7 @@ _GOOGLE_FONTS_TTF = "https://fonts.gstatic.com"
 _CSP = (
     "default-src 'self'; "
     f"script-src 'self' {_CDN_JSDELIVR}; "
-    f"style-src 'self' {_GOOGLE_FONTS_CSS}; "
+    f"style-src 'self' 'unsafe-inline' {_GOOGLE_FONTS_CSS} {_CDN_JSDELIVR}; "
     f"font-src {_GOOGLE_FONTS_TTF}; "
     "img-src 'self' data: https:; "
     "connect-src 'self'; "
