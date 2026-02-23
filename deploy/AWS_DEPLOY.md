@@ -1,8 +1,8 @@
-# AWS Free-Tier Deployment Guide
+# AWS Deployment Guide
 
 Deploy the WaterLevels dashboard to AWS using Terraform (IaC) and Docker.
 
-**Architecture**: EC2 t2.micro + Nginx + Let's Encrypt + Docker container, with a separate EBS volume for SQLite persistence.
+**Architecture**: EC2 t2.micro + Nginx + Let's Encrypt + Docker container, with a separate EBS volume for SQLite persistence. Images stored in AWS ECR.
 
 ## Local Testing with LocalStack
 
@@ -34,11 +34,21 @@ What this tests:
 
 - **AWS CLI** configured with credentials (`aws configure`)
 - **Terraform** >= 1.7 installed
-- **Docker Hub** account (free tier, for image hosting)
 - **SSH key pair** created in your target AWS region
 - **Domain name** with DNS you can control (for A record)
 
-## Step 1: Bootstrap Terraform State Bucket
+## Step 1: Create ECR Repository
+
+```bash
+aws ecr create-repository \
+  --repository-name waterlevels \
+  --region eu-west-1 \
+  --image-scanning-configuration scanOnPush=true
+```
+
+Note the `repositoryUri` from the output (e.g. `123456789012.dkr.ecr.eu-west-1.amazonaws.com/waterlevels`).
+
+## Step 2: Bootstrap Terraform State Bucket
 
 The state bucket must exist before the main infrastructure. Run this once:
 
@@ -64,7 +74,7 @@ rm bootstrap.tf
 cd ../..
 ```
 
-## Step 2: Configure Variables
+## Step 3: Configure Variables
 
 ```bash
 cd terraform
@@ -78,10 +88,10 @@ Edit `terraform.tfvars` with your values:
 | `ami_id` | `aws ec2 describe-images --filters "Name=name,Values=ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*" --owners 099720109477 --query 'Images \| sort_by(@, &CreationDate) \| [-1].ImageId' --output text` |
 | `key_pair_name` | `aws ec2 describe-key-pairs --query 'KeyPairs[*].KeyName'` |
 | `domain_name` | Your chosen subdomain (e.g. `water.example.com`) |
-| `app_image` | `yourusername/waterlevels:latest` |
+| `app_image` | ECR URI: `ACCOUNT_ID.dkr.ecr.eu-west-1.amazonaws.com/waterlevels:latest` |
 | `ssh_allowed_cidr` | Your IP: `curl -s ifconfig.me`/32 |
 
-## Step 3: Configure Backend
+## Step 4: Configure Backend
 
 Create `terraform/backend.hcl`:
 
@@ -91,7 +101,7 @@ key    = "terraform.tfstate"
 region = "eu-west-1"
 ```
 
-## Step 4: Deploy Infrastructure
+## Step 5: Deploy Infrastructure
 
 ```bash
 cd terraform
@@ -104,7 +114,7 @@ Note the outputs:
 - `elastic_ip` — the public IP for your DNS A record
 - `ssh_command` — how to SSH into the instance
 
-## Step 5: DNS Setup
+## Step 6: DNS Setup
 
 Create an **A record** pointing your domain to the Elastic IP:
 
@@ -112,7 +122,7 @@ Create an **A record** pointing your domain to the Elastic IP:
 |------|------|-------|
 | A | water.example.com | (elastic_ip from output) |
 
-## Step 6: SSL Certificate
+## Step 7: SSL Certificate
 
 If Certbot didn't succeed during bootstrap (DNS wasn't ready), SSH in and run:
 
@@ -121,14 +131,19 @@ ssh -i ~/.ssh/your-key.pem ubuntu@ELASTIC_IP
 sudo certbot --nginx -d your.domain.com
 ```
 
-## Step 7: GitHub Actions Secrets
+## Step 8: GitHub Actions Setup
+
+### OIDC (recommended)
+
+Create an IAM OIDC identity provider for GitHub Actions, then create a role with ECR push permissions. See [GitHub docs on OIDC](https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services).
+
+### Secrets
 
 Set these in your repo → Settings → Secrets → Actions:
 
 | Secret | Value |
 |--------|-------|
-| `DOCKERHUB_USERNAME` | Your Docker Hub username |
-| `DOCKERHUB_TOKEN` | Docker Hub access token (not password) |
+| `AWS_ROLE_ARN` | ARN of the GitHub Actions OIDC role (e.g. `arn:aws:iam::ACCOUNT_ID:role/github-actions-waterlevels`) |
 | `EC2_HOST` | Elastic IP from terraform output |
 | `EC2_SSH_KEY` | Contents of your `.pem` private key |
 
@@ -154,6 +169,7 @@ docker logs waterlevels
 |----------|-----------|-------|
 | EC2 t2.micro | 750 hrs/mo | 744 hrs/mo |
 | EBS gp3 | 30 GB | 9 GB (8 root + 1 data) |
+| ECR | 500 MB/mo | ~100 MB |
 | S3 | 5 GB | <1 MB |
 | CloudWatch | 10 alarms | 1 |
 | Elastic IP | Free if attached | 1 |

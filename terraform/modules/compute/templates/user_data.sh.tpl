@@ -34,6 +34,9 @@ fi
 chown ubuntu:ubuntu /data
 
 # ── Docker container ─────────────────────────────────────────────────────────
+# Authenticate with ECR (install AWS CLI if not present)
+apt-get install -y awscli || true
+aws ecr get-login-password --region ${aws_region} | docker login --username AWS --password-stdin $(echo "${app_image}" | cut -d'/' -f1)
 docker pull ${app_image}
 docker run -d \
   --name waterlevels \

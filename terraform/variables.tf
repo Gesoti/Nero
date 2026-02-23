@@ -26,7 +26,7 @@ variable "domain_name" {
 }
 
 variable "app_image" {
-  description = "Docker image to deploy (e.g. username/waterlevels:latest)"
+  description = "ECR image URI to deploy (e.g. ACCOUNT_ID.dkr.ecr.eu-west-1.amazonaws.com/waterlevels:latest)"
   type        = string
 }
 

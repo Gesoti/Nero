@@ -24,7 +24,7 @@ variable "domain_name" {
 }
 
 variable "app_image" {
-  description = "Docker image to deploy"
+  description = "ECR image URI to deploy"
   type        = string
 }
 

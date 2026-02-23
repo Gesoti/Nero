@@ -63,7 +63,7 @@ Override defaults via environment variables (prefix `WL_`):
 
 ## Deployment
 
-See [`deploy/DEPLOY.md`](deploy/DEPLOY.md) for the full VPS deployment checklist (systemd + Nginx + Let's Encrypt).
+See [`deploy/AWS_DEPLOY.md`](deploy/AWS_DEPLOY.md) for the full AWS deployment guide (Terraform + ECR + Docker). For local testing with LocalStack, see the "Local Testing" section in that guide.
 
 ## License
 

@@ -10,8 +10,8 @@ key_pair_name = "my-key"
 # Domain name for SSL certificate
 domain_name = "water.example.com"
 
-# Docker Hub image (pushed by CI/CD)
-app_image = "yourusername/waterlevels:latest"
+# ECR image (pushed by CI/CD)
+app_image = "ACCOUNT_ID.dkr.ecr.eu-west-1.amazonaws.com/waterlevels:latest"
 
 # Restrict SSH to your IP (recommended). Use /32 for a single IP.
 ssh_allowed_cidr = "YOUR_IP/32"  # e.g. 1.2.3.4/32
