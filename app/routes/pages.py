@@ -95,5 +95,4 @@ async def privacy(request: Request):
 
 @router.get("/health")
 async def health():
-    last_sync = get_last_sync_time()
-    return JSONResponse({"status": "ok", "last_sync": last_sync})
+    return JSONResponse({"status": "ok"})

@@ -61,4 +61,8 @@ class TestHealthRoute:
         assert r.status_code == 200
         body = r.json()
         assert body["status"] == "ok"
-        assert "last_sync" in body
+
+    async def test_health_does_not_expose_last_sync(self, async_client):
+        r = await async_client.get("/health")
+        body = r.json()
+        assert "last_sync" not in body
