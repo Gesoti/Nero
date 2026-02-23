@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     port: int = 8000
     debug: bool = False
+    base_url: str = "https://cypruswater.com"
 
     model_config = {"env_prefix": "WL_", "env_file": ".env"}
 

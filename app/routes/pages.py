@@ -7,9 +7,13 @@ from __future__ import annotations
 import json
 import logging
 
+from urllib.parse import quote
+
 from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse, Response
 from fastapi.templating import Jinja2Templates
+
+from app.config import settings
 
 from app.db import (
     get_all_dams_with_current_stats,
@@ -58,6 +62,13 @@ async def dam_detail_page(request: Request, name_en: str):
     history = get_dam_history(name_en)
     severity = get_severity(dam.percentage)
 
+    pct_display = round(dam.percentage * 100, 1)
+    meta_desc = (
+        f"{dam.name_en} dam is at {pct_display}% capacity "
+        f"({dam.storage_mcm:.1f} of {dam.capacity_mcm:.1f} MCM). "
+        f"View historical trends and year-on-year comparisons."
+    )
+
     return templates.TemplateResponse(
         request,
         "dam_detail.html",
@@ -65,6 +76,7 @@ async def dam_detail_page(request: Request, name_en: str):
             "dam": dam,
             "severity": severity,
             "history_json": json.dumps(history),
+            "meta_description": meta_desc,
         },
     )
 
@@ -91,6 +103,40 @@ async def about(request: Request):
 @router.get("/privacy")
 async def privacy(request: Request):
     return templates.TemplateResponse(request, "privacy.html", {})
+
+
+@router.get("/robots.txt")
+async def robots_txt():
+    base = settings.base_url.rstrip("/")
+    body = (
+        "User-agent: *\n"
+        "Disallow: /health\n"
+        f"\nSitemap: {base}/sitemap.xml\n"
+    )
+    return PlainTextResponse(body)
+
+
+@router.get("/sitemap.xml")
+async def sitemap_xml():
+    base = settings.base_url.rstrip("/")
+    dams = get_all_dams_with_current_stats()
+
+    urls = ["/", "/map", "/about", "/privacy"]
+    for dam in dams:
+        urls.append(f"/dam/{quote(dam.name_en, safe='')}")
+
+    xml_parts = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ]
+    for url in urls:
+        xml_parts.append(f"  <url><loc>{base}{url}</loc></url>")
+    xml_parts.append("</urlset>")
+
+    return Response(
+        content="\n".join(xml_parts),
+        media_type="application/xml",
+    )
 
 
 @router.get("/health")

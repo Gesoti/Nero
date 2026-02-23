@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Cyprus Water Levels{% endblock %}</title>
 
+    {% set default_description = "Live dashboard tracking water levels across all 17 major dams in Cyprus. Real-time capacity data, historical trends, and year-on-year comparisons." %}
+    <meta name="description" content="{% block meta_description %}{{ default_description }}{% endblock %}" />
+    <meta property="og:title" content="{% block og_title %}Cyprus Water Levels{% endblock %}" />
+    <meta property="og:description" content="{% block og_description %}{{ default_description }}{% endblock %}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_CY" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/static/css/tailwind.min.css" />

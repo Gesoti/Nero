@@ -20,6 +20,8 @@ Design decisions:
 from __future__ import annotations
 
 import sqlite3
+from dataclasses import dataclass
+from datetime import date
 from unittest.mock import patch
 
 import httpx
@@ -27,8 +29,42 @@ import pytest
 import pytest_asyncio
 
 from app.config import settings
-from app.db import init_database
+from app.db import init_database, upsert_dams, upsert_percentage_snapshot
 from app.main import app
+
+
+# ── Minimal stubs for seeding test data ──────────────────────────────────────
+@dataclass
+class _DamStub:
+    name_en: str = "Kouris"
+    name_el: str = "Κούρης"
+    capacity_mcm: float = 115.0
+    lat: float = 34.73
+    lng: float = 32.93
+    height: int = 110
+    year_built: int = 1988
+    river_name_el: str = "Κούρης"
+    type_el: str = "Χωμάτινο"
+    image_url: str = ""
+    wikipedia_url: str = ""
+
+
+@dataclass
+class _DamPctStub:
+    dam_name_en: str = "Kouris"
+    percentage: float = 0.234
+
+
+@dataclass
+class _SnapshotStub:
+    date: date = date(2026, 2, 23)
+    dam_percentages: list = None  # type: ignore[assignment]
+    total_percentage: float = 0.234
+    total_capacity_mcm: float = 115.0
+
+    def __post_init__(self) -> None:
+        if self.dam_percentages is None:
+            self.dam_percentages = [_DamPctStub()]
 
 
 class _SharedConnection:
@@ -94,6 +130,16 @@ async def async_client(in_memory_db):
     httpx.AsyncClient wired to the FastAPI ASGI app via ASGITransport.
     The lifespan is not triggered (no APScheduler, no upstream network calls).
     """
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        yield client
+
+
+@pytest_asyncio.fixture
+async def seeded_async_client(in_memory_db):
+    """async_client with one dam + percentage pre-seeded for route tests."""
+    upsert_dams([_DamStub()])
+    upsert_percentage_snapshot(_SnapshotStub())
     transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         yield client

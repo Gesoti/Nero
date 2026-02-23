@@ -55,6 +55,80 @@ class TestPrivacyRoute:
         assert r.status_code == 200
 
 
+class TestSEOMetaTags:
+    async def test_dashboard_has_meta_description(self, async_client):
+        r = await async_client.get("/")
+        assert '<meta name="description"' in r.text
+
+    async def test_dashboard_has_og_title(self, async_client):
+        r = await async_client.get("/")
+        assert '<meta property="og:title"' in r.text
+
+    async def test_dashboard_has_og_description(self, async_client):
+        r = await async_client.get("/")
+        assert '<meta property="og:description"' in r.text
+
+    async def test_dashboard_has_og_type(self, async_client):
+        r = await async_client.get("/")
+        assert '<meta property="og:type"' in r.text
+
+    async def test_about_has_meta_description(self, async_client):
+        r = await async_client.get("/about")
+        assert '<meta name="description"' in r.text
+
+    async def test_map_has_meta_description(self, async_client):
+        r = await async_client.get("/map")
+        assert '<meta name="description"' in r.text
+
+
+class TestDamDetailMeta:
+    async def test_dam_detail_has_specific_meta_description(self, seeded_async_client):
+        r = await seeded_async_client.get("/dam/Kouris")
+        assert r.status_code == 200
+        assert "Kouris" in r.text
+        # Should contain a dam-specific meta description, not the default
+        assert '<meta name="description" content="Kouris' in r.text
+
+    async def test_dam_detail_has_og_title_with_dam_name(self, seeded_async_client):
+        r = await seeded_async_client.get("/dam/Kouris")
+        assert 'og:title" content="Kouris' in r.text
+
+
+class TestRobotsTxt:
+    async def test_robots_returns_200_text(self, async_client):
+        r = await async_client.get("/robots.txt")
+        assert r.status_code == 200
+        assert "text/plain" in r.headers["content-type"]
+
+    async def test_robots_contains_sitemap(self, async_client):
+        r = await async_client.get("/robots.txt")
+        assert "Sitemap:" in r.text
+        assert "sitemap.xml" in r.text
+
+    async def test_robots_allows_all(self, async_client):
+        r = await async_client.get("/robots.txt")
+        assert "User-agent: *" in r.text
+        assert "Disallow:" in r.text
+
+
+class TestSitemapXml:
+    async def test_sitemap_returns_200_xml(self, async_client):
+        r = await async_client.get("/sitemap.xml")
+        assert r.status_code == 200
+        assert "xml" in r.headers["content-type"]
+
+    async def test_sitemap_contains_static_urls(self, async_client):
+        r = await async_client.get("/sitemap.xml")
+        assert "<loc>" in r.text
+        # Should contain main pages
+        for path in ["/", "/map", "/about"]:
+            assert path in r.text
+
+    async def test_sitemap_contains_dam_urls(self, seeded_async_client):
+        r = await seeded_async_client.get("/sitemap.xml")
+        assert "/dam/Kouris" in r.text
+
+
 class TestHealthRoute:
     async def test_health_returns_200_json(self, async_client):
         r = await async_client.get("/health")
