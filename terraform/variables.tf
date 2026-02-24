@@ -21,13 +21,9 @@ variable "key_pair_name" {
 }
 
 variable "domain_name" {
-  description = "Domain name for the site (e.g. water.example.com)"
+  description = "Domain name for the site"
   type        = string
-}
-
-variable "app_image" {
-  description = "ECR image URI to deploy (e.g. ACCOUNT_ID.dkr.ecr.eu-west-1.amazonaws.com/waterlevels:latest)"
-  type        = string
+  default     = "nero.cy"
 }
 
 variable "ssh_allowed_cidr" {

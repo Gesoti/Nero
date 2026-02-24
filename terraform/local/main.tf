@@ -51,6 +51,12 @@ module "networking" {
   ssh_allowed_cidr = var.ssh_allowed_cidr
 }
 
+module "ecr" {
+  source = "../modules/ecr"
+
+  project_name = var.project_name
+}
+
 module "compute" {
   source = "../modules/compute"
 
