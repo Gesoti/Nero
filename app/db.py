@@ -320,7 +320,11 @@ def update_sync_log(data_type: str, last_date: date) -> None:
 def get_all_dams_with_current_stats() -> list[DamOverview]:
     """
     Join dams with their most recent percentage and statistics.
-    LEFT JOIN naturally excludes Agia Marina (stats only, no dams row).
+    LEFT JOIN naturally excludes Agia Marina: it appears in the upstream
+    /date-statistics endpoint (18 dams) but NOT in /dams (17 dams), so no
+    row exists in our `dams` table. Since the query starts FROM dams,
+    Agia Marina is silently excluded. This is intentional — the upstream
+    API provides no metadata (capacity, coordinates) for it.
     """
     conn = _get_connection()
     try:
