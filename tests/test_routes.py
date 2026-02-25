@@ -13,9 +13,18 @@ class TestDashboardRoute:
         response = await async_client.get("/")
         assert response.status_code == 200
 
-    async def test_dashboard_contains_cyprus(self, async_client):
+    async def test_dashboard_contains_nero_brand(self, async_client):
         response = await async_client.get("/")
-        assert "Cyprus" in response.text
+        assert "Nero" in response.text
+
+    async def test_dashboard_title_uses_nero(self, async_client):
+        r = await async_client.get("/")
+        assert "<title>Nero" in r.text
+
+    async def test_no_old_branding_in_dashboard(self, async_client):
+        r = await async_client.get("/")
+        assert "Cyprus Water Levels" not in r.text
+        assert "CyprusWater" not in r.text
 
     @pytest.mark.asyncio
     async def test_security_headers_present(self, async_client):
@@ -93,6 +102,12 @@ class TestDamDetailMeta:
     async def test_dam_detail_has_og_title_with_dam_name(self, seeded_async_client):
         r = await seeded_async_client.get("/dam/Kouris")
         assert 'og:title" content="Kouris' in r.text
+        assert "Nero" in r.text
+
+    async def test_dam_detail_title_uses_nero(self, seeded_async_client):
+        r = await seeded_async_client.get("/dam/Kouris")
+        assert "Nero" in r.text
+        assert "Cyprus Water Levels" not in r.text
 
 
 class TestRobotsTxt:

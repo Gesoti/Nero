@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Cyprus Water Levels — Dashboard{% endblock %}
+{% block title %}Nero — Cyprus Dam Levels{% endblock %}
 
 {% block nav_right %}
 {% if totals %}
@@ -48,8 +48,8 @@
 <section class="bg-gradient-to-br from-red-950 to-slate-900 text-white py-12 px-4">
     <div class="max-w-7xl mx-auto">
         <p class="text-red-300 uppercase tracking-widest text-xs font-semibold mb-2">Live System Status</p>
-        <h1 class="text-3xl sm:text-4xl font-bold mb-1">Cyprus Water Crisis</h1>
-        <p class="text-slate-400 text-sm mb-8">Real-time reservoir monitoring across all 17 major dams</p>
+        <h1 class="text-3xl sm:text-4xl font-bold mb-1">Nero</h1>
+        <p class="text-slate-400 text-sm mb-8">Cyprus dam levels — live data &amp; analysis</p>
 
         <div class="mb-8">
             <span class="text-7xl font-black tracking-tight {{ hero_num }}">{{ pct_display }}{% if totals %}%{% endif %}</span>

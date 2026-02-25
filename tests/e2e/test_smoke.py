@@ -26,9 +26,9 @@ class TestDashboardSmoke:
         assert response is not None
         assert response.status == 200
 
-    def test_page_title_contains_cyprus(self, page: Page) -> None:
+    def test_page_title_contains_nero(self, page: Page) -> None:
         page.goto("/")
-        expect(page).to_have_title(re.compile(r".*Cyprus.*"))
+        expect(page).to_have_title(re.compile(r".*Nero.*"))
 
     def test_dam_cards_rendered(self, page: Page) -> None:
         """At least one dam card link is visible on the dashboard."""

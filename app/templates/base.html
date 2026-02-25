@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}Cyprus Water Levels{% endblock %}</title>
+    <title>{% block title %}Nero{% endblock %}</title>
 
     {% set default_description = "Live dashboard tracking water levels across all 17 major dams in Cyprus. Real-time capacity data, historical trends, and year-on-year comparisons." %}
     <meta name="description" content="{% block meta_description %}{{ default_description }}{% endblock %}" />
-    <meta property="og:title" content="{% block og_title %}Cyprus Water Levels{% endblock %}" />
+    <meta property="og:title" content="{% block og_title %}Nero{% endblock %}" />
     <meta property="og:description" content="{% block og_description %}{{ default_description }}{% endblock %}" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="en_CY" />
@@ -120,10 +120,11 @@
             <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z"/>
             </svg>
-            CyprusWater
+            Nero
         </a>
         <div class="flex items-center gap-4">
             {% block nav_right %}{% endblock %}
+            <a href="/blog" class="text-sm text-slate-500 hover:text-slate-700 transition-colors">Blog</a>
             <a href="/map" class="text-sm text-slate-500 hover:text-slate-700 transition-colors">Map</a>
             <a href="/about" class="text-sm text-slate-500 hover:text-slate-700 transition-colors">About</a>
         </div>
