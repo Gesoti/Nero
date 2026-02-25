@@ -120,6 +120,28 @@ class TestDamDetailMeta:
         assert "Cyprus Water Levels" not in r.text
 
 
+class TestDamDescriptions:
+    async def test_dam_detail_has_description_section(self, seeded_async_client):
+        r = await seeded_async_client.get("/dam/Kouris")
+        assert r.status_code == 200
+        # Should contain a prose description paragraph (not just stats)
+        assert 'id="dam-description"' in r.text
+
+    async def test_dam_description_is_unique_text(self, seeded_async_client):
+        r = await seeded_async_client.get("/dam/Kouris")
+        # Kouris description should mention its distinguishing features
+        assert "largest" in r.text.lower() or "kouris" in r.text.lower()
+
+    async def test_dam_description_has_minimum_length(self, seeded_async_client):
+        import re
+        r = await seeded_async_client.get("/dam/Kouris")
+        # Extract the description section content
+        match = re.search(r'id="dam-description"[^>]*>(.*?)</div>', r.text, re.DOTALL)
+        assert match, "Description section not found"
+        desc_text = re.sub(r'<[^>]+>', '', match.group(1)).strip()
+        assert len(desc_text) >= 80, f"Description too short ({len(desc_text)} chars): {desc_text[:50]}..."
+
+
 class TestRobotsTxt:
     async def test_robots_returns_200_text(self, async_client):
         r = await async_client.get("/robots.txt")

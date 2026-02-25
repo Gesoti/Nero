@@ -15,6 +15,7 @@ from fastapi.templating import Jinja2Templates
 
 from app.blog import load_all_posts, load_post
 from app.config import settings
+from app.dam_descriptions import get_dam_description
 
 from app.db import (
     get_all_dams_with_current_stats,
@@ -84,6 +85,7 @@ async def dam_detail_page(request: Request, name_en: str):
             "severity": severity,
             "history_json": json.dumps(history),
             "meta_description": meta_desc,
+            "dam_description": get_dam_description(name_en),
             "canonical_url": _canonical(f"/dam/{quote(name_en, safe='')}"),
         },
     )
