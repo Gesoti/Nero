@@ -5,6 +5,26 @@
 {% block og_title %}{{ dam.name_en }} — Nero{% endblock %}
 {% block og_description %}{{ meta_description }}{% endblock %}
 
+{% block jsonld %}
+<script type="application/ld+json" nonce="{{ request.state.csp_nonce }}">
+{
+  "@context": "https://schema.org",
+  "@type": "Place",
+  "name": "{{ dam.name_en }} Dam",
+  "description": "{{ meta_description }}",
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": {{ dam.lat }},
+    "longitude": {{ dam.lng }}
+  },
+  "containedInPlace": {
+    "@type": "Country",
+    "name": "Cyprus"
+  }
+}
+</script>
+{% endblock %}
+
 {% block nav_right %}
 <a href="/" class="text-sm text-slate-500 hover:text-slate-700 transition-colors">← All Dams</a>
 {% endblock %}

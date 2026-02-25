@@ -2,6 +2,37 @@
 
 {% block title %}Nero — Cyprus Dam Levels{% endblock %}
 
+{% block jsonld %}
+<script type="application/ld+json" nonce="{{ request.state.csp_nonce }}">
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Nero",
+    "url": "https://nero.cy",
+    "description": "Live dashboard tracking water levels across all 17 major dams in Cyprus."
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    "name": "Cyprus Dam Water Levels",
+    "description": "Daily water storage levels for all 17 major dams in Cyprus, updated every 6 hours.",
+    "url": "https://nero.cy",
+    "license": "https://creativecommons.org/licenses/by/2.0/",
+    "creator": {
+      "@type": "Organization",
+      "name": "Water Development Department, Cyprus"
+    },
+    "temporalCoverage": "2009/..",
+    "spatialCoverage": {
+      "@type": "Place",
+      "name": "Cyprus"
+    }
+  }
+]
+</script>
+{% endblock %}
+
 {% block nav_right %}
 {% if totals %}
     {% set pct_display = (totals.total_percentage * 100) | round(1) %}

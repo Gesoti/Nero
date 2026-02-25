@@ -5,6 +5,26 @@
 {% block meta_description %}{{ post.description }}{% endblock %}
 {% block og_description %}{{ post.description }}{% endblock %}
 
+{% block jsonld %}
+<script type="application/ld+json" nonce="{{ request.state.csp_nonce }}">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "{{ post.title }}",
+  "description": "{{ post.description }}",
+  "datePublished": "{{ post.date }}",
+  "author": {
+    "@type": "Person",
+    "name": "{{ post.author }}"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Nero"
+  }
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 

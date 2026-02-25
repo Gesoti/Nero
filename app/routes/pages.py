@@ -31,6 +31,11 @@ router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
 
+def _canonical(path: str) -> str:
+    """Build a canonical URL for the given path."""
+    return f"{settings.base_url.rstrip('/')}{path}"
+
+
 @router.get("/")
 async def dashboard(request: Request):
     dams_raw = get_all_dams_with_current_stats()
@@ -50,6 +55,7 @@ async def dashboard(request: Request):
             "totals": totals,
             "system_history_json": json.dumps(system_history),
             "last_updated": last_updated,
+            "canonical_url": _canonical("/"),
         },
     )
 
@@ -78,6 +84,7 @@ async def dam_detail_page(request: Request, name_en: str):
             "severity": severity,
             "history_json": json.dumps(history),
             "meta_description": meta_desc,
+            "canonical_url": _canonical(f"/dam/{quote(name_en, safe='')}"),
         },
     )
 
@@ -92,18 +99,18 @@ async def map_view(request: Request):
     return templates.TemplateResponse(
         request,
         "map.html",
-        {"dams_json": json.dumps(dams)},
+        {"dams_json": json.dumps(dams), "canonical_url": _canonical("/map")},
     )
 
 
 @router.get("/about")
 async def about(request: Request):
-    return templates.TemplateResponse(request, "about.html", {})
+    return templates.TemplateResponse(request, "about.html", {"canonical_url": _canonical("/about")})
 
 
 @router.get("/privacy")
 async def privacy(request: Request):
-    return templates.TemplateResponse(request, "privacy.html", {})
+    return templates.TemplateResponse(request, "privacy.html", {"canonical_url": _canonical("/privacy")})
 
 
 @router.get("/blog")
@@ -112,7 +119,7 @@ async def blog_index(request: Request):
     return templates.TemplateResponse(
         request,
         "blog_index.html",
-        {"posts": posts},
+        {"posts": posts, "canonical_url": _canonical("/blog")},
     )
 
 
@@ -124,7 +131,7 @@ async def blog_post_page(request: Request, slug: str):
     return templates.TemplateResponse(
         request,
         "blog_post.html",
-        {"post": post},
+        {"post": post, "canonical_url": _canonical(f"/blog/{slug}")},
     )
 
 
@@ -147,19 +154,39 @@ async def robots_txt():
 
 @router.get("/sitemap.xml")
 async def sitemap_xml():
+    from datetime import date as date_type
+
     base = settings.base_url.rstrip("/")
     dams = get_all_dams_with_current_stats()
+    blog_posts = load_all_posts()
+    today = date_type.today().isoformat()
+    last_sync = get_last_sync_time()
+    data_date = last_sync[:10] if last_sync else today
 
-    urls = ["/", "/map", "/about", "/privacy"]
-    for dam in dams:
-        urls.append(f"/dam/{quote(dam.name_en, safe='')}")
+    def url_entry(path: str, changefreq: str, priority: str, lastmod: str | None = None) -> str:
+        lm = lastmod or data_date
+        return (
+            f"  <url>\n"
+            f"    <loc>{base}{path}</loc>\n"
+            f"    <lastmod>{lm}</lastmod>\n"
+            f"    <changefreq>{changefreq}</changefreq>\n"
+            f"    <priority>{priority}</priority>\n"
+            f"  </url>"
+        )
 
     xml_parts = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+        url_entry("/", "daily", "1.0"),
+        url_entry("/map", "daily", "0.7"),
+        url_entry("/blog", "weekly", "0.7"),
+        url_entry("/about", "monthly", "0.3"),
+        url_entry("/privacy", "monthly", "0.2"),
     ]
-    for url in urls:
-        xml_parts.append(f"  <url><loc>{base}{url}</loc></url>")
+    for dam in dams:
+        xml_parts.append(url_entry(f"/dam/{quote(dam.name_en, safe='')}", "daily", "0.8"))
+    for post in blog_posts:
+        xml_parts.append(url_entry(f"/blog/{post.slug}", "monthly", "0.6", lastmod=post.date.isoformat()))
     xml_parts.append("</urlset>")
 
     return Response(

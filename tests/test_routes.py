@@ -198,6 +198,57 @@ class TestBlogRoutes:
         assert r.status_code == 404
 
 
+class TestCanonicalAndMeta:
+    async def test_dashboard_has_canonical_link(self, async_client):
+        r = await async_client.get("/")
+        assert '<link rel="canonical"' in r.text
+
+    async def test_dashboard_has_max_image_preview(self, async_client):
+        r = await async_client.get("/")
+        assert 'max-image-preview:large' in r.text
+
+    async def test_dam_detail_has_canonical(self, seeded_async_client):
+        r = await seeded_async_client.get("/dam/Kouris")
+        assert '<link rel="canonical"' in r.text
+        assert "/dam/Kouris" in r.text
+
+
+class TestJsonLd:
+    async def test_dashboard_has_dataset_schema(self, async_client):
+        r = await async_client.get("/")
+        assert '"@type":"Dataset"' in r.text or '"@type": "Dataset"' in r.text
+
+    async def test_dashboard_has_website_schema(self, async_client):
+        r = await async_client.get("/")
+        assert '"@type":"WebSite"' in r.text or '"@type": "WebSite"' in r.text
+
+    async def test_dam_detail_has_place_schema(self, seeded_async_client):
+        r = await seeded_async_client.get("/dam/Kouris")
+        assert '"@type":"Place"' in r.text or '"@type": "Place"' in r.text
+
+    async def test_blog_post_has_article_schema(self, async_client):
+        r = await async_client.get("/blog/cyprus-water-crisis-2026")
+        assert '"@type":"Article"' in r.text or '"@type": "Article"' in r.text
+
+
+class TestEnhancedSitemap:
+    async def test_sitemap_has_lastmod(self, async_client):
+        r = await async_client.get("/sitemap.xml")
+        assert "<lastmod>" in r.text
+
+    async def test_sitemap_has_changefreq(self, async_client):
+        r = await async_client.get("/sitemap.xml")
+        assert "<changefreq>" in r.text
+
+    async def test_sitemap_has_priority(self, async_client):
+        r = await async_client.get("/sitemap.xml")
+        assert "<priority>" in r.text
+
+    async def test_sitemap_includes_blog_urls(self, async_client):
+        r = await async_client.get("/sitemap.xml")
+        assert "/blog" in r.text
+
+
 class TestHealthRoute:
     async def test_health_returns_200_json(self, async_client):
         r = await async_client.get("/health")

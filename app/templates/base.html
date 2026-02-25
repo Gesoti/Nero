@@ -7,10 +7,15 @@
 
     {% set default_description = "Live dashboard tracking water levels across all 17 major dams in Cyprus. Real-time capacity data, historical trends, and year-on-year comparisons." %}
     <meta name="description" content="{% block meta_description %}{{ default_description }}{% endblock %}" />
+    <meta name="robots" content="max-image-preview:large" />
+    <link rel="canonical" href="{{ canonical_url }}" />
     <meta property="og:title" content="{% block og_title %}Nero{% endblock %}" />
     <meta property="og:description" content="{% block og_description %}{{ default_description }}{% endblock %}" />
+    <meta property="og:url" content="{{ canonical_url }}" />
+    <meta property="og:site_name" content="Nero" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="en_CY" />
+    {% block jsonld %}{% endblock %}
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
