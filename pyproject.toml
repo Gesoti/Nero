@@ -19,8 +19,14 @@ dev = [
     "pytest>=8.0.0",
     "pytest-asyncio>=0.24.0",
     "pytest-cov>=5.0.0",
+    "pytest-playwright>=0.6.0",
 ]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+markers = [
+    "e2e_live: E2E tests against the live site (https://nero.cy)",
+    "e2e_local: E2E tests against a local server (localhost:8000)",
+]
+addopts = "--ignore=tests/e2e"
