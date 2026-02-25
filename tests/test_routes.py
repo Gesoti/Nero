@@ -219,6 +219,19 @@ class TestBlogRoutes:
         r = await async_client.get("/blog/nonexistent-post-xyz")
         assert r.status_code == 404
 
+    async def test_capacity_explainer_returns_200(self, async_client):
+        r = await async_client.get("/blog/what-does-14-percent-dam-capacity-mean")
+        assert r.status_code == 200
+
+    async def test_capacity_explainer_has_title(self, async_client):
+        r = await async_client.get("/blog/what-does-14-percent-dam-capacity-mean")
+        assert "14%" in r.text or "14 Percent" in r.text
+        assert "Nero" in r.text
+
+    async def test_capacity_explainer_links_to_dams(self, async_client):
+        r = await async_client.get("/blog/what-does-14-percent-dam-capacity-mean")
+        assert "/dam/" in r.text
+
 
 class TestMonthlyReport:
     async def test_report_returns_200(self, seeded_async_client):
