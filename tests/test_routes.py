@@ -65,6 +65,16 @@ class TestPrivacyRoute:
         assert r.status_code == 200
 
 
+class TestScriptLoading:
+    async def test_cdn_scripts_are_deferred(self, async_client):
+        import re
+        r = await async_client.get("/")
+        cdn_scripts = re.findall(r'<script[^>]+src="https://cdn[^"]+[^>]*>', r.text)
+        assert len(cdn_scripts) >= 2, "Expected at least 2 CDN scripts"
+        for tag in cdn_scripts:
+            assert 'defer' in tag, f"CDN script missing defer: {tag}"
+
+
 class TestSEOMetaTags:
     async def test_dashboard_has_meta_description(self, async_client):
         r = await async_client.get("/")
