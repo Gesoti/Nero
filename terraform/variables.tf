@@ -1,13 +1,13 @@
 variable "aws_region" {
   description = "AWS region for all resources"
   type        = string
-  default     = "eu-west-1"
+  default     = "eu-south-2"
 }
 
 variable "instance_type" {
   description = "EC2 instance type (t2.micro for free tier)"
   type        = string
-  default     = "t2.micro"
+  default     = "t3.micro"
 }
 
 variable "ami_id" {

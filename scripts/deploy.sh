@@ -46,7 +46,7 @@ info "Step 2/11: Getting AWS account ID"
 
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text 2>/dev/null) \
   || fail "AWS CLI not configured. Run 'aws configure' first."
-AWS_REGION="${AWS_REGION:-eu-west-1}"
+AWS_REGION="${AWS_REGION:-eu-south-2}"
 ok "Account: $AWS_ACCOUNT_ID | Region: $AWS_REGION"
 
 # ── Step 3: Bootstrap state bucket ────────────────────────────────────────────
@@ -58,21 +58,20 @@ if aws s3api head-bucket --bucket "$STATE_BUCKET" 2>/dev/null; then
   ok "State bucket already exists: $STATE_BUCKET"
 else
   info "Creating state bucket: $STATE_BUCKET"
-  STATE_DIR="$TF_DIR/modules/state"
+  BOOTSTRAP_DIR=$(mktemp -d)
 
-  cat > "$STATE_DIR/bootstrap.tf" <<EOF
+  cat > "$BOOTSTRAP_DIR/main.tf" <<EOF
 provider "aws" {
   region = "$AWS_REGION"
 }
 module "state" {
-  source         = "."
+  source         = "$TF_DIR/modules/state"
   aws_account_id = "$AWS_ACCOUNT_ID"
 }
 EOF
 
-  (cd "$STATE_DIR" && terraform init -input=false && terraform apply -auto-approve)
-  rm -f "$STATE_DIR/bootstrap.tf"
-  rm -rf "$STATE_DIR/.terraform" "$STATE_DIR/.terraform.lock.hcl" "$STATE_DIR/terraform.tfstate"*
+  (cd "$BOOTSTRAP_DIR" && terraform init -input=false && terraform apply -auto-approve)
+  rm -rf "$BOOTSTRAP_DIR"
   ok "State bucket created: $STATE_BUCKET"
 fi
 
