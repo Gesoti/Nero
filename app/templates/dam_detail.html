@@ -207,7 +207,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
+<script nonce="{{ request.state.csp_nonce }}">
 const damHistoryData = {{ history_json | safe }};
 const damSeverity = "{{ severity }}";
 

@@ -20,10 +20,12 @@ _CDN_ADSENSE_FRAME = (
     "https://tpc.googlesyndication.com"
 )
 
+_CDN_JSDELIVR = "https://cdn.jsdelivr.net"
+
 _CSP_TEMPLATE = (
     "default-src 'self'; "
     "script-src 'nonce-{nonce}' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https:; "
-    "style-src 'nonce-{nonce}' 'unsafe-inline' {fonts_css}; "
+    "style-src 'self' 'unsafe-inline' {fonts_css} {cdn_jsdelivr}; "
     "font-src {fonts_ttf}; "
     "img-src 'self' data: https:; "
     "connect-src 'self' https:; "
@@ -62,5 +64,6 @@ async def security_headers_middleware(request: Request, call_next) -> Response:
         fonts_css=_GOOGLE_FONTS_CSS,
         fonts_ttf=_GOOGLE_FONTS_TTF,
         adsense_frame=_CDN_ADSENSE_FRAME,
+        cdn_jsdelivr=_CDN_JSDELIVR,
     )
     return response

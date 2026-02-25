@@ -93,6 +93,60 @@ class TestAdSensePublisherID:
             )
 
 
+class TestCSPNonceOnTags:
+    """All <script> and <style> tags in HTML must carry the CSP nonce attribute."""
+
+    @pytest.mark.asyncio
+    async def test_all_scripts_have_nonce_on_dashboard(self, async_client):
+        r = await async_client.get("/")
+        csp = r.headers.get("content-security-policy", "")
+        nonce_match = re.search(r"'nonce-([A-Za-z0-9_-]+)'", csp)
+        assert nonce_match, "CSP must contain a nonce"
+        nonce = nonce_match.group(1)
+        # Every <script> tag must carry the nonce
+        scripts = re.findall(r"<script[^>]*>", r.text)
+        for tag in scripts:
+            assert f'nonce="{nonce}"' in tag, (
+                f"Script tag missing nonce: {tag[:120]}"
+            )
+
+    @pytest.mark.asyncio
+    async def test_all_scripts_have_nonce_on_map(self, async_client):
+        r = await async_client.get("/map")
+        csp = r.headers.get("content-security-policy", "")
+        nonce_match = re.search(r"'nonce-([A-Za-z0-9_-]+)'", csp)
+        assert nonce_match
+        nonce = nonce_match.group(1)
+        scripts = re.findall(r"<script[^>]*>", r.text)
+        for tag in scripts:
+            assert f'nonce="{nonce}"' in tag, (
+                f"Script tag missing nonce on /map: {tag[:120]}"
+            )
+
+    @pytest.mark.asyncio
+    async def test_style_src_allows_self_and_cdn(self, async_client):
+        """style-src must allow 'self' and CDN stylesheets (no nonce needed)."""
+        r = await async_client.get("/")
+        csp = r.headers.get("content-security-policy", "")
+        style_match = re.search(r"style-src\s+([^;]+)", csp)
+        assert style_match, "style-src directive must exist"
+        style_src = style_match.group(1)
+        assert "'self'" in style_src, "style-src must include 'self'"
+        assert "cdn.jsdelivr.net" in style_src, "style-src must allow CDN"
+
+    @pytest.mark.asyncio
+    async def test_style_src_has_no_nonce(self, async_client):
+        """style-src must NOT use nonces (so 'unsafe-inline' remains effective)."""
+        r = await async_client.get("/")
+        csp = r.headers.get("content-security-policy", "")
+        style_match = re.search(r"style-src\s+([^;]+)", csp)
+        assert style_match, "style-src directive must exist"
+        style_src = style_match.group(1)
+        assert "nonce-" not in style_src, (
+            "style-src must not contain nonce (it disables 'unsafe-inline')"
+        )
+
+
 class TestPrivacyPolicyDomain:
     """Privacy policy must reference nero.cy, not cypruswater.com."""
 

@@ -237,7 +237,7 @@ Last synced: {{ last_updated[:19].replace("T", " ") if last_updated else "never"
 {% endblock %}
 
 {% block scripts %}
-<script>
+<script nonce="{{ request.state.csp_nonce }}">
 const systemHistoryData = {{ system_history_json | safe }};
 
 // Animate all progress bars after first paint
