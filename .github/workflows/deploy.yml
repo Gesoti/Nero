@@ -58,6 +58,9 @@ jobs:
     permissions:
       id-token: write
       contents: read
+    env:
+      INSTANCE_ID: REDACTED_EC2_INSTANCE_ID
+      ECR_URI: REDACTED_AWS_ACCOUNT_ID.dkr.ecr.eu-south-2.amazonaws.com
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -65,29 +68,48 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
-            docker pull ${{ steps.login-ecr.outputs.registry }}/waterlevels:latest
-            docker stop waterlevels || true
-            docker rm waterlevels || true
-            docker run -d \
-              --name waterlevels \
-              --restart unless-stopped \
-              -p 127.0.0.1:8000:8000 \
-              -v /data:/data \
-              --log-driver awslogs \
-              --log-opt awslogs-region=${{ env.AWS_REGION }} \
-              --log-opt awslogs-group=/waterlevels/app \
-              --log-opt awslogs-create-group=true \
-              ${{ steps.login-ecr.outputs.registry }}/waterlevels:latest
-            docker image prune -f
+      - name: Deploy via SSM
+        run: |
+          COMMAND_ID=$(aws ssm send-command \
+            --instance-ids "${{ env.INSTANCE_ID }}" \
+            --document-name "AWS-RunShellScript" \
+            --parameters 'commands=[
+              "set -e",
+              "aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_URI }}",
+              "docker pull ${{ env.ECR_URI }}/waterlevels:latest",
+              "docker stop waterlevels || true",
+              "docker rm waterlevels || true",
+              "docker run -d --name waterlevels --restart unless-stopped -p 127.0.0.1:8000:8000 -v /data:/data --log-driver awslogs --log-opt awslogs-region=${{ env.AWS_REGION }} --log-opt awslogs-group=/waterlevels/app --log-opt awslogs-create-group=true ${{ env.ECR_URI }}/waterlevels:latest",
+              "docker image prune -f",
+              "echo Deploy complete"
+            ]' \
+            --timeout-seconds 120 \
+            --query 'Command.CommandId' \
+            --output text)
+          echo "Command ID: $COMMAND_ID"
+          # Wait for command to complete
+          for i in $(seq 1 24); do
+            STATUS=$(aws ssm get-command-invocation \
+              --command-id "$COMMAND_ID" \
+              --instance-id "${{ env.INSTANCE_ID }}" \
+              --query 'Status' --output text 2>/dev/null || echo "Pending")
+            echo "Status: $STATUS"
+            if [ "$STATUS" = "Success" ]; then
+              echo "Deploy succeeded!"
+              aws ssm get-command-invocation \
+                --command-id "$COMMAND_ID" \
+                --instance-id "${{ env.INSTANCE_ID }}" \
+                --query 'StandardOutputContent' --output text
+              exit 0
+            elif [ "$STATUS" = "Failed" ] || [ "$STATUS" = "Cancelled" ] || [ "$STATUS" = "TimedOut" ]; then
+              echo "Deploy failed with status: $STATUS"
+              aws ssm get-command-invocation \
+                --command-id "$COMMAND_ID" \
+                --instance-id "${{ env.INSTANCE_ID }}" \
+                --query 'StandardErrorContent' --output text
+              exit 1
+            fi
+            sleep 5
+          done
+          echo "Timed out waiting for deploy"
+          exit 1
