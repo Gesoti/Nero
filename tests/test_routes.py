@@ -104,7 +104,7 @@ class TestRobotsTxt:
     async def test_robots_contains_sitemap(self, async_client):
         r = await async_client.get("/robots.txt")
         assert "Sitemap:" in r.text
-        assert "sitemap.xml" in r.text
+        assert "nero.cy/sitemap.xml" in r.text
 
     async def test_robots_allows_all(self, async_client):
         r = await async_client.get("/robots.txt")
@@ -132,9 +132,9 @@ class TestSitemapXml:
     async def test_sitemap_contains_static_urls(self, async_client):
         r = await async_client.get("/sitemap.xml")
         assert "<loc>" in r.text
-        # Should contain main pages
+        # Should contain main pages with correct domain
         for path in ["/", "/map", "/about"]:
-            assert path in r.text
+            assert f"nero.cy{path}" in r.text
 
     async def test_sitemap_contains_dam_urls(self, seeded_async_client):
         r = await seeded_async_client.get("/sitemap.xml")
