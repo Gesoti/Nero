@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Blog — Nero{% endblock %}
+{% block og_title %}Blog — Nero{% endblock %}
+{% block meta_description %}Articles and analysis on Cyprus dam levels, water data, and drought trends.{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <h1 class="text-3xl font-bold text-slate-900 mb-2">Blog</h1>
+    <p class="text-slate-500 mb-8">Analysis, explainers, and updates on Cyprus water data.</p>
+
+    {% if posts %}
+    <div class="space-y-6">
+        {% for post in posts %}
+        <article class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-md transition-shadow">
+            <a href="/blog/{{ post.slug }}" class="block group">
+                <time datetime="{{ post.date }}" class="text-xs text-slate-400 uppercase tracking-wider">{{ post.date }}</time>
+                <h2 class="text-xl font-semibold text-slate-800 mt-1 group-hover:text-blue-600 transition-colors">{{ post.title }}</h2>
+                {% if post.description %}
+                <p class="text-slate-500 mt-2 text-sm leading-relaxed">{{ post.description }}</p>
+                {% endif %}
+                <span class="inline-block mt-3 text-sm text-blue-600 font-medium">Read more →</span>
+            </a>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-16 text-slate-400">
+        <p class="text-lg">No articles yet. Check back soon.</p>
+    </div>
+    {% endif %}
+
+    <div class="mt-8">
+        <a href="/" class="text-sm text-blue-600 hover:underline">← Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

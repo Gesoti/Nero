@@ -13,6 +13,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse, PlainTextResponse, Response
 from fastapi.templating import Jinja2Templates
 
+from app.blog import load_all_posts, load_post
 from app.config import settings
 
 from app.db import (
@@ -103,6 +104,28 @@ async def about(request: Request):
 @router.get("/privacy")
 async def privacy(request: Request):
     return templates.TemplateResponse(request, "privacy.html", {})
+
+
+@router.get("/blog")
+async def blog_index(request: Request):
+    posts = load_all_posts()
+    return templates.TemplateResponse(
+        request,
+        "blog_index.html",
+        {"posts": posts},
+    )
+
+
+@router.get("/blog/{slug}")
+async def blog_post_page(request: Request, slug: str):
+    post = load_post(slug)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return templates.TemplateResponse(
+        request,
+        "blog_post.html",
+        {"post": post},
+    )
 
 
 @router.get("/ads.txt")

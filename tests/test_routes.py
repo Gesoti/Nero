@@ -166,6 +166,21 @@ class TestSitemapXml:
         assert "/dam/Kouris" in r.text
 
 
+class TestBlogRoutes:
+    async def test_blog_index_returns_200(self, async_client):
+        r = await async_client.get("/blog")
+        assert r.status_code == 200
+
+    async def test_blog_index_contains_nero_title(self, async_client):
+        r = await async_client.get("/blog")
+        assert "Nero" in r.text
+        assert "Blog" in r.text
+
+    async def test_blog_nav_link_present(self, async_client):
+        r = await async_client.get("/")
+        assert 'href="/blog"' in r.text
+
+
 class TestHealthRoute:
     async def test_health_returns_200_json(self, async_client):
         r = await async_client.get("/health")
