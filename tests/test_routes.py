@@ -23,7 +23,8 @@ class TestDashboardRoute:
         assert r.headers.get("x-content-type-options") == "nosniff"
         assert r.headers.get("x-frame-options") == "DENY"
         assert r.headers.get("referrer-policy") == "strict-origin-when-cross-origin"
-        assert "content-security-policy-report-only" in r.headers
+        assert "content-security-policy" in r.headers
+        assert "content-security-policy-report-only" not in r.headers
 
 
 class TestMapRoute:

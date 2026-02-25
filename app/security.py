@@ -71,9 +71,5 @@ async def security_headers_middleware(request: Request, call_next) -> Response:
     h["X-Frame-Options"]        = "DENY"
     h["Referrer-Policy"]        = "strict-origin-when-cross-origin"
     h["Permissions-Policy"]     = _PERMISSIONS
-    # Report-Only (not enforcement) during initial deploy so that any
-    # inadvertently blocked CDN resource does not break the page.
-    # After 48 h of zero violations, rename this header to
-    # Content-Security-Policy to enable enforcement.
-    h["Content-Security-Policy-Report-Only"] = _CSP
+    h["Content-Security-Policy"] = _CSP
     return response
