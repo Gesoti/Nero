@@ -63,32 +63,32 @@
                     <div class="flex items-center gap-3">
                         <h2 class="text-lg font-semibold text-slate-800">Historical Capacity</h2>
                         <div class="flex bg-slate-100 rounded-lg p-0.5">
-                            <button onclick="setDamChartMode('trend')" id="dam-mode-trend"
+                            <button data-dam-mode="trend" id="dam-mode-trend"
                                     class="dam-mode-btn px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm transition-all duration-150">Trend</button>
-                            <button onclick="setDamChartMode('yoy')" id="dam-mode-yoy"
+                            <button data-dam-mode="yoy" id="dam-mode-yoy"
                                     class="dam-mode-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">Year on Year</button>
                         </div>
                     </div>
                     <div id="dam-range-buttons" class="flex gap-2">
-                        <button onclick="setDamRange('1Y')"
+                        <button data-dam-range="1Y"
                                 class="dam-range-btn px-3 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-600 hover:bg-slate-100 active:scale-95 transition-all duration-75">1Y</button>
-                        <button onclick="setDamRange('3Y')"
+                        <button data-dam-range="3Y"
                                 class="dam-range-btn px-3 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-600 hover:bg-slate-100 active:scale-95 transition-all duration-75">3Y</button>
-                        <button onclick="setDamRange('All')"
+                        <button data-dam-range="All"
                                 class="dam-range-btn px-3 py-1 rounded-lg text-xs font-medium bg-blue-600 text-white border border-blue-600 active:scale-95 transition-all duration-75">All</button>
                     </div>
                     <div id="dam-yoy-controls" class="flex flex-wrap items-center gap-2" style="display:none">
-                        <select id="dam-yoy-year-a" onchange="renderDamChart()"
+                        <select id="dam-yoy-year-a"
                                 class="px-2 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-700 bg-white"></select>
                         <span class="text-xs text-slate-400">vs</span>
-                        <select id="dam-yoy-year-b" onchange="renderDamChart()"
+                        <select id="dam-yoy-year-b"
                                 class="px-2 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-700 bg-white"></select>
                         <div class="flex bg-slate-100 rounded-lg p-0.5 ml-2">
-                            <button onclick="setDamGranularity('day')"
+                            <button data-dam-granularity="day"
                                     class="dam-gran-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">Day</button>
-                            <button onclick="setDamGranularity('month')"
+                            <button data-dam-granularity="month"
                                     class="dam-gran-btn px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm transition-all duration-150">Month</button>
-                            <button onclick="setDamGranularity('year')"
+                            <button data-dam-granularity="year"
                                     class="dam-gran-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">Year</button>
                         </div>
                     </div>
@@ -295,6 +295,18 @@ function renderDamChart() {
 document.addEventListener('DOMContentLoaded', () => {
     populateDamYearSelects();
     window.damChartInstance = initDamChart('damChart', damHistoryData, damSeverity);
+
+    document.querySelectorAll('[data-dam-mode]').forEach(btn => {
+        btn.addEventListener('click', () => setDamChartMode(btn.dataset.damMode));
+    });
+    document.querySelectorAll('[data-dam-range]').forEach(btn => {
+        btn.addEventListener('click', () => setDamRange(btn.dataset.damRange));
+    });
+    document.querySelectorAll('[data-dam-granularity]').forEach(btn => {
+        btn.addEventListener('click', () => setDamGranularity(btn.dataset.damGranularity));
+    });
+    document.getElementById('dam-yoy-year-a').addEventListener('change', renderDamChart);
+    document.getElementById('dam-yoy-year-b').addEventListener('change', renderDamChart);
 });
 </script>
 {% endblock %}

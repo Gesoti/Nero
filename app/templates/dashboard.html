@@ -112,32 +112,32 @@
             <div class="flex items-center gap-3">
                 <h2 class="text-lg font-semibold text-slate-800">System Capacity</h2>
                 <div class="flex bg-slate-100 rounded-lg p-0.5">
-                    <button onclick="setChartMode('trend')" id="mode-trend"
+                    <button data-chart-mode="trend" id="mode-trend"
                             class="chart-mode-btn px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm transition-all duration-150">Trend</button>
-                    <button onclick="setChartMode('yoy')" id="mode-yoy"
+                    <button data-chart-mode="yoy" id="mode-yoy"
                             class="chart-mode-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">Year on Year</button>
                 </div>
             </div>
             <div id="range-buttons" class="flex gap-2">
-                <button onclick="setRange('1Y')"
+                <button data-range="1Y"
                         class="range-btn px-3 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-600 hover:bg-slate-100 active:scale-95 transition-all duration-75">1Y</button>
-                <button onclick="setRange('3Y')"
+                <button data-range="3Y"
                         class="range-btn px-3 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-600 hover:bg-slate-100 active:scale-95 transition-all duration-75">3Y</button>
-                <button onclick="setRange('All')"
+                <button data-range="All"
                         class="range-btn range-btn-active px-3 py-1 rounded-lg text-xs font-medium bg-blue-600 text-white border border-blue-600 active:scale-95 transition-all duration-75">All</button>
             </div>
             <div id="yoy-controls" class="flex flex-wrap items-center gap-2" style="display:none">
-                <select id="yoy-year-a" onchange="renderSystemChart()"
+                <select id="yoy-year-a"
                         class="px-2 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-700 bg-white"></select>
                 <span class="text-xs text-slate-400">vs</span>
-                <select id="yoy-year-b" onchange="renderSystemChart()"
+                <select id="yoy-year-b"
                         class="px-2 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-700 bg-white"></select>
                 <div class="flex bg-slate-100 rounded-lg p-0.5 ml-2">
-                    <button onclick="setGranularity('day')"
+                    <button data-granularity="day"
                             class="gran-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">Day</button>
-                    <button onclick="setGranularity('month')"
+                    <button data-granularity="month"
                             class="gran-btn px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm transition-all duration-150">Month</button>
-                    <button onclick="setGranularity('year')"
+                    <button data-granularity="year"
                             class="gran-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">Year</button>
                 </div>
             </div>
@@ -325,6 +325,18 @@ function renderSystemChart() {
 document.addEventListener('DOMContentLoaded', () => {
     populateYearSelects();
     window.systemChartInstance = initSystemChart('systemChart', systemHistoryData);
+
+    document.querySelectorAll('[data-chart-mode]').forEach(btn => {
+        btn.addEventListener('click', () => setChartMode(btn.dataset.chartMode));
+    });
+    document.querySelectorAll('[data-range]').forEach(btn => {
+        btn.addEventListener('click', () => setRange(btn.dataset.range));
+    });
+    document.querySelectorAll('[data-granularity]').forEach(btn => {
+        btn.addEventListener('click', () => setGranularity(btn.dataset.granularity));
+    });
+    document.getElementById('yoy-year-a').addEventListener('change', renderSystemChart);
+    document.getElementById('yoy-year-b').addEventListener('change', renderSystemChart);
 });
 </script>
 {% endblock %}
