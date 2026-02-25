@@ -8,6 +8,9 @@ echo "=== WaterLevels bootstrap starting ==="
 apt-get update -y
 apt-get install -y nginx docker.io ufw snapd
 
+# SSM Agent (pre-installed via snap on Ubuntu, ensure it's running)
+snap start amazon-ssm-agent 2>/dev/null || true
+
 systemctl enable --now docker
 usermod -aG docker ubuntu
 
