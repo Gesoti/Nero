@@ -180,6 +180,23 @@ class TestBlogRoutes:
         r = await async_client.get("/")
         assert 'href="/blog"' in r.text
 
+    async def test_first_article_returns_200(self, async_client):
+        r = await async_client.get("/blog/cyprus-water-crisis-2026")
+        assert r.status_code == 200
+
+    async def test_first_article_has_nero_title(self, async_client):
+        r = await async_client.get("/blog/cyprus-water-crisis-2026")
+        assert "Nero" in r.text
+        assert "Cyprus Water Crisis 2026" in r.text
+
+    async def test_first_article_links_to_dams(self, async_client):
+        r = await async_client.get("/blog/cyprus-water-crisis-2026")
+        assert "/dam/" in r.text
+
+    async def test_nonexistent_blog_post_returns_404(self, async_client):
+        r = await async_client.get("/blog/nonexistent-post-xyz")
+        assert r.status_code == 404
+
 
 class TestHealthRoute:
     async def test_health_returns_200_json(self, async_client):
