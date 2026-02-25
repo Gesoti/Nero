@@ -67,15 +67,13 @@
 
   function loadAdSense() {
     // AdSense publisher script — injected only after user consent.
-    // Replace ca-pub-XXXXXXXXXXXXXXXXXX with your real publisher ID when you
-    // have your AdSense account approved.
     if (document.querySelector('script[data-adsense]')) return; // already loaded
     var s = document.createElement('script');
     s.async = true;
     s.crossOrigin = 'anonymous';
     s.dataset.adsense = '1';
     s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'
-           + '?client=ca-pub-XXXXXXXXXXXXXXXXXX';
+           + '?client=YOUR_ADSENSE_PUB_ID';
     document.head.appendChild(s);
   }
 
