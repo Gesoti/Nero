@@ -198,6 +198,25 @@ class TestBlogRoutes:
         assert r.status_code == 404
 
 
+class TestMonthlyReport:
+    async def test_report_returns_200(self, seeded_async_client):
+        r = await seeded_async_client.get("/blog/water-report-2026-02")
+        assert r.status_code == 200
+
+    async def test_report_contains_nero_title(self, seeded_async_client):
+        r = await seeded_async_client.get("/blog/water-report-2026-02")
+        assert "Nero" in r.text
+        assert "Water Report" in r.text
+
+    async def test_report_has_article_schema(self, seeded_async_client):
+        r = await seeded_async_client.get("/blog/water-report-2026-02")
+        assert '"@type":"Article"' in r.text or '"@type": "Article"' in r.text
+
+    async def test_invalid_report_date_returns_404(self, async_client):
+        r = await async_client.get("/blog/water-report-9999-13")
+        assert r.status_code == 404
+
+
 class TestCanonicalAndMeta:
     async def test_dashboard_has_canonical_link(self, async_client):
         r = await async_client.get("/")

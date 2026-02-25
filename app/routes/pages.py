@@ -123,6 +123,81 @@ async def blog_index(request: Request):
     )
 
 
+@router.get("/blog/water-report-{year:int}-{month:int}")
+async def monthly_report(request: Request, year: int, month: int):
+    """Auto-generated monthly water report from DB data."""
+    import calendar
+    from dataclasses import dataclass as dc
+    from datetime import date as date_type
+
+    if month < 1 or month > 12 or year < 2009:
+        raise HTTPException(status_code=404, detail="Invalid report date")
+
+    month_name = calendar.month_name[month]
+    dams_raw = get_all_dams_with_current_stats()
+    totals = get_system_totals()
+
+    if not totals:
+        raise HTTPException(status_code=404, detail="No data available")
+
+    pct = round(totals.total_percentage * 100, 1)
+    severity = get_severity(totals.total_percentage)
+
+    # Build dam summary sorted by percentage
+    dam_rows: list[str] = []
+    for dam in sorted(dams_raw, key=lambda d: d.percentage):
+        dp = round(dam.percentage * 100, 1)
+        sev = get_severity(dam.percentage)
+        dam_rows.append(
+            f"- **[{dam.name_en}](/dam/{quote(dam.name_en, safe='')})**: "
+            f"{dp}% ({dam.storage_mcm:.1f} / {dam.capacity_mcm:.1f} MCM) — {sev}"
+        )
+
+    content_md = (
+        f"The Cyprus reservoir system stands at **{pct}%** of total capacity as of "
+        f"{month_name} {year}, with {totals.total_storage_mcm:.1f} MCM stored out of "
+        f"a combined {totals.total_capacity_mcm:.1f} MCM across all 17 major dams.\n\n"
+        f"Overall system status: **{severity}**.\n\n"
+        f"## Dam-by-dam breakdown\n\n"
+        + "\n".join(dam_rows)
+        + "\n\n"
+        f"## What this means\n\n"
+        f"{'At ' + str(pct) + '% capacity, the system is in critical territory. ' if pct < 20 else ''}"
+        f"{'Conservation measures and supply restrictions are in effect. ' if pct < 40 else ''}"
+        f"For detailed historical trends, visit individual dam pages above or the "
+        f"[main dashboard](/).\n\n"
+        f"*Data sourced from the Water Development Department of Cyprus. "
+        f"Updated every 6 hours.*"
+    )
+
+    import mistune
+    _md = mistune.create_markdown(escape=False)
+
+    @dc(frozen=True)
+    class _ReportPost:
+        title: str
+        slug: str
+        date: date_type
+        description: str
+        author: str
+        content_html: str
+
+    post = _ReportPost(
+        title=f"Water Report — {month_name} {year}",
+        slug=f"water-report-{year}-{month:02d}",
+        date=date_type(year, month, 1),
+        description=f"Monthly water report for Cyprus dams — {month_name} {year}. System at {pct}% capacity.",
+        author="Nero Team",
+        content_html=_md(content_md),
+    )
+
+    return templates.TemplateResponse(
+        request,
+        "blog_post.html",
+        {"post": post, "canonical_url": _canonical(f"/blog/water-report-{year}-{month:02d}")},
+    )
+
+
 @router.get("/blog/{slug}")
 async def blog_post_page(request: Request, slug: str):
     post = load_post(slug)
