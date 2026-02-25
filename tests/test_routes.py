@@ -112,6 +112,17 @@ class TestRobotsTxt:
         assert "Disallow:" in r.text
 
 
+class TestAdsTxt:
+    async def test_ads_txt_returns_200_text(self, async_client):
+        r = await async_client.get("/ads.txt")
+        assert r.status_code == 200
+        assert "text/plain" in r.headers["content-type"]
+
+    async def test_ads_txt_contains_google_entry(self, async_client):
+        r = await async_client.get("/ads.txt")
+        assert "google.com, pub-3066658032903900, DIRECT, f08c47fec0942fa0" in r.text
+
+
 class TestSitemapXml:
     async def test_sitemap_returns_200_xml(self, async_client):
         r = await async_client.get("/sitemap.xml")

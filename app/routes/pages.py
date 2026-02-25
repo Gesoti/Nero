@@ -105,6 +105,12 @@ async def privacy(request: Request):
     return templates.TemplateResponse(request, "privacy.html", {})
 
 
+@router.get("/ads.txt")
+async def ads_txt():
+    body = "google.com, pub-3066658032903900, DIRECT, f08c47fec0942fa0\n"
+    return PlainTextResponse(body)
+
+
 @router.get("/robots.txt")
 async def robots_txt():
     base = settings.base_url.rstrip("/")
