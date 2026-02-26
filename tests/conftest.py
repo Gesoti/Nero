@@ -143,3 +143,25 @@ async def seeded_async_client(in_memory_db):
     transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         yield client
+
+
+@pytest_asyncio.fixture
+async def multi_dam_client(in_memory_db):
+    """async_client with 3 dams seeded for related-dams tests."""
+    dams = [
+        _DamStub(name_en="Kouris", name_el="Κούρης", capacity_mcm=115.0),
+        _DamStub(name_en="Asprokremmos", name_el="Ασπρόκρεμμος", capacity_mcm=52.0,
+                 lat=34.78, lng=32.45),
+        _DamStub(name_en="Germasoyeia", name_el="Γερμασόγεια", capacity_mcm=13.5,
+                 lat=34.72, lng=33.08),
+    ]
+    upsert_dams(dams)
+    pcts = [
+        _DamPctStub(dam_name_en="Kouris", percentage=0.234),
+        _DamPctStub(dam_name_en="Asprokremmos", percentage=0.15),
+        _DamPctStub(dam_name_en="Germasoyeia", percentage=0.45),
+    ]
+    upsert_percentage_snapshot(_SnapshotStub(dam_percentages=pcts))
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        yield client

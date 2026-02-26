@@ -37,6 +37,15 @@ def _canonical(path: str) -> str:
     return f"{settings.base_url.rstrip('/')}{path}"
 
 
+def _breadcrumbs(*items: tuple[str, str]) -> list[dict[str, str]]:
+    """Build breadcrumb list from (name, path) tuples. Always starts with Home."""
+    base = settings.base_url.rstrip("/")
+    crumbs = [{"name": "Home", "url": f"{base}/"}]
+    for name, path in items:
+        crumbs.append({"name": name, "url": f"{base}{path}"})
+    return crumbs
+
+
 @router.get("/")
 async def dashboard(request: Request):
     dams_raw = get_all_dams_with_current_stats()
@@ -57,6 +66,7 @@ async def dashboard(request: Request):
             "system_history_json": json.dumps(system_history),
             "last_updated": last_updated,
             "canonical_url": _canonical("/"),
+            "breadcrumbs": _breadcrumbs(),
         },
     )
 
@@ -77,6 +87,18 @@ async def dam_detail_page(request: Request, name_en: str):
         f"View historical trends and year-on-year comparisons."
     )
 
+    # Related dams: up to 4 other dams, sorted by capacity (closest in size)
+    all_dams = get_all_dams_with_current_stats()
+    related = sorted(
+        [d for d in all_dams if d.name_en != name_en],
+        key=lambda d: abs(d.capacity_mcm - dam.capacity_mcm),
+    )[:4]
+    related_dams = [
+        {"name_en": d.name_en, "percentage": round(d.percentage * 100, 1),
+         "severity": get_severity(d.percentage)}
+        for d in related
+    ]
+
     return templates.TemplateResponse(
         request,
         "dam_detail.html",
@@ -86,7 +108,9 @@ async def dam_detail_page(request: Request, name_en: str):
             "history_json": json.dumps(history),
             "meta_description": meta_desc,
             "dam_description": get_dam_description(name_en),
+            "related_dams": related_dams,
             "canonical_url": _canonical(f"/dam/{quote(name_en, safe='')}"),
+            "breadcrumbs": _breadcrumbs((name_en, f"/dam/{quote(name_en, safe='')}")),
         },
     )
 
@@ -121,7 +145,8 @@ async def blog_index(request: Request):
     return templates.TemplateResponse(
         request,
         "blog_index.html",
-        {"posts": posts, "canonical_url": _canonical("/blog")},
+        {"posts": posts, "canonical_url": _canonical("/blog"),
+         "breadcrumbs": _breadcrumbs(("Blog", "/blog"))},
     )
 
 
@@ -196,7 +221,8 @@ async def monthly_report(request: Request, year: int, month: int):
     return templates.TemplateResponse(
         request,
         "blog_post.html",
-        {"post": post, "canonical_url": _canonical(f"/blog/water-report-{year}-{month:02d}")},
+        {"post": post, "canonical_url": _canonical(f"/blog/water-report-{year}-{month:02d}"),
+         "breadcrumbs": _breadcrumbs(("Blog", "/blog"), (post.title, f"/blog/water-report-{year}-{month:02d}"))},
     )
 
 
@@ -208,7 +234,8 @@ async def blog_post_page(request: Request, slug: str):
     return templates.TemplateResponse(
         request,
         "blog_post.html",
-        {"post": post, "canonical_url": _canonical(f"/blog/{slug}")},
+        {"post": post, "canonical_url": _canonical(f"/blog/{slug}"),
+         "breadcrumbs": _breadcrumbs(("Blog", "/blog"), (post.title, f"/blog/{slug}"))},
     )
 
 

@@ -297,6 +297,35 @@ class TestJsonLd:
         r = await async_client.get("/blog/cyprus-water-crisis-2026")
         assert '"@type":"Article"' in r.text or '"@type": "Article"' in r.text
 
+    async def test_dam_detail_has_breadcrumb_schema(self, seeded_async_client):
+        r = await seeded_async_client.get("/dam/Kouris")
+        assert '"@type":"BreadcrumbList"' in r.text or '"@type": "BreadcrumbList"' in r.text
+
+    async def test_dashboard_has_breadcrumb_schema(self, async_client):
+        r = await async_client.get("/")
+        assert '"@type":"BreadcrumbList"' in r.text or '"@type": "BreadcrumbList"' in r.text
+
+    async def test_blog_post_has_breadcrumb_schema(self, async_client):
+        r = await async_client.get("/blog/cyprus-water-crisis-2026")
+        assert '"@type":"BreadcrumbList"' in r.text or '"@type": "BreadcrumbList"' in r.text
+
+
+class TestRelatedDams:
+    async def test_dam_detail_has_related_section_with_multiple_dams(self, multi_dam_client):
+        r = await multi_dam_client.get("/dam/Kouris")
+        assert r.status_code == 200
+        assert 'id="related-dams"' in r.text
+
+    async def test_related_section_links_to_other_dams(self, multi_dam_client):
+        r = await multi_dam_client.get("/dam/Kouris")
+        # Should contain links to other dams (not just the current one)
+        assert '/dam/Asprokremmos' in r.text or '/dam/Germasoyeia' in r.text
+
+    async def test_related_section_not_shown_when_alone(self, seeded_async_client):
+        r = await seeded_async_client.get("/dam/Kouris")
+        # Only 1 dam in DB — related section should not appear
+        assert 'id="related-dams"' not in r.text
+
 
 class TestEnhancedSitemap:
     async def test_sitemap_has_lastmod(self, async_client):

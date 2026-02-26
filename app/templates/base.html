@@ -15,6 +15,11 @@
     <meta property="og:site_name" content="Nero" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="en_CY" />
+    {% if breadcrumbs %}
+    <script type="application/ld+json" nonce="{{ request.state.csp_nonce }}">
+    {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{% for bc in breadcrumbs %}{"@type":"ListItem","position":{{ loop.index }},"name":"{{ bc.name }}","item":"{{ bc.url }}"}{% if not loop.last %},{% endif %}{% endfor %}]}
+    </script>
+    {% endif %}
     {% block jsonld %}{% endblock %}
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
