@@ -232,6 +232,19 @@ class TestBlogRoutes:
         r = await async_client.get("/blog/what-does-14-percent-dam-capacity-mean")
         assert "/dam/" in r.text
 
+    async def test_emptying_fastest_returns_200(self, async_client):
+        r = await async_client.get("/blog/which-cyprus-dam-is-emptying-fastest")
+        assert r.status_code == 200
+
+    async def test_emptying_fastest_has_title(self, async_client):
+        r = await async_client.get("/blog/which-cyprus-dam-is-emptying-fastest")
+        assert "Emptying" in r.text or "emptying" in r.text
+        assert "Nero" in r.text
+
+    async def test_emptying_fastest_links_to_dams(self, async_client):
+        r = await async_client.get("/blog/which-cyprus-dam-is-emptying-fastest")
+        assert "/dam/" in r.text
+
 
 class TestMonthlyReport:
     async def test_report_returns_200(self, seeded_async_client):
