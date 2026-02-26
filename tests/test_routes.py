@@ -345,6 +345,16 @@ class TestEnhancedSitemap:
         assert "/blog" in r.text
 
 
+class TestAdSensePlacement:
+    """Ad units should only appear on dashboard and dam detail pages."""
+
+    @pytest.mark.parametrize("path", ["/about", "/privacy", "/blog", "/map"])
+    async def test_no_ad_units_on_non_content_pages(self, async_client, path):
+        r = await async_client.get(path)
+        assert r.status_code == 200
+        assert "adsbygoogle" not in r.text or "data-ad-slot" not in r.text
+
+
 class TestHealthRoute:
     async def test_health_returns_200_json(self, async_client):
         r = await async_client.get("/health")
