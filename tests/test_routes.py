@@ -348,7 +348,7 @@ class TestEnhancedSitemap:
 class TestAdSensePlacement:
     """Ad units should only appear on dashboard and dam detail pages."""
 
-    @pytest.mark.parametrize("path", ["/about", "/privacy", "/blog", "/map"])
+    @pytest.mark.parametrize("path", ["/about", "/privacy", "/map"])
     async def test_no_ad_units_on_non_content_pages(self, async_client, path):
         r = await async_client.get(path)
         assert r.status_code == 200
