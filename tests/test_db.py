@@ -237,3 +237,41 @@ class TestDatabaseWithData:
     def test_get_dam_detail_nonexistent_after_insert_returns_none(self, in_memory_db):
         self._seed()
         assert get_dam_detail("No Such Dam") is None
+
+
+# ── Slug column tests ────────────────────────────────────────────────────────
+
+class TestDamSlugColumn:
+    """Verify that the dams table has a slug column populated on upsert."""
+
+    def test_slug_column_exists(self, in_memory_db):
+        """Schema must include slug column in dams table."""
+        from app.db import _get_connection
+        conn = _get_connection()
+        try:
+            cols = [row[1] for row in conn.execute("PRAGMA table_info(dams)").fetchall()]
+            assert "slug" in cols
+        finally:
+            conn.close()
+
+    def test_slug_populated_on_upsert(self, in_memory_db):
+        """upsert_dams must auto-populate the slug column."""
+        _insert_test_dam("Kouris")
+        from app.db import _get_connection
+        conn = _get_connection()
+        try:
+            row = conn.execute("SELECT slug FROM dams WHERE name_en = ?", ("Kouris",)).fetchone()
+            assert row is not None
+            assert row["slug"] == "kouris"
+        finally:
+            conn.close()
+
+    def test_slug_for_multi_word_name(self, in_memory_db):
+        _insert_test_dam("Marathon Lake")
+        from app.db import _get_connection
+        conn = _get_connection()
+        try:
+            row = conn.execute("SELECT slug FROM dams WHERE name_en = ?", ("Marathon Lake",)).fetchone()
+            assert row["slug"] == "marathon-lake"
+        finally:
+            conn.close()

@@ -1,17 +1,26 @@
+from pydantic import model_validator
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
     upstream_base_url: str = "https://cyprus-water.appspot.com/api"
     upstream_timeout_seconds: float = 30.0
-    db_path: str = "data/water.db"
+    db_path: str = ""
     sync_interval_hours: int = 6
     host: str = "0.0.0.0"
     port: int = 8000
     debug: bool = False
     base_url: str = "https://nero.cy"
+    country: str = "cy"
+    locale: str = "en"
 
     model_config = {"env_prefix": "WL_", "env_file": ".env"}
+
+    @model_validator(mode="after")
+    def _set_default_db_path(self) -> "Settings":
+        if not self.db_path:
+            self.db_path = f"data/{self.country}/water.db"
+        return self
 
 
 settings = Settings()

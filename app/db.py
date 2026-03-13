@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from app.config import settings
+from app.utils import slugify
 
 if TYPE_CHECKING:
     from app.api_client import DamInfo
@@ -97,6 +98,7 @@ def init_database() -> None:
                 CREATE TABLE IF NOT EXISTS dams (
                     name_en       TEXT PRIMARY KEY,
                     name_el       TEXT NOT NULL,
+                    slug          TEXT NOT NULL DEFAULT '',
                     capacity_mcm  REAL NOT NULL,
                     lat           REAL NOT NULL,
                     lng           REAL NOT NULL,
@@ -107,6 +109,7 @@ def init_database() -> None:
                     image_url     TEXT NOT NULL DEFAULT '',
                     wikipedia_url TEXT NOT NULL DEFAULT ''
                 );
+                CREATE INDEX IF NOT EXISTS idx_dams_slug ON dams(slug);
 
                 CREATE TABLE IF NOT EXISTS daily_percentages (
                     date        TEXT NOT NULL,
@@ -184,11 +187,12 @@ def upsert_dams(dams: list[DamInfo]) -> None:
             conn.executemany(
                 """
                 INSERT INTO dams
-                    (name_en, name_el, capacity_mcm, lat, lng, height_m, year_built,
+                    (name_en, name_el, slug, capacity_mcm, lat, lng, height_m, year_built,
                      river_name_el, type_el, image_url, wikipedia_url)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(name_en) DO UPDATE SET
                     name_el=excluded.name_el,
+                    slug=excluded.slug,
                     capacity_mcm=excluded.capacity_mcm,
                     lat=excluded.lat, lng=excluded.lng,
                     height_m=excluded.height_m,
@@ -199,9 +203,9 @@ def upsert_dams(dams: list[DamInfo]) -> None:
                     wikipedia_url=excluded.wikipedia_url
                 """,
                 [
-                    (d.name_en, d.name_el, d.capacity_mcm, d.lat, d.lng,
-                     d.height, d.year_built, d.river_name_el, d.type_el,
-                     d.image_url, d.wikipedia_url)
+                    (d.name_en, d.name_el, slugify(d.name_en), d.capacity_mcm,
+                     d.lat, d.lng, d.height, d.year_built, d.river_name_el,
+                     d.type_el, d.image_url, d.wikipedia_url)
                     for d in dams
                 ],
             )

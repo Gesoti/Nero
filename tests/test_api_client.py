@@ -1,13 +1,11 @@
 """
-Unit tests for app/api_client.py.
+Unit tests for app/api_client.py backwards-compat shim.
 
-Strategy: patch `app.api_client._get_client` to return a mock httpx.AsyncClient
-so no real network calls are made. Each test configures mock response JSON that
-matches the shapes documented in api_client.py's module docstring.
+Strategy: patch `app.api_client._get_provider` to return a CyprusProvider
+wrapping a mock httpx.AsyncClient, so no real network calls are made.
 """
 from __future__ import annotations
 
-import json
 from datetime import date
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -23,19 +21,15 @@ from app.api_client import (
     fetch_events,
     fetch_timeseries,
 )
+from app.providers.cyprus import CyprusProvider
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
 def _make_mock_response(json_data: object, status_code: int = 200) -> MagicMock:
-    """
-    Build a synchronous MagicMock that behaves like an httpx.Response.
-    raise_for_status() does nothing on 2xx and raises HTTPStatusError on 4xx/5xx.
-    """
     mock_resp = MagicMock(spec=httpx.Response)
     mock_resp.status_code = status_code
     mock_resp.json.return_value = json_data
-
     if status_code >= 400:
         mock_resp.raise_for_status.side_effect = httpx.HTTPStatusError(
             message=f"HTTP {status_code}",
@@ -44,40 +38,36 @@ def _make_mock_response(json_data: object, status_code: int = 200) -> MagicMock:
         )
     else:
         mock_resp.raise_for_status.return_value = None
-
     return mock_resp
 
 
-def _make_mock_client(json_data: object, status_code: int = 200) -> AsyncMock:
-    """Return a mock httpx.AsyncClient whose .get() returns the given response."""
+def _make_mock_provider(json_data: object, status_code: int = 200) -> CyprusProvider:
+    """Return a CyprusProvider wrapping a mock client for test patching."""
     mock_client = AsyncMock(spec=httpx.AsyncClient)
     mock_client.get.return_value = _make_mock_response(json_data, status_code)
-    return mock_client
+    return CyprusProvider(client=mock_client)
+
+
+_PATCH_TARGET = "app.api_client._get_provider"
 
 
 # ── fetch_dams ────────────────────────────────────────────────────────────────
 
 class TestFetchDams:
-    # Minimal valid /dams payload (one dam)
     _DAMS_PAYLOAD = [
         {
-            "nameEn": "Kouris",
-            "nameEl": "Κούρης",
-            "yearOfConstruction": 1988,
-            "height": 110,
-            "capacity": 115_000_000,  # m3
-            "lat": 34.717,
-            "lng": 32.937,
-            "riverNameEl": "Κούρης",
-            "typeEl": "Λιθόρριπτο",
+            "nameEn": "Kouris", "nameEl": "Κούρης",
+            "yearOfConstruction": 1988, "height": 110,
+            "capacity": 115_000_000, "lat": 34.717, "lng": 32.937,
+            "riverNameEl": "Κούρης", "typeEl": "Λιθόρριπτο",
             "imageUrl": "https://example.com/kouris.jpg",
             "wikipediaUrl": "https://el.wikipedia.org/wiki/Kouris",
         }
     ]
 
     async def test_returns_list_of_dam_info(self):
-        mock_client = _make_mock_client(self._DAMS_PAYLOAD)
-        with patch("app.api_client._get_client", return_value=mock_client):
+        provider = _make_mock_provider(self._DAMS_PAYLOAD)
+        with patch(_PATCH_TARGET, return_value=provider):
             result = await fetch_dams()
 
         assert len(result) == 1
@@ -96,14 +86,14 @@ class TestFetchDams:
         assert dam.wikipedia_url == "https://el.wikipedia.org/wiki/Kouris"
 
     async def test_http_error_raises_upstream_api_error(self):
-        mock_client = _make_mock_client({}, status_code=500)
-        with patch("app.api_client._get_client", return_value=mock_client):
+        provider = _make_mock_provider({}, status_code=500)
+        with patch(_PATCH_TARGET, return_value=provider):
             with pytest.raises(UpstreamAPIError):
                 await fetch_dams()
 
     async def test_empty_list_returns_empty(self):
-        mock_client = _make_mock_client([])
-        with patch("app.api_client._get_client", return_value=mock_client):
+        provider = _make_mock_provider([])
+        with patch(_PATCH_TARGET, return_value=provider):
             result = await fetch_dams()
         assert result == []
 
@@ -114,17 +104,14 @@ class TestFetchPercentages:
     _TARGET_DATE = date(2026, 2, 18)
     _PAYLOAD = {
         "date": "Feb 18, 2026 12:00:00 AM",
-        "damNamesToPercentage": {
-            "Kouris": 0.35,
-            "Asprokremmos": 0.28,
-        },
+        "damNamesToPercentage": {"Kouris": 0.35, "Asprokremmos": 0.28},
         "totalPercentage": 0.32,
         "totalCapacityInMCM": 327.0,
     }
 
     async def test_returns_percentage_snapshot(self):
-        mock_client = _make_mock_client(self._PAYLOAD)
-        with patch("app.api_client._get_client", return_value=mock_client):
+        provider = _make_mock_provider(self._PAYLOAD)
+        with patch(_PATCH_TARGET, return_value=provider):
             snap = await fetch_percentages(self._TARGET_DATE)
 
         assert snap.date == self._TARGET_DATE
@@ -137,8 +124,8 @@ class TestFetchPercentages:
         assert by_name["Asprokremmos"] == pytest.approx(0.28)
 
     async def test_http_error_raises_upstream_api_error(self):
-        mock_client = _make_mock_client({}, status_code=503)
-        with patch("app.api_client._get_client", return_value=mock_client):
+        provider = _make_mock_provider({}, status_code=503)
+        with patch(_PATCH_TARGET, return_value=provider):
             with pytest.raises(UpstreamAPIError):
                 await fetch_percentages(self._TARGET_DATE)
 
@@ -155,8 +142,8 @@ class TestFetchDateStatistics:
     }
 
     async def test_returns_date_statistics(self):
-        mock_client = _make_mock_client(self._PAYLOAD)
-        with patch("app.api_client._get_client", return_value=mock_client):
+        provider = _make_mock_provider(self._PAYLOAD)
+        with patch(_PATCH_TARGET, return_value=provider):
             stats = await fetch_date_statistics(self._TARGET_DATE)
 
         assert stats.date == self._TARGET_DATE
@@ -168,8 +155,8 @@ class TestFetchDateStatistics:
         assert by_name["Asprokremmos"].storage_mcm == pytest.approx(15.1)
 
     async def test_http_error_raises_upstream_api_error(self):
-        mock_client = _make_mock_client({}, status_code=404)
-        with patch("app.api_client._get_client", return_value=mock_client):
+        provider = _make_mock_provider({}, status_code=404)
+        with patch(_PATCH_TARGET, return_value=provider):
             with pytest.raises(UpstreamAPIError):
                 await fetch_date_statistics(self._TARGET_DATE)
 
@@ -183,8 +170,8 @@ class TestFetchMonthlyInflows:
     ]
 
     async def test_returns_monthly_inflows(self):
-        mock_client = _make_mock_client(self._PAYLOAD)
-        with patch("app.api_client._get_client", return_value=mock_client):
+        provider = _make_mock_provider(self._PAYLOAD)
+        with patch(_PATCH_TARGET, return_value=provider):
             inflows = await fetch_monthly_inflows()
 
         assert len(inflows) == 2
@@ -194,8 +181,8 @@ class TestFetchMonthlyInflows:
         assert inflows[0].inflow_mcm == pytest.approx(12.5)
 
     async def test_http_error_raises_upstream_api_error(self):
-        mock_client = _make_mock_client([], status_code=500)
-        with patch("app.api_client._get_client", return_value=mock_client):
+        provider = _make_mock_provider([], status_code=500)
+        with patch(_PATCH_TARGET, return_value=provider):
             with pytest.raises(UpstreamAPIError):
                 await fetch_monthly_inflows()
 
@@ -203,22 +190,17 @@ class TestFetchMonthlyInflows:
 # ── fetch_events ──────────────────────────────────────────────────────────────
 
 class TestFetchEvents:
-    # Unix ms timestamps: 2020-01-01 00:00:00 UTC = 1577836800000
-    #                     2020-12-31 00:00:00 UTC = 1609372800000
     _PAYLOAD = [
         {
-            "nameEn": "Drought 2020",
-            "nameEl": "Ξηρασία 2020",
-            "type": "drought",
-            "description": "Severe drought",
-            "from": 1577836800000,
-            "until": 1609372800000,
+            "nameEn": "Drought 2020", "nameEl": "Ξηρασία 2020",
+            "type": "drought", "description": "Severe drought",
+            "from": 1577836800000, "until": 1609372800000,
         }
     ]
 
     async def test_returns_water_events(self):
-        mock_client = _make_mock_client(self._PAYLOAD)
-        with patch("app.api_client._get_client", return_value=mock_client):
+        provider = _make_mock_provider(self._PAYLOAD)
+        with patch(_PATCH_TARGET, return_value=provider):
             events = await fetch_events(date(2020, 1, 1), date(2020, 12, 31))
 
         assert len(events) == 1
@@ -231,8 +213,8 @@ class TestFetchEvents:
         assert ev.date_until == date(2020, 12, 31)
 
     async def test_http_error_raises_upstream_api_error(self):
-        mock_client = _make_mock_client([], status_code=502)
-        with patch("app.api_client._get_client", return_value=mock_client):
+        provider = _make_mock_provider([], status_code=502)
+        with patch(_PATCH_TARGET, return_value=provider):
             with pytest.raises(UpstreamAPIError):
                 await fetch_events(date(2020, 1, 1), date(2020, 12, 31))
 
@@ -241,38 +223,33 @@ class TestFetchEvents:
 
 class TestFetchTimeseries:
     _PAYLOAD = {
-        "numOfDams": 17,
-        "numOfPercentageEntries": 2,
-        "dams": [],
+        "numOfDams": 17, "numOfPercentageEntries": 2, "dams": [],
         "percentages": {
             "2026-01-01": {
                 "date": "Jan 01, 2026 12:00:00 AM",
                 "damNamesToPercentage": {"Kouris": 0.40},
-                "totalPercentage": 0.40,
-                "totalCapacityInMCM": 327.0,
+                "totalPercentage": 0.40, "totalCapacityInMCM": 327.0,
             },
             "2026-02-01": {
                 "date": "Feb 01, 2026 12:00:00 AM",
                 "damNamesToPercentage": {"Kouris": 0.38},
-                "totalPercentage": 0.38,
-                "totalCapacityInMCM": 327.0,
+                "totalPercentage": 0.38, "totalCapacityInMCM": 327.0,
             },
         },
     }
 
     async def test_returns_sorted_snapshots(self):
-        mock_client = _make_mock_client(self._PAYLOAD)
-        with patch("app.api_client._get_client", return_value=mock_client):
+        provider = _make_mock_provider(self._PAYLOAD)
+        with patch(_PATCH_TARGET, return_value=provider):
             snapshots = await fetch_timeseries()
 
         assert len(snapshots) == 2
-        # Must be sorted chronologically
         assert snapshots[0].date == date(2026, 1, 1)
         assert snapshots[1].date == date(2026, 2, 1)
         assert snapshots[0].total_percentage == pytest.approx(0.40)
 
     async def test_http_error_raises_upstream_api_error(self):
-        mock_client = _make_mock_client({}, status_code=500)
-        with patch("app.api_client._get_client", return_value=mock_client):
+        provider = _make_mock_provider({}, status_code=500)
+        with patch(_PATCH_TARGET, return_value=provider):
             with pytest.raises(UpstreamAPIError):
                 await fetch_timeseries()
