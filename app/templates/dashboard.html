@@ -238,6 +238,65 @@
     {% endif %}
 </section>
 
+<!-- Editorial: Understanding Cyprus Water Data -->
+<section id="editorial" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 pb-12">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 space-y-6 text-slate-700 leading-relaxed">
+
+        <h2 class="text-xl font-semibold text-slate-800">Understanding Cyprus Dam Levels</h2>
+
+        <p>
+            Cyprus is one of the most water-stressed countries in the European Union. The island receives an average of
+            just 460 millimetres of rainfall per year — roughly half the European average — with nearly all of it falling
+            between November and March. For the rest of the year, the island depends almost entirely on what its 17 major
+            dams have stored during the wet season. This dashboard provides a live, transparent view of those reserves,
+            updated every six hours from official Water Development Department records spanning back to 2009.
+        </p>
+
+        <h3 class="text-lg font-semibold text-slate-800">How to Read This Dashboard</h3>
+
+        <p>
+            The <strong>system capacity chart</strong> at the top of this page shows the combined fill level of all 17
+            reservoirs over time. You can switch between a historical trend view and a year-on-year comparison to see how
+            the current season compares to previous years. The <strong>dam grid</strong> below it shows each reservoir
+            individually, colour-coded by severity: <span class="font-medium text-red-700">red (critical)</span> means
+            the dam holds less than 20% of its design capacity, <span class="font-medium text-amber-700">amber
+            (warning)</span> indicates 20 to 40%, and <span class="font-medium text-emerald-700">green (healthy)</span>
+            means above 40%. Click any dam card to see its full history, technical details, and year-on-year comparisons.
+        </p>
+
+        <h3 class="text-lg font-semibold text-slate-800">What the Numbers Mean</h3>
+
+        <p>
+            <strong>Percentage</strong> represents how full a dam is relative to its maximum design capacity. A dam at
+            15% still holds water, but it is approaching operational limits — below 20%, evaporation losses accelerate,
+            water quality degrades as sediment concentrates, and extraction becomes physically harder as water levels drop
+            below outlet pipes. <strong>MCM (Million Cubic Metres)</strong> is the standard unit for measuring reservoir
+            volumes. Cyprus's 17 dams have a combined capacity of approximately 327 MCM. To put that in context, the
+            island uses around 240 MCM of water per year across domestic, agricultural, and industrial consumption.
+        </p>
+
+        <h3 class="text-lg font-semibold text-slate-800">Why Monitoring Matters</h3>
+
+        <p>
+            Dam levels are not just an engineering metric — they directly affect water supply policy, agricultural
+            allocations, and household water bills. When reservoirs drop below critical thresholds, the government
+            curtails irrigation allocations, desalination plants run at maximum capacity (at higher cost and energy
+            consumption), and in severe cases, rotating municipal supply restrictions are imposed. Cyprus experienced
+            exactly this during the 2008 drought, when emergency water was imported by tanker from Greece, and again
+            during recent drought years. Transparent, real-time access to dam data helps citizens, farmers, journalists,
+            and policymakers make better-informed decisions about water use and conservation.
+        </p>
+
+        <p class="text-sm text-slate-500">
+            Data sourced from the <a href="https://cyprus-water.appspot.com" target="_blank" rel="noopener" class="text-blue-600 hover:underline">Water Development Department of Cyprus</a>
+            under <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noopener" class="text-blue-600 hover:underline">CC BY 2.0</a>.
+            For deeper analysis, see our <a href="/blog" class="text-blue-600 hover:underline">blog</a> or explore the
+            <a href="/map" class="text-blue-600 hover:underline">interactive map</a>.
+        </p>
+
+    </div>
+</section>
+
 {% endblock %}
 
 {% block footer_extra %}

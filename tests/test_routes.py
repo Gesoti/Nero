@@ -36,6 +36,31 @@ class TestDashboardRoute:
         assert "content-security-policy-report-only" not in r.headers
 
 
+class TestDashboardEditorialContent:
+    """Dashboard must have substantial editorial text for AdSense compliance."""
+
+    async def test_dashboard_has_editorial_section(self, async_client):
+        r = await async_client.get("/")
+        assert r.status_code == 200
+        assert 'id="editorial"' in r.text
+
+    async def test_dashboard_editorial_has_substantial_text(self, async_client):
+        import re
+        r = await async_client.get("/")
+        match = re.search(r'id="editorial"[^>]*>(.*?)</section>', r.text, re.DOTALL)
+        assert match, "Editorial section not found"
+        text = re.sub(r'<[^>]+>', '', match.group(1)).strip()
+        word_count = len(text.split())
+        assert word_count >= 250, f"Editorial section too short ({word_count} words)"
+
+    async def test_dashboard_editorial_has_headings(self, async_client):
+        import re
+        r = await async_client.get("/")
+        match = re.search(r'id="editorial"(.*?)</section>', r.text, re.DOTALL)
+        assert match
+        assert '<h2' in match.group(1) or '<h3' in match.group(1)
+
+
 class TestMapRoute:
     async def test_map_returns_200(self, async_client):
         response = await async_client.get("/map")
