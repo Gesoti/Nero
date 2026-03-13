@@ -158,6 +158,7 @@
                     <button data-granularity="year"
                             class="gran-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">{{ _("Year") }}</button>
                 </div>
+                <span id="yoy-sparse-hint" class="text-xs text-amber-600" style="display:none">Sparse data — using monthly view</span>
             </div>
         </div>
         <div style="height: 400px; position: relative;">
@@ -409,6 +410,14 @@ function setRange(range) {
 }
 
 function setGranularity(gran) {
+    // Auto-fallback: if Day is requested but either year is sparse, use Month
+    if (gran === 'day') {
+        const yearA = parseInt(document.getElementById('yoy-year-a').value, 10);
+        const yearB = parseInt(document.getElementById('yoy-year-b').value, 10);
+        if (isYearSparse(systemHistoryData, yearA) || isYearSparse(systemHistoryData, yearB)) {
+            gran = 'month';
+        }
+    }
     window.currentGranularity = gran;
     document.querySelectorAll('.gran-btn').forEach(btn => {
         const active = btn.textContent.trim().toLowerCase() === gran;
@@ -416,7 +425,26 @@ function setGranularity(gran) {
             ? 'gran-btn px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm transition-all duration-150'
             : 'gran-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150';
     });
+    updateSparseWarning(systemHistoryData, 'yoy-year-a', 'yoy-year-b', '.gran-btn', 'yoy-sparse-hint');
     renderSystemChart();
+}
+
+/**
+ * Show/hide sparse-data hint and disable Day button when either year is sparse.
+ */
+function updateSparseWarning(data, selAId, selBId, granBtnSelector, hintId) {
+    const yearA = parseInt(document.getElementById(selAId).value, 10);
+    const yearB = parseInt(document.getElementById(selBId).value, 10);
+    const sparse = isYearSparse(data, yearA) || isYearSparse(data, yearB);
+    const hint = document.getElementById(hintId);
+    if (hint) hint.style.display = sparse ? 'inline' : 'none';
+    document.querySelectorAll(granBtnSelector).forEach(btn => {
+        if (btn.textContent.trim().toLowerCase() === 'day') {
+            btn.disabled = sparse;
+            btn.style.opacity = sparse ? '0.4' : '1';
+            btn.style.cursor = sparse ? 'not-allowed' : 'pointer';
+        }
+    });
 }
 
 function renderSystemChart() {
@@ -451,8 +479,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-granularity]').forEach(btn => {
         btn.addEventListener('click', () => setGranularity(btn.dataset.granularity));
     });
-    document.getElementById('yoy-year-a').addEventListener('change', renderSystemChart);
-    document.getElementById('yoy-year-b').addEventListener('change', renderSystemChart);
+    document.getElementById('yoy-year-a').addEventListener('change', () => {
+        updateSparseWarning(systemHistoryData, 'yoy-year-a', 'yoy-year-b', '.gran-btn', 'yoy-sparse-hint');
+        renderSystemChart();
+    });
+    document.getElementById('yoy-year-b').addEventListener('change', () => {
+        updateSparseWarning(systemHistoryData, 'yoy-year-a', 'yoy-year-b', '.gran-btn', 'yoy-sparse-hint');
+        renderSystemChart();
+    });
 });
 </script>
 {% endblock %}

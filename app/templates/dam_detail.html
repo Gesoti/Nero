@@ -118,6 +118,7 @@
                             <button data-dam-granularity="year"
                                     class="dam-gran-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">{{ _("Year") }}</button>
                         </div>
+                        <span id="dam-yoy-sparse-hint" class="text-xs text-amber-600" style="display:none">Sparse data — using monthly view</span>
                     </div>
                 </div>
                 <div style="height: 350px; position: relative;">
@@ -321,6 +322,13 @@ function setDamRange(range) {
 }
 
 function setDamGranularity(gran) {
+    if (gran === 'day') {
+        const yearA = parseInt(document.getElementById('dam-yoy-year-a').value, 10);
+        const yearB = parseInt(document.getElementById('dam-yoy-year-b').value, 10);
+        if (isYearSparse(damHistoryData, yearA) || isYearSparse(damHistoryData, yearB)) {
+            gran = 'month';
+        }
+    }
     window.currentDamGranularity = gran;
     document.querySelectorAll('.dam-gran-btn').forEach(btn => {
         const active = btn.textContent.trim().toLowerCase() === gran;
@@ -328,7 +336,23 @@ function setDamGranularity(gran) {
             ? 'dam-gran-btn px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm transition-all duration-150'
             : 'dam-gran-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150';
     });
+    updateSparseWarning(damHistoryData, 'dam-yoy-year-a', 'dam-yoy-year-b', '.dam-gran-btn', 'dam-yoy-sparse-hint');
     renderDamChart();
+}
+
+function updateSparseWarning(data, selAId, selBId, granBtnSelector, hintId) {
+    const yearA = parseInt(document.getElementById(selAId).value, 10);
+    const yearB = parseInt(document.getElementById(selBId).value, 10);
+    const sparse = isYearSparse(data, yearA) || isYearSparse(data, yearB);
+    const hint = document.getElementById(hintId);
+    if (hint) hint.style.display = sparse ? 'inline' : 'none';
+    document.querySelectorAll(granBtnSelector).forEach(btn => {
+        if (btn.textContent.trim().toLowerCase() === 'day') {
+            btn.disabled = sparse;
+            btn.style.opacity = sparse ? '0.4' : '1';
+            btn.style.cursor = sparse ? 'not-allowed' : 'pointer';
+        }
+    });
 }
 
 function renderDamChart() {
@@ -363,8 +387,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-dam-granularity]').forEach(btn => {
         btn.addEventListener('click', () => setDamGranularity(btn.dataset.damGranularity));
     });
-    document.getElementById('dam-yoy-year-a').addEventListener('change', renderDamChart);
-    document.getElementById('dam-yoy-year-b').addEventListener('change', renderDamChart);
+    document.getElementById('dam-yoy-year-a').addEventListener('change', () => {
+        updateSparseWarning(damHistoryData, 'dam-yoy-year-a', 'dam-yoy-year-b', '.dam-gran-btn', 'dam-yoy-sparse-hint');
+        renderDamChart();
+    });
+    document.getElementById('dam-yoy-year-b').addEventListener('change', () => {
+        updateSparseWarning(damHistoryData, 'dam-yoy-year-a', 'dam-yoy-year-b', '.dam-gran-btn', 'dam-yoy-sparse-hint');
+        renderDamChart();
+    });
 });
 </script>
 {% endblock %}

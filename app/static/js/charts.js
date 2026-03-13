@@ -13,6 +13,28 @@ const SEVERITY_COLORS = {
 const CRITICAL_THRESHOLD = 20; // percent — used for dashed reference line
 
 /**
+ * Minimum data points per year to be considered "dense" (i.e. daily data).
+ * Years with fewer points are sparse (monthly samples) — Day granularity
+ * produces poor comparisons for these years.
+ */
+const SPARSE_YEAR_THRESHOLD = 50;
+
+/**
+ * Check whether a given year has sparse data (fewer points than threshold).
+ * Sparse years should use Month granularity instead of Day for YoY comparison.
+ * @param {Array<{date: string, value: number}>} data  Full dataset
+ * @param {number} year  The year to check
+ * @returns {boolean}  true if the year has fewer than SPARSE_YEAR_THRESHOLD points
+ */
+function isYearSparse(data, year) {
+    let count = 0;
+    for (const d of data) {
+        if (new Date(d.date).getFullYear() === year) count++;
+    }
+    return count < SPARSE_YEAR_THRESHOLD;
+}
+
+/**
  * Convert the [{date, value}] format from the server to Chart.js {x, y} points.
  * @param {Array<{date: string, value: number}>} data
  * @returns {Array<{x: string, y: number}>}
