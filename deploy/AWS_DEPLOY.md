@@ -62,6 +62,19 @@ ssh -i ~/.ssh/your-key.pem ubuntu@ELASTIC_IP
 sudo certbot --nginx -d nero.cy -d www.nero.cy
 ```
 
+### Automatic Renewal Hook
+
+Nginx must reload after certbot renews the SSL certificate, otherwise it
+continues serving the old cert until the next manual restart. Install the
+deploy hook:
+
+```bash
+sudo cp deploy/certbot-renew-hook.sh /etc/letsencrypt/renewal-hooks/deploy/restart-nginx.sh
+sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/restart-nginx.sh
+```
+
+Test it works: `sudo certbot renew --dry-run`
+
 ## CI/CD
 
 After deployment, every push to `main` triggers the GitHub Actions pipeline:
