@@ -10,22 +10,26 @@ from __future__ import annotations
 COUNTRY_LOCALE_MAP: dict[str, str] = {
     "cy": "en",
     "gr": "en",
+    "es": "en",
 }
 
 # Canonical per-country SQLite database paths (relative to repo root)
 COUNTRY_DB_PATHS: dict[str, str] = {
     "cy": "data/cy/water.db",
     "gr": "data/gr/water.db",
+    "es": "data/es/water.db",
 }
 
 # Human-readable country labels for navigation UI
 COUNTRY_LABELS: dict[str, str] = {
     "cy": "Cyprus",
     "gr": "Greece",
+    "es": "Spain",
 }
 
 # (lat, lng) map centre for the Leaflet map on /map
 COUNTRY_MAP_CENTRES: dict[str, tuple[float, float]] = {
     "cy": (34.917, 33.0),
     "gr": (38.5, 22.5),
+    "es": (39.5, -3.5),
 }

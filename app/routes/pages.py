@@ -23,6 +23,7 @@ from app.blog import load_all_posts, load_post
 from app.config import settings
 from app.country_config import COUNTRY_LABELS, COUNTRY_LOCALE_MAP, COUNTRY_MAP_CENTRES
 from app.dam_descriptions import get_dam_description
+from app.es_dam_descriptions import get_es_dam_description
 from app.gr_dam_descriptions import get_gr_dam_description
 from app.i18n import install_i18n, get_translations
 
@@ -60,6 +61,8 @@ def _get_dam_description_for_country(country: str, name_en: str) -> str:
     """Return the dam description from the correct country module."""
     if country == "gr":
         return get_gr_dam_description(name_en)
+    if country == "es":
+        return get_es_dam_description(name_en)
     return get_dam_description(name_en)
 
 
@@ -225,7 +228,7 @@ async def map_view(request: Request):
     ]
     # Zoom level 8 suits the compact extent of Cyprus; Greece's reservoirs
     # are more spread out so zoom 7 fits better.
-    map_zoom: dict[str, int] = {"cy": 9, "gr": 7}
+    map_zoom: dict[str, int] = {"cy": 9, "gr": 7, "es": 6}
     centre = COUNTRY_MAP_CENTRES.get(country, COUNTRY_MAP_CENTRES["cy"])
     return templates.TemplateResponse(
         request,
@@ -501,6 +504,12 @@ async def sitemap_xml():
         if country == "gr":
             from app.providers.greece import _GREECE_DAMS as _gr_dams
             for dam_info in _gr_dams:
+                xml_parts.append(
+                    url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
+                )
+        elif country == "es":
+            from app.providers.spain import _SPAIN_DAMS as _es_dams
+            for dam_info in _es_dams:
                 xml_parts.append(
                     url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
                 )
