@@ -19,6 +19,7 @@ from fastapi.templating import Jinja2Templates
 from app.config import settings
 from app.i18n import install_i18n
 from app.db import init_database, is_database_empty
+from app.middleware.country import CountryPrefixMiddleware
 from app.providers.base import DataProvider
 from app.providers.cyprus import CyprusProvider
 from app.routes.pages import router as page_router
@@ -119,6 +120,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Cyprus Water Levels", lifespan=lifespan)
 
+# Country-prefix middleware must run first so that route matching sees the
+# stripped path. Security headers middleware wraps it on the outside.
+app.add_middleware(
+    CountryPrefixMiddleware,
+    enabled_countries=settings.get_enabled_countries(),
+    default_country="cy",
+)
 app.middleware("http")(security_headers_middleware)
 app.include_router(page_router)
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
