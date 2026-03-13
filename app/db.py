@@ -339,7 +339,7 @@ def update_sync_log(data_type: str, last_date: date, db_path: str = "") -> None:
 
 
 # ── Query functions (called by route handlers) ────────────────────────────────
-def get_all_dams_with_current_stats() -> list[DamOverview]:
+def get_all_dams_with_current_stats(db_path: str = "") -> list[DamOverview]:
     """
     Join dams with their most recent percentage and statistics.
     LEFT JOIN naturally excludes Agia Marina: it appears in the upstream
@@ -348,7 +348,7 @@ def get_all_dams_with_current_stats() -> list[DamOverview]:
     Agia Marina is silently excluded. This is intentional — the upstream
     API provides no metadata (capacity, coordinates) for it.
     """
-    conn = _get_connection()
+    conn = _get_connection(db_path)
     try:
         rows = conn.execute("""
             SELECT
@@ -384,8 +384,8 @@ def get_all_dams_with_current_stats() -> list[DamOverview]:
         conn.close()
 
 
-def get_system_totals() -> SystemTotals | None:
-    conn = _get_connection()
+def get_system_totals(db_path: str = "") -> SystemTotals | None:
+    conn = _get_connection(db_path)
     try:
         row = conn.execute("""
             SELECT
@@ -414,8 +414,8 @@ def get_system_totals() -> SystemTotals | None:
         conn.close()
 
 
-def get_dam_detail(name_en: str) -> DamDetail | None:
-    conn = _get_connection()
+def get_dam_detail(name_en: str, db_path: str = "") -> DamDetail | None:
+    conn = _get_connection(db_path)
     try:
         row = conn.execute("""
             SELECT
@@ -457,9 +457,9 @@ def get_dam_detail(name_en: str) -> DamDetail | None:
         conn.close()
 
 
-def get_system_history() -> list[dict]:
+def get_system_history(db_path: str = "") -> list[dict]:
     """System percentage history as chart-ready dicts (0-100 scale)."""
-    conn = _get_connection()
+    conn = _get_connection(db_path)
     try:
         rows = conn.execute("""
             SELECT date, total_percentage AS value
@@ -471,9 +471,9 @@ def get_system_history() -> list[dict]:
         conn.close()
 
 
-def get_dam_history(name_en: str) -> list[dict]:
+def get_dam_history(name_en: str, db_path: str = "") -> list[dict]:
     """Per-dam percentage history as chart-ready dicts (0-100 scale)."""
-    conn = _get_connection()
+    conn = _get_connection(db_path)
     try:
         rows = conn.execute("""
             SELECT date, percentage AS value
@@ -486,8 +486,8 @@ def get_dam_history(name_en: str) -> list[dict]:
         conn.close()
 
 
-def get_last_sync_time() -> str | None:
-    conn = _get_connection()
+def get_last_sync_time(db_path: str = "") -> str | None:
+    conn = _get_connection(db_path)
     try:
         row = conn.execute(
             "SELECT last_synced FROM sync_log ORDER BY last_synced DESC LIMIT 1"

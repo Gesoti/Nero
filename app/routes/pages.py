@@ -1,6 +1,12 @@
 """
 Page route handlers. Each handler reads from SQLite and renders a Jinja2 template.
 Severity labels are computed here so templates stay logic-free.
+
+Per-request wiring (G10):
+- db_path comes from request.state.db_path (set by CountryPrefixMiddleware)
+- layout_template is derived from request.state.country
+- i18n translations are installed per-request based on request.state.locale
+- dam descriptions use the country-appropriate module
 """
 from __future__ import annotations
 
@@ -16,7 +22,8 @@ from fastapi.templating import Jinja2Templates
 from app.blog import load_all_posts, load_post
 from app.config import settings
 from app.dam_descriptions import get_dam_description
-from app.i18n import install_i18n
+from app.gr_dam_descriptions import get_gr_dam_description
+from app.i18n import install_i18n, get_translations
 
 from app.db import (
     get_all_dams_with_current_stats,
@@ -32,8 +39,6 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 install_i18n(templates.env)
-# Country layout path available to all templates via {{ layout_template }}
-templates.env.globals["layout_template"] = f"{settings.country}/layout.html"
 
 
 def _canonical(path: str) -> str:
@@ -50,38 +55,74 @@ def _breadcrumbs(*items: tuple[str, str]) -> list[dict[str, str]]:
     return crumbs
 
 
+def _get_dam_description_for_country(country: str, name_en: str) -> str:
+    """Return the dam description from the correct country module."""
+    if country == "gr":
+        return get_gr_dam_description(name_en)
+    return get_dam_description(name_en)
+
+
+def _render_ctx(request: Request, extra: dict) -> dict:
+    """
+    Build a base template context with per-request country wiring.
+
+    Installs the correct translations onto the shared Jinja2 environment
+    before each render so that _() calls resolve to the right locale.
+    This is safe for our single-worker dev server and acceptable for
+    production (workers are single-threaded per request in Uvicorn/Gunicorn).
+    """
+    country: str = getattr(request.state, "country", settings.country)
+    locale: str = getattr(request.state, "locale", settings.locale)
+    country_prefix: str = getattr(request.state, "country_prefix", "")
+
+    # Install correct translations for this request before Jinja2 renders.
+    # NullTranslations for "en", compiled .mo for other locales.
+    templates.env.install_gettext_translations(get_translations(locale))
+
+    ctx = {
+        "layout_template": f"{country}/layout.html",
+        "country_prefix": country_prefix,
+    }
+    ctx.update(extra)
+    return ctx
+
+
 @router.get("/")
 async def dashboard(request: Request):
-    dams_raw = get_all_dams_with_current_stats()
+    db_path: str = getattr(request.state, "db_path", "")
+    dams_raw = get_all_dams_with_current_stats(db_path=db_path)
     dams = [
         {**dam.__dict__, "severity": get_severity(dam.percentage)}
         for dam in dams_raw
     ]
-    totals = get_system_totals()
-    system_history = get_system_history()
-    last_updated = get_last_sync_time()
+    totals = get_system_totals(db_path=db_path)
+    system_history = get_system_history(db_path=db_path)
+    last_updated = get_last_sync_time(db_path=db_path)
 
     return templates.TemplateResponse(
         request,
         "dashboard.html",
-        {
+        _render_ctx(request, {
             "dams": dams,
             "totals": totals,
             "system_history_json": json.dumps(system_history),
             "last_updated": last_updated,
             "canonical_url": _canonical("/"),
             "breadcrumbs": _breadcrumbs(),
-        },
+        }),
     )
 
 
 @router.get("/dam/{name_en}")
 async def dam_detail_page(request: Request, name_en: str):
-    dam = get_dam_detail(name_en)
+    db_path: str = getattr(request.state, "db_path", "")
+    country: str = getattr(request.state, "country", settings.country)
+
+    dam = get_dam_detail(name_en, db_path=db_path)
     if not dam:
         raise HTTPException(status_code=404, detail="Dam not found")
 
-    history = get_dam_history(name_en)
+    history = get_dam_history(name_en, db_path=db_path)
     severity = get_severity(dam.percentage)
 
     pct_display = round(dam.percentage * 100, 1)
@@ -92,7 +133,7 @@ async def dam_detail_page(request: Request, name_en: str):
     )
 
     # Related dams: up to 4 other dams, sorted by capacity (closest in size)
-    all_dams = get_all_dams_with_current_stats()
+    all_dams = get_all_dams_with_current_stats(db_path=db_path)
     related = sorted(
         [d for d in all_dams if d.name_en != name_en],
         key=lambda d: abs(d.capacity_mcm - dam.capacity_mcm),
@@ -106,22 +147,23 @@ async def dam_detail_page(request: Request, name_en: str):
     return templates.TemplateResponse(
         request,
         "dam_detail.html",
-        {
+        _render_ctx(request, {
             "dam": dam,
             "severity": severity,
             "history_json": json.dumps(history),
             "meta_description": meta_desc,
-            "dam_description": get_dam_description(name_en),
+            "dam_description": _get_dam_description_for_country(country, name_en),
             "related_dams": related_dams,
             "canonical_url": _canonical(f"/dam/{quote(name_en, safe='')}"),
             "breadcrumbs": _breadcrumbs((name_en, f"/dam/{quote(name_en, safe='')}")),
-        },
+        }),
     )
 
 
 @router.get("/map")
 async def map_view(request: Request):
-    dams_raw = get_all_dams_with_current_stats()
+    db_path: str = getattr(request.state, "db_path", "")
+    dams_raw = get_all_dams_with_current_stats(db_path=db_path)
     dams = [
         {**dam.__dict__, "severity": get_severity(dam.percentage)}
         for dam in dams_raw
@@ -129,18 +171,29 @@ async def map_view(request: Request):
     return templates.TemplateResponse(
         request,
         "map.html",
-        {"dams_json": json.dumps(dams), "canonical_url": _canonical("/map")},
+        _render_ctx(request, {
+            "dams_json": json.dumps(dams),
+            "canonical_url": _canonical("/map"),
+        }),
     )
 
 
 @router.get("/about")
 async def about(request: Request):
-    return templates.TemplateResponse(request, "about.html", {"canonical_url": _canonical("/about")})
+    return templates.TemplateResponse(
+        request,
+        "about.html",
+        _render_ctx(request, {"canonical_url": _canonical("/about")}),
+    )
 
 
 @router.get("/privacy")
 async def privacy(request: Request):
-    return templates.TemplateResponse(request, "privacy.html", {"canonical_url": _canonical("/privacy")})
+    return templates.TemplateResponse(
+        request,
+        "privacy.html",
+        _render_ctx(request, {"canonical_url": _canonical("/privacy")}),
+    )
 
 
 @router.get("/blog")
@@ -168,9 +221,12 @@ async def blog_index(request: Request):
     return templates.TemplateResponse(
         request,
         "blog_index.html",
-        {"posts": posts, "report_months": report_months,
-         "canonical_url": _canonical("/blog"),
-         "breadcrumbs": _breadcrumbs(("Blog", "/blog"))},
+        _render_ctx(request, {
+            "posts": posts,
+            "report_months": report_months,
+            "canonical_url": _canonical("/blog"),
+            "breadcrumbs": _breadcrumbs(("Blog", "/blog")),
+        }),
     )
 
 
@@ -184,9 +240,10 @@ async def monthly_report(request: Request, year: int, month: int):
     if month < 1 or month > 12 or year < 2009:
         raise HTTPException(status_code=404, detail="Invalid report date")
 
+    db_path: str = getattr(request.state, "db_path", "")
     month_name = calendar.month_name[month]
-    dams_raw = get_all_dams_with_current_stats()
-    totals = get_system_totals()
+    dams_raw = get_all_dams_with_current_stats(db_path=db_path)
+    totals = get_system_totals(db_path=db_path)
 
     if not totals:
         raise HTTPException(status_code=404, detail="No data available")
@@ -245,9 +302,15 @@ async def monthly_report(request: Request, year: int, month: int):
     return templates.TemplateResponse(
         request,
         "blog_post.html",
-        {"post": post, "noindex": True,
-         "canonical_url": _canonical(f"/blog/water-report-{year}-{month:02d}"),
-         "breadcrumbs": _breadcrumbs(("Blog", "/blog"), (post.title, f"/blog/water-report-{year}-{month:02d}"))},
+        _render_ctx(request, {
+            "post": post,
+            "noindex": True,
+            "canonical_url": _canonical(f"/blog/water-report-{year}-{month:02d}"),
+            "breadcrumbs": _breadcrumbs(
+                ("Blog", "/blog"),
+                (post.title, f"/blog/water-report-{year}-{month:02d}"),
+            ),
+        }),
     )
 
 
@@ -259,8 +322,11 @@ async def blog_post_page(request: Request, slug: str):
     return templates.TemplateResponse(
         request,
         "blog_post.html",
-        {"post": post, "canonical_url": _canonical(f"/blog/{slug}"),
-         "breadcrumbs": _breadcrumbs(("Blog", "/blog"), (post.title, f"/blog/{slug}"))},
+        _render_ctx(request, {
+            "post": post,
+            "canonical_url": _canonical(f"/blog/{slug}"),
+            "breadcrumbs": _breadcrumbs(("Blog", "/blog"), (post.title, f"/blog/{slug}")),
+        }),
     )
 
 
@@ -269,9 +335,13 @@ async def learn_how_dams_work(request: Request):
     return templates.TemplateResponse(
         request,
         "learn_how_dams_work.html",
-        {"canonical_url": _canonical("/learn/how-dams-work"),
-         "breadcrumbs": _breadcrumbs(("Learn", "/learn/how-dams-work"),
-                                     ("How Dams Work", "/learn/how-dams-work"))},
+        _render_ctx(request, {
+            "canonical_url": _canonical("/learn/how-dams-work"),
+            "breadcrumbs": _breadcrumbs(
+                ("Learn", "/learn/how-dams-work"),
+                ("How Dams Work", "/learn/how-dams-work"),
+            ),
+        }),
     )
 
 
@@ -280,9 +350,13 @@ async def learn_water_crisis_history(request: Request):
     return templates.TemplateResponse(
         request,
         "learn_water_crisis_history.html",
-        {"canonical_url": _canonical("/learn/water-crisis-history"),
-         "breadcrumbs": _breadcrumbs(("Learn", "/learn/water-crisis-history"),
-                                     ("Water Crisis History", "/learn/water-crisis-history"))},
+        _render_ctx(request, {
+            "canonical_url": _canonical("/learn/water-crisis-history"),
+            "breadcrumbs": _breadcrumbs(
+                ("Learn", "/learn/water-crisis-history"),
+                ("Water Crisis History", "/learn/water-crisis-history"),
+            ),
+        }),
     )
 
 

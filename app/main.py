@@ -134,4 +134,10 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 @app.exception_handler(404)
 async def not_found(request: Request, exc: Exception) -> HTMLResponse:
-    return _templates.TemplateResponse(request, "404.html", {}, status_code=404)
+    country: str = getattr(request.state, "country", settings.country)
+    return _templates.TemplateResponse(
+        request,
+        "404.html",
+        {"layout_template": f"{country}/layout.html"},
+        status_code=404,
+    )

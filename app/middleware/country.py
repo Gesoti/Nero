@@ -59,14 +59,20 @@ class CountryPrefixMiddleware:
                 break
 
         # Inject country metadata so route handlers can access via request.state.
+        # If an outer middleware (e.g. a test wrapper) already resolved the country,
+        # do not overwrite it — the outer layer has the authoritative value.
         scope.setdefault("state", {})
-        scope["state"]["country"] = country
-        scope["state"]["db_path"] = COUNTRY_DB_PATHS.get(country, f"data/{country}/water.db")
-        scope["state"]["locale"] = COUNTRY_LOCALE_MAP.get(country, "en")
-        # Prefix is empty string for the default country so templates can use it
-        # directly: href="{{ request.state.country_prefix }}/dam/{{ name }}"
-        scope["state"]["country_prefix"] = (
-            "" if country == self.default_country else f"/{country}"
-        )
+        if "country" not in scope["state"]:
+            scope["state"]["country"] = country
+            scope["state"]["db_path"] = COUNTRY_DB_PATHS.get(country, f"data/{country}/water.db")
+            scope["state"]["locale"] = COUNTRY_LOCALE_MAP.get(country, "en")
+            # Prefix is empty string for the default country so templates can use it
+            # directly: href="{{ request.state.country_prefix }}/dam/{{ name }}"
+            scope["state"]["country_prefix"] = (
+                "" if country == self.default_country else f"/{country}"
+            )
+        else:
+            # Outer middleware already set country — only update path, not metadata.
+            pass
 
         await self.app(scope, receive, send)
