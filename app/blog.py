@@ -35,6 +35,7 @@ class BlogPost:
     description: str
     author: str
     content_html: str
+    country: str = "cy"  # Default to Cyprus for backwards compatibility
 
 
 _markdown = mistune.create_markdown(escape=False)
@@ -91,6 +92,7 @@ def _load_file(filepath: Path) -> BlogPost | None:
             description=meta.get("description", ""),
             author=meta.get("author", "Nero Team"),
             content_html=_markdown(body),
+            country=meta.get("country", "cy"),
         )
     except Exception:
         logger.exception("Failed to load blog post %s", filepath)
