@@ -76,6 +76,21 @@ class TestAboutRoute:
         response = await async_client.get("/about")
         assert response.status_code == 200
 
+    async def test_about_has_substantial_content(self, async_client):
+        import re
+        r = await async_client.get("/about")
+        text = re.sub(r'<[^>]+>', '', r.text)
+        word_count = len(text.split())
+        assert word_count >= 600, f"About page too thin ({word_count} words)"
+
+    async def test_about_has_faq_section(self, async_client):
+        r = await async_client.get("/about")
+        assert 'id="faq"' in r.text
+
+    async def test_about_has_methodology_section(self, async_client):
+        r = await async_client.get("/about")
+        assert "Methodology" in r.text or "methodology" in r.text
+
 
 class TestDamDetailRoute:
     async def test_nonexistent_dam_returns_404(self, async_client):
@@ -269,6 +284,19 @@ class TestBlogRoutes:
     async def test_emptying_fastest_links_to_dams(self, async_client):
         r = await async_client.get("/blog/which-cyprus-dam-is-emptying-fastest")
         assert "/dam/" in r.text
+
+
+class TestAuthorByline:
+    """Blog posts should have author byline for E-E-A-T signals."""
+
+    async def test_blog_post_has_author_bio(self, async_client):
+        r = await async_client.get("/blog/cyprus-water-crisis-2026")
+        assert r.status_code == 200
+        assert 'id="author-bio"' in r.text
+
+    async def test_author_bio_links_to_about(self, async_client):
+        r = await async_client.get("/blog/cyprus-water-crisis-2026")
+        assert '/about' in r.text
 
 
 class TestMonthlyReport:

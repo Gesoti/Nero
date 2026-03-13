@@ -1,19 +1,53 @@
 {% extends "base.html" %}
 
 {% block title %}About — Nero{% endblock %}
+{% block meta_description %}About Nero: an open-source dashboard for monitoring Cyprus reservoir levels in real time. Learn about our mission, data methodology, and how we track the island's water security.{% endblock %}
 
 {% block content %}
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <h1 class="text-3xl font-bold text-slate-900 mb-2">About Nero</h1>
-    <p class="text-slate-500 mb-8">An open-source dashboard for monitoring Cyprus reservoir levels.</p>
+    <p class="text-slate-500 mb-8">An open-source dashboard for monitoring Cyprus reservoir levels in real time.</p>
 
     <div class="space-y-6 text-slate-700">
 
         <section class="bg-white rounded-2xl border border-slate-200 p-6">
-            <h2 class="text-lg font-semibold text-slate-800 mb-3">Data Source</h2>
-            <p class="leading-relaxed">Water level data is sourced from the <strong>Water Development Department of Cyprus</strong>
-            via their public API at <code class="text-xs bg-slate-100 px-1 py-0.5 rounded">cyprus-water.appspot.com/api</code>.
-            Data is refreshed every 6 hours and historical records span from October 2009 to present.</p>
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">Our Mission</h2>
+            <p class="leading-relaxed">
+                Nero exists to make Cyprus's water data accessible, understandable, and useful. The island's 17 major
+                dams are the backbone of its water supply, yet the raw data from the Water Development Department is
+                published in a format that is difficult for ordinary citizens to interpret. We transform this data into
+                a clear, visual dashboard that anyone can use — whether you are a farmer planning irrigation, a
+                journalist covering the drought, a policymaker evaluating supply risk, or a resident wondering why
+                your water bill went up.
+            </p>
+            <p class="mt-3 leading-relaxed">
+                Water scarcity is the defining environmental challenge of the eastern Mediterranean. Cyprus has been
+                hit by increasingly severe droughts, and climate projections suggest this trend will continue. We believe
+                that transparent, real-time access to water data is a prerequisite for informed public discourse and
+                effective policy-making. Nero is our contribution to that transparency.
+            </p>
+        </section>
+
+        <section class="bg-white rounded-2xl border border-slate-200 p-6">
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">Methodology</h2>
+            <p class="leading-relaxed">
+                Nero fetches data from the <strong>Water Development Department of Cyprus</strong> via their public API
+                at <code class="text-xs bg-slate-100 px-1 py-0.5 rounded">cyprus-water.appspot.com/api</code>. The data
+                is refreshed automatically every six hours. Historical records span from October 2009 to the present day,
+                giving more than 15 years of trend data for each reservoir.
+            </p>
+            <p class="mt-3 leading-relaxed">
+                On first launch, Nero performs an initial seed that downloads the full historical dataset. From then on,
+                incremental syncs fetch only new readings. All data is stored locally in a SQLite database and served
+                directly to users — there is no intermediary processing that alters the raw values. Percentage figures
+                represent the ratio of current storage volume to the dam's maximum design capacity as reported by the
+                Water Development Department.
+            </p>
+            <p class="mt-3 leading-relaxed">
+                The upstream API occasionally includes data for Agia Marina dam in its statistics endpoint, but Agia
+                Marina is excluded from the individual dam listings. Its volumes are included in system-level totals
+                but the dam does not appear in Nero's grid view, matching the upstream data source's own treatment.
+            </p>
             <p class="mt-3 text-sm">
                 License: <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noopener"
                    class="text-blue-600 hover:underline">Creative Commons Attribution 2.0 (CC BY 2.0)</a>
@@ -22,18 +56,28 @@
 
         <section class="bg-white rounded-2xl border border-slate-200 p-6">
             <h2 class="text-lg font-semibold text-slate-800 mb-3">Severity Thresholds</h2>
+            <p class="leading-relaxed mb-3">
+                Nero uses a three-tier colour system to communicate the urgency of each dam's fill level at a glance.
+                These thresholds are based on operational norms used in Cyprus water management:
+            </p>
             <ul class="space-y-3 text-sm">
                 <li class="flex items-start gap-3">
                     <span class="w-4 h-4 rounded-full bg-red-500 flex-shrink-0 mt-0.5"></span>
-                    <span><strong class="text-red-700">Critical</strong> — below 20% capacity. Immediate risk to water supply security.</span>
+                    <span><strong class="text-red-700">Critical</strong> — below 20% capacity. At this level, evaporation
+                    losses accelerate, water quality degrades from sediment concentration, and dams may approach dead
+                    storage. Agricultural allocations are typically cut and municipal rationing may be introduced.</span>
                 </li>
                 <li class="flex items-start gap-3">
                     <span class="w-4 h-4 rounded-full bg-amber-500 flex-shrink-0 mt-0.5"></span>
-                    <span><strong class="text-amber-700">Warning</strong> — 20–40% capacity. Reduced reserves; conservation measures advised.</span>
+                    <span><strong class="text-amber-700">Warning</strong> — 20 to 40% capacity. Reserves are reduced and
+                    conservation measures are advised. Desalination plants increase output to compensate. Irrigation
+                    allocations may be curtailed in some districts.</span>
                 </li>
                 <li class="flex items-start gap-3">
                     <span class="w-4 h-4 rounded-full bg-emerald-500 flex-shrink-0 mt-0.5"></span>
-                    <span><strong class="text-emerald-700">Healthy</strong> — above 40% capacity. Normal operational levels.</span>
+                    <span><strong class="text-emerald-700">Healthy</strong> — above 40% capacity. Normal operational levels.
+                    Full agricultural allocations, no restrictions on domestic supply, sufficient reserves to buffer
+                    a dry season.</span>
                 </li>
             </ul>
         </section>
@@ -41,11 +85,71 @@
         <section class="bg-white rounded-2xl border border-slate-200 p-6">
             <h2 class="text-lg font-semibold text-slate-800 mb-3">Data Notes</h2>
             <ul class="space-y-2 text-sm text-slate-600 list-disc list-inside">
-                <li>Historical timeseries data contains ~133 periodic snapshots (not daily) from 2018 onwards.</li>
-                <li>Daily granularity accumulates from ongoing 6-hour syncs.</li>
-                <li>"Agia Marina" dam appears in statistics data but has no metadata entry — its volumes are included in system totals but the dam does not appear in the individual grid.</li>
-                <li>Percentage values are on a 0–100% scale; storage and inflow are in million cubic metres (MCM).</li>
+                <li>Historical timeseries data contains approximately 133 periodic snapshots (not daily) from 2018 onwards. Daily granularity accumulates from the ongoing six-hour sync cycle.</li>
+                <li>Percentage values are displayed on a 0 to 100% scale. Storage and inflow are measured in million cubic metres (MCM).</li>
+                <li>Year-on-year comparison charts aggregate data by month or year for clearer seasonal pattern visibility.</li>
+                <li>Dam metadata (height, river name, coordinates, construction year) comes from the upstream API and may not reflect recent engineering modifications.</li>
             </ul>
+        </section>
+
+        <section class="bg-white rounded-2xl border border-slate-200 p-6">
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">About the Project</h2>
+            <p class="leading-relaxed">
+                Nero is an open-source project built with Python (FastAPI), Jinja2 templates, Chart.js for
+                visualisations, and Leaflet.js for the interactive map. The codebase follows test-driven development
+                practices with over 130 automated tests. The project is maintained by an independent developer based
+                in Cyprus with a background in software engineering and data systems.
+            </p>
+            <p class="mt-3 leading-relaxed">
+                The name "Nero" comes from the Greek word for water (νερό), reflecting both the project's focus and its
+                Cypriot roots. The project has no affiliation with the Cyprus government or the Water Development
+                Department — it is an independent civic technology initiative that reuses publicly available data.
+            </p>
+        </section>
+
+        <section id="faq" class="bg-white rounded-2xl border border-slate-200 p-6">
+            <h2 class="text-lg font-semibold text-slate-800 mb-4">Frequently Asked Questions</h2>
+            <div class="space-y-4 text-sm">
+                <div>
+                    <h3 class="font-semibold text-slate-800 mb-1">How often is the data updated?</h3>
+                    <p class="text-slate-600 leading-relaxed">Every six hours, automatically. The sync runs in the
+                    background and fetches the latest readings from the Water Development Department's API. During
+                    periods of rapid change (heavy rainfall or drought), you may see updates multiple times per day.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-slate-800 mb-1">Why do some dams show 0% or very low levels?</h3>
+                    <p class="text-slate-600 leading-relaxed">Small dams (under 2 MCM capacity) can empty entirely during
+                    extended dry periods. This is a physical reality, not a data error. These dams respond dramatically to
+                    even modest rainfall and can swing from empty to full within days.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-slate-800 mb-1">What is MCM?</h3>
+                    <p class="text-slate-600 leading-relaxed">MCM stands for Million Cubic Metres, the standard unit for
+                    measuring reservoir volumes in hydrology. One MCM equals one billion litres — enough to fill roughly
+                    400 Olympic swimming pools.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-slate-800 mb-1">Is this site affiliated with the Cyprus government?</h3>
+                    <p class="text-slate-600 leading-relaxed">No. Nero is an independent project that reuses publicly
+                    available open data. The Water Development Department publishes reservoir readings under a Creative
+                    Commons licence, which permits reuse with attribution.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-slate-800 mb-1">Can I use this data for research or journalism?</h3>
+                    <p class="text-slate-600 leading-relaxed">Yes. The underlying data is published under CC BY 2.0.
+                    You are free to cite, reproduce, or build upon it with appropriate attribution to the Water
+                    Development Department and Nero. If you are working on a story or paper, feel free to link to
+                    individual dam pages for live references.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-slate-800 mb-1">How does Cyprus get its drinking water?</h3>
+                    <p class="text-slate-600 leading-relaxed">Cyprus relies on a combination of dam-stored surface water,
+                    desalinated seawater, and groundwater. Desalination plants now produce roughly 70% of the island's
+                    domestic drinking water, but dams remain critical for agriculture and as a cost-effective supplement
+                    to desalination. When dam levels are high, less desalination is needed, reducing energy costs and
+                    carbon emissions.</p>
+                </div>
+            </div>
         </section>
 
     </div>

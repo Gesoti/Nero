@@ -56,6 +56,23 @@
         {{ post.content_html | safe }}
     </div>
 
+    <!-- Author bio -->
+    <div id="author-bio" class="mt-12 pt-6 border-t border-slate-200">
+        <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-lg font-bold flex-shrink-0">
+                {{ post.author[0] | upper }}
+            </div>
+            <div>
+                <p class="font-semibold text-slate-800">{{ post.author }}</p>
+                <p class="text-sm text-slate-500 mt-1 leading-relaxed">
+                    Writing about Cyprus water infrastructure, dam levels, and drought trends.
+                    Data sourced from the Water Development Department of Cyprus.
+                    <a href="/about" class="text-blue-600 hover:underline">Learn more about Nero</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- ── AdSense: Below Article ─────────────────────────────────────────── -->
     <div class="my-8">
       <ins class="adsbygoogle"
@@ -66,7 +83,7 @@
            data-full-width-responsive="true"></ins>
     </div>
 
-    <div class="mt-12 pt-6 border-t border-slate-200">
+    <div class="mt-8 pt-6 border-t border-slate-200">
         <a href="/blog" class="text-sm text-blue-600 hover:underline">← All articles</a>
     </div>
 </article>
