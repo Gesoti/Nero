@@ -21,6 +21,7 @@ from fastapi.templating import Jinja2Templates
 
 from app.blog import load_all_posts, load_post
 from app.config import settings
+from app.country_config import COUNTRY_MAP_CENTRES
 from app.dam_descriptions import get_dam_description
 from app.gr_dam_descriptions import get_gr_dam_description
 from app.i18n import install_i18n, get_translations
@@ -82,6 +83,7 @@ def _render_ctx(request: Request, extra: dict) -> dict:
     ctx = {
         "layout_template": f"{country}/layout.html",
         "country_prefix": country_prefix,
+        "country": country,
     }
     ctx.update(extra)
     return ctx
@@ -163,16 +165,24 @@ async def dam_detail_page(request: Request, name_en: str):
 @router.get("/map")
 async def map_view(request: Request):
     db_path: str = getattr(request.state, "db_path", "")
+    country: str = getattr(request.state, "country", settings.country)
     dams_raw = get_all_dams_with_current_stats(db_path=db_path)
     dams = [
         {**dam.__dict__, "severity": get_severity(dam.percentage)}
         for dam in dams_raw
     ]
+    # Zoom level 8 suits the compact extent of Cyprus; Greece's reservoirs
+    # are more spread out so zoom 7 fits better.
+    map_zoom: dict[str, int] = {"cy": 9, "gr": 7}
+    centre = COUNTRY_MAP_CENTRES.get(country, COUNTRY_MAP_CENTRES["cy"])
     return templates.TemplateResponse(
         request,
         "map.html",
         _render_ctx(request, {
             "dams_json": json.dumps(dams),
+            "map_center_lat": centre[0],
+            "map_center_lng": centre[1],
+            "map_zoom": map_zoom.get(country, 9),
             "canonical_url": _canonical("/map"),
         }),
     )

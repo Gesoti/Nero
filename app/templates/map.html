@@ -36,8 +36,8 @@
         healthy:  '#10b981'
     };
 
-    // Centre on Cyprus
-    var map = L.map('map').setView([34.85, 33.05], 9);
+    // Centre coordinates are injected per-country by the route handler
+    var map = L.map('map').setView([{{ map_center_lat }}, {{ map_center_lng }}], {{ map_zoom }});
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 19,
