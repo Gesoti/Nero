@@ -30,6 +30,24 @@
     </div>
     {% endif %}
 
+    {% if report_months %}
+    <div id="monthly-reports" class="mt-12">
+        <h2 class="text-xl font-semibold text-slate-800 mb-2">Monthly Water Reports</h2>
+        <p class="text-sm text-slate-500 mb-4">Auto-generated snapshots of dam levels for each month, compiled from official data.</p>
+        <div class="bg-white rounded-2xl border border-slate-200 p-6">
+            <div class="flex flex-wrap gap-2">
+                {% for report in report_months %}
+                <a href="{{ report.url }}"
+                   class="px-3 py-1.5 text-sm rounded-lg border border-slate-200 text-slate-600
+                          hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">
+                    {{ report.label }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <div class="mt-8">
         <a href="/" class="text-sm text-blue-600 hover:underline">← Back to Dashboard</a>
     </div>

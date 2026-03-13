@@ -141,11 +141,31 @@ async def privacy(request: Request):
 
 @router.get("/blog")
 async def blog_index(request: Request):
+    import calendar
+    from datetime import date as date_type
+
     posts = load_all_posts()
+
+    # Generate available monthly report links (from 2024-01 to current month)
+    today = date_type.today()
+    report_months: list[dict[str, str]] = []
+    year, month = today.year, today.month
+    while (year, month) >= (2024, 1):
+        month_name = calendar.month_name[month]
+        report_months.append({
+            "label": f"{month_name} {year}",
+            "url": f"/blog/water-report-{year}-{month:02d}",
+        })
+        month -= 1
+        if month == 0:
+            month = 12
+            year -= 1
+
     return templates.TemplateResponse(
         request,
         "blog_index.html",
-        {"posts": posts, "canonical_url": _canonical("/blog"),
+        {"posts": posts, "report_months": report_months,
+         "canonical_url": _canonical("/blog"),
          "breadcrumbs": _breadcrumbs(("Blog", "/blog"))},
     )
 

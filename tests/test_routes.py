@@ -238,6 +238,12 @@ class TestBlogRoutes:
         assert "Nero" in r.text
         assert "Blog" in r.text
 
+    async def test_blog_index_has_monthly_reports_section(self, async_client):
+        r = await async_client.get("/blog")
+        assert r.status_code == 200
+        assert 'id="monthly-reports"' in r.text
+        assert "water-report-" in r.text
+
     async def test_blog_nav_link_present(self, async_client):
         r = await async_client.get("/")
         assert 'href="/blog"' in r.text
