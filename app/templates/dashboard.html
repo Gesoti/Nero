@@ -238,10 +238,51 @@
     {% endif %}
 </section>
 
-<!-- Editorial: Understanding Cyprus Water Data -->
+<!-- Editorial: Country-specific -->
 <section id="editorial" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 pb-12">
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 space-y-6 text-slate-700 leading-relaxed">
 
+        {% if country == 'gr' %}
+
+        <!-- Editorial: Greece -->
+        <h2 class="text-xl font-semibold text-slate-800">{{ _("Understanding Athens' Water Supply") }}</h2>
+
+        <p>
+            Greece's water security is concentrated in a vast network of reservoirs spanning from the Peloponnese to the Pindus Mountains. This dashboard provides real-time access to EYDAP (the Hellenic Water and Sewerage Company) data from Greece's major reservoirs, updated every six hours. As of March 2026, the eastern Mediterranean's historic drought has pushed Greece's water reserves to critical levels, making transparent access to this data essential for citizens, farmers, and policymakers.
+        </p>
+
+        <h3 class="text-lg font-semibold text-slate-800">{{ _("How to Read This Dashboard") }}</h3>
+
+        <p>
+            The <strong>system capacity chart</strong> shows the combined fill level of Greece's major reservoirs over time. You can switch between historical trend and year-on-year comparison views to track seasonal patterns. The <strong>dam grid</strong> displays each reservoir individually, colour-coded by severity: <span class="font-medium text-red-700">red (critical)</span> means the reservoir holds less than 20% of capacity, <span class="font-medium text-amber-700">amber (warning)</span> indicates 20–40%, and <span class="font-medium text-emerald-700">green (healthy)</span> means above 40%. Click any dam card to explore its full history, technical specifications, and year-on-year comparisons.
+        </p>
+
+        <h3 class="text-lg font-semibold text-slate-800">{{ _("What the Numbers Mean") }}</h3>
+
+        <p>
+            <strong>Percentage</strong> represents the reservoir's current storage relative to its maximum design capacity. Below 20%, the system enters critical territory where evaporation accelerates, water quality degrades as sediment concentrates, and extraction becomes physically limited. <strong>MCM (Million Cubic Metres)</strong> is the standard unit for reservoir volumes. Greece's major reservoirs have a combined capacity of approximately 1,500 MCM. Athens alone consumes roughly 600 MCM annually for domestic use, while agricultural irrigation across Attica adds 300+ MCM to demand.
+        </p>
+
+        <h3 class="text-lg font-semibold text-slate-800">{{ _("Why Monitoring Matters") }}</h3>
+
+        <p>
+            Reservoir levels directly determine Greece's water policy, irrigation allocations, and the energy cost of desalination. When levels drop below critical thresholds, the government restricts agricultural water, mandates higher desalination, and may impose rotating supply restrictions. The 2024–2026 drought — the worst in a generation — has shown how quickly a water system can transition from surplus to crisis. Real-time access to this data empowers citizens, journalists, and researchers to track the country's water emergency independently, without waiting for official announcements.
+        </p>
+
+        <div class="flex flex-wrap gap-3 mt-2">
+            <a href="/blog/athens-water-supply-system" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">{{ _("Athens Water System") }}</a>
+            <a href="/blog/mornos-reservoir-athens-lifeline" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">{{ _("Mornos Reservoir") }}</a>
+            <a href="/blog" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">{{ _("Latest Analysis") }}</a>
+            <a href="/map" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">{{ _("Interactive Map") }}</a>
+        </div>
+
+        <p class="text-sm text-slate-500 mt-4">
+            Data sourced from EYDAP (Hellenic Water and Sewerage Company) public records.
+        </p>
+
+        {% else %}
+
+        <!-- Editorial: Cyprus (default) -->
         <h2 class="text-xl font-semibold text-slate-800">{{ _("Understanding Cyprus Dam Levels") }}</h2>
 
         <p>
@@ -298,6 +339,8 @@
             Data sourced from the <a href="https://cyprus-water.appspot.com" target="_blank" rel="noopener" class="text-blue-600 hover:underline">Water Development Department of Cyprus</a>
             under <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noopener" class="text-blue-600 hover:underline">CC BY 2.0</a>.
         </p>
+
+        {% endif %}
 
     </div>
 </section>
