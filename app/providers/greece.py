@@ -83,7 +83,7 @@ def _parse_eydap_volume(raw: str) -> int:
     EYDAP uses dots as thousands separators: "93.063.000" → 93063000.
     A plain integer string is also accepted.
     """
-    return int(raw.replace(".", ""))
+    return int(raw.strip().replace(".", ""))
 
 
 class GreeceProvider:
@@ -96,7 +96,12 @@ class GreeceProvider:
         return list(_GREECE_DAMS)
 
     async def _fetch_savings(self, target_date: date) -> dict[str, str]:
-        """Call GET /api/Savings/Day/{DD-MM-YYYY} and return the raw JSON dict."""
+        """Call GET /api/Savings/Day/{DD-MM-YYYY} and return the raw JSON dict.
+
+        The EYDAP API returns a JSON list of dicts (one per day, sometimes
+        including the day before). We take the last element which corresponds
+        to the requested date.
+        """
         date_str = target_date.strftime("%d-%m-%Y")
         url = f"{_EYDAP_BASE_URL}/api/Savings/Day/{date_str}"
         try:
@@ -108,7 +113,13 @@ class GreeceProvider:
             raise UpstreamAPIError(
                 f"EYDAP returned HTTP {response.status_code} for {date_str}"
             )
-        return response.json()  # type: ignore[no-any-return]
+
+        payload = response.json()
+        if isinstance(payload, list):
+            if not payload:
+                raise UpstreamAPIError(f"EYDAP returned empty list for {date_str}")
+            return payload[-1]  # type: ignore[no-any-return]
+        return payload  # type: ignore[no-any-return]
 
     async def fetch_percentages(self, target_date: date) -> PercentageSnapshot:
         data = await self._fetch_savings(target_date)
