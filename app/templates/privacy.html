@@ -13,8 +13,8 @@
             <h2 class="text-lg font-semibold text-slate-800 mb-3">1. Introduction</h2>
             <p class="leading-relaxed">
                 Nero (<strong>nero.cy</strong>) is an independent, open-source dashboard
-                that displays publicly available reservoir data published by the Water Development Department
-                of Cyprus. The site is operated by a private individual and is provided free of charge for
+                that displays publicly available reservoir data from government water agencies across
+                multiple countries. The site is operated by a private individual and is provided free of charge for
                 informational purposes only. This Privacy Policy explains what data is collected when you
                 visit this site, why it is collected, and what rights you have over that data.
             </p>
@@ -96,9 +96,15 @@
                            class="text-blue-600 hover:underline">jsDelivr's Privacy Policy</a>.
                 </li>
                 <li>
-                    <strong>Water Development Department API</strong> — reservoir data is fetched
+                    <strong>Water Development Department API (Cyprus)</strong> — reservoir data is fetched
                     server-side from
                     <code class="text-xs bg-slate-100 px-1 py-0.5 rounded">cyprus-water.appspot.com</code>.
+                    No visitor data is forwarded to this API.
+                </li>
+                <li>
+                    <strong>EYDAP OpenData API (Greece)</strong> — reservoir data is fetched
+                    server-side from
+                    <code class="text-xs bg-slate-100 px-1 py-0.5 rounded">opendata-api-eydap.growthfund.gr</code>.
                     No visitor data is forwarded to this API.
                 </li>
             </ul>
@@ -204,7 +210,7 @@
     </div>
 
     <div class="mt-8">
-        <a href="/" class="text-sm text-blue-600 hover:underline">← Back to Dashboard</a>
+        <a href="{{ country_prefix }}/" class="text-sm text-blue-600 hover:underline">← Back to Dashboard</a>
     </div>
 </div>
 {% endblock %}
