@@ -109,7 +109,6 @@ def init_database() -> None:
                     image_url     TEXT NOT NULL DEFAULT '',
                     wikipedia_url TEXT NOT NULL DEFAULT ''
                 );
-                CREATE INDEX IF NOT EXISTS idx_dams_slug ON dams(slug);
 
                 CREATE TABLE IF NOT EXISTS daily_percentages (
                     date        TEXT NOT NULL,
@@ -164,9 +163,26 @@ def init_database() -> None:
                     last_date  TEXT NOT NULL DEFAULT ''
                 );
             """)
+        # Migrate existing databases: add slug column if missing
+        _migrate_add_slug(conn)
     finally:
         conn.close()
     logger.info("Database initialised at %s", settings.db_path)
+
+
+def _migrate_add_slug(conn: sqlite3.Connection) -> None:
+    """Add slug column to dams table if it doesn't exist (pre-B3 databases)."""
+    cols = [row[1] for row in conn.execute("PRAGMA table_info(dams)").fetchall()]
+    if "slug" not in cols:
+        conn.execute("ALTER TABLE dams ADD COLUMN slug TEXT NOT NULL DEFAULT ''")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_dams_slug ON dams(slug)")
+        # Backfill slugs for existing rows
+        from app.utils import slugify
+        rows = conn.execute("SELECT name_en FROM dams").fetchall()
+        for row in rows:
+            conn.execute("UPDATE dams SET slug = ? WHERE name_en = ?",
+                         (slugify(row["name_en"]), row["name_en"]))
+        logger.info("Migrated dams table: added slug column (%d rows backfilled)", len(rows))
 
 
 def is_database_empty() -> bool:
