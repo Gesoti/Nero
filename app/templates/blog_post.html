@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% if noindex %}
+{% block robots_content %}noindex, max-image-preview:large{% endblock %}
+{% endif %}
+
 {% block title %}{{ post.title }} — Nero{% endblock %}
 {% block og_title %}{{ post.title }} — Nero{% endblock %}
 {% block meta_description %}{{ post.description }}{% endblock %}

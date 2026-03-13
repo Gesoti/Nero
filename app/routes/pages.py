@@ -221,7 +221,8 @@ async def monthly_report(request: Request, year: int, month: int):
     return templates.TemplateResponse(
         request,
         "blog_post.html",
-        {"post": post, "canonical_url": _canonical(f"/blog/water-report-{year}-{month:02d}"),
+        {"post": post, "noindex": True,
+         "canonical_url": _canonical(f"/blog/water-report-{year}-{month:02d}"),
          "breadcrumbs": _breadcrumbs(("Blog", "/blog"), (post.title, f"/blog/water-report-{year}-{month:02d}"))},
     )
 

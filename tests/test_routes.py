@@ -346,13 +346,26 @@ class TestEnhancedSitemap:
 
 
 class TestAdSensePlacement:
-    """Ad units should only appear on dashboard and dam detail pages."""
+    """Ad units should only appear on content-rich pages (blog posts, dam detail)."""
 
-    @pytest.mark.parametrize("path", ["/about", "/privacy", "/map"])
-    async def test_no_ad_units_on_non_content_pages(self, async_client, path):
+    @pytest.mark.parametrize("path", ["/about", "/privacy", "/map", "/", "/blog"])
+    async def test_no_ad_units_on_thin_pages(self, async_client, path):
         r = await async_client.get(path)
         assert r.status_code == 200
-        assert "adsbygoogle" not in r.text or "data-ad-slot" not in r.text
+        assert '<ins class="adsbygoogle"' not in r.text, f"Ad unit found on thin page {path}"
+
+
+class TestMonthlyReportNoindex:
+    """Auto-generated monthly reports should have noindex to avoid thin content penalties."""
+
+    async def test_monthly_report_has_noindex(self, seeded_async_client):
+        r = await seeded_async_client.get("/blog/water-report-2026-02")
+        assert r.status_code == 200
+        assert 'noindex' in r.text
+
+    async def test_sitemap_excludes_monthly_reports(self, seeded_async_client):
+        r = await seeded_async_client.get("/sitemap.xml")
+        assert "water-report" not in r.text
 
 
 class TestHealthRoute:
