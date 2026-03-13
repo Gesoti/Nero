@@ -291,6 +291,21 @@ class TestBlogRoutes:
         r = await async_client.get("/blog/which-cyprus-dam-is-emptying-fastest")
         assert "/dam/" in r.text
 
+    async def test_biggest_dams_returns_200(self, async_client):
+        r = await async_client.get("/blog/five-biggest-dams-cyprus")
+        assert r.status_code == 200
+        assert "Kouris" in r.text
+
+    async def test_climate_change_returns_200(self, async_client):
+        r = await async_client.get("/blog/how-climate-change-is-drying-cyprus")
+        assert r.status_code == 200
+        assert "Climate" in r.text or "climate" in r.text
+
+    async def test_how_nero_works_returns_200(self, async_client):
+        r = await async_client.get("/blog/how-nero-works")
+        assert r.status_code == 200
+        assert "Nero" in r.text
+
 
 class TestAuthorByline:
     """Blog posts should have author byline for E-E-A-T signals."""
