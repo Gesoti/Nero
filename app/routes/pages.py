@@ -32,6 +32,8 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 install_i18n(templates.env)
+# Country layout path available to all templates via {{ layout_template }}
+templates.env.globals["layout_template"] = f"{settings.country}/layout.html"
 
 
 def _canonical(path: str) -> str:

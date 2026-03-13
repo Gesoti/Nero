@@ -9,6 +9,10 @@
     <meta name="description" content="{% block meta_description %}{{ default_description }}{% endblock %}" />
     <meta name="robots" content="{% block robots_content %}max-image-preview:large{% endblock %}" />
     <link rel="canonical" href="{{ canonical_url }}" />
+    {% block hreflang %}
+    <link rel="alternate" hreflang="x-default" href="{{ canonical_url }}" />
+    <link rel="alternate" hreflang="en" href="{{ canonical_url }}" />
+    {% endblock %}
     <meta property="og:title" content="{% block og_title %}Nero{% endblock %}" />
     <meta property="og:description" content="{% block og_description %}{{ default_description }}{% endblock %}" />
     <meta property="og:url" content="{{ canonical_url }}" />
