@@ -18,6 +18,12 @@ COUNTRY_DB_PATHS: dict[str, str] = {
     "gr": "data/gr/water.db",
 }
 
+# Human-readable country labels for navigation UI
+COUNTRY_LABELS: dict[str, str] = {
+    "cy": "Cyprus",
+    "gr": "Greece",
+}
+
 # (lat, lng) map centre for the Leaflet map on /map
 COUNTRY_MAP_CENTRES: dict[str, tuple[float, float]] = {
     "cy": (34.917, 33.0),

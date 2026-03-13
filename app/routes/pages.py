@@ -21,7 +21,7 @@ from fastapi.templating import Jinja2Templates
 
 from app.blog import load_all_posts, load_post
 from app.config import settings
-from app.country_config import COUNTRY_LOCALE_MAP, COUNTRY_MAP_CENTRES
+from app.country_config import COUNTRY_LABELS, COUNTRY_LOCALE_MAP, COUNTRY_MAP_CENTRES
 from app.dam_descriptions import get_dam_description
 from app.gr_dam_descriptions import get_gr_dam_description
 from app.i18n import install_i18n, get_translations
@@ -121,10 +121,18 @@ def _render_ctx(request: Request, extra: dict) -> dict:
     # NullTranslations for "en", compiled .mo for other locales.
     templates.env.install_gettext_translations(get_translations(locale))
 
+    # Build country navigation data for the nav bar
+    enabled = settings.get_enabled_countries()
+    country_nav = [
+        {"code": cc, "label": COUNTRY_LABELS.get(cc, cc.upper()), "href": f"/{cc}/" if cc != "cy" else "/"}
+        for cc in enabled
+    ] if len(enabled) > 1 else []
+
     ctx = {
         "layout_template": f"{country}/layout.html",
         "country_prefix": country_prefix,
         "country": country,
+        "country_nav": country_nav,
         # hreflang_alternates is a list of {lang, href} dicts for cross-country links.
         # Empty for single-country deployments; populated when multiple countries enabled.
         "hreflang_alternates": _build_hreflang_alternates(country, request.url.path),

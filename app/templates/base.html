@@ -137,6 +137,30 @@
 </script>
 <!-- ── End Cookie Consent ──────────────────────────────────────── -->
 
+<!-- ── Country Dropdown Toggle ──────────────────────────────────── -->
+{% if country_nav %}
+<script nonce="{{ request.state.csp_nonce }}">
+(function () {
+  'use strict';
+  document.addEventListener('DOMContentLoaded', function () {
+    var toggle = document.getElementById('country-toggle');
+    var dropdown = document.getElementById('country-dropdown');
+    if (!toggle || !dropdown) return;
+    toggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var open = !dropdown.classList.contains('hidden');
+      dropdown.classList.toggle('hidden');
+      toggle.setAttribute('aria-expanded', String(!open));
+    });
+    document.addEventListener('click', function () {
+      dropdown.classList.add('hidden');
+      toggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+}());
+</script>
+{% endif %}
+
 <!-- Navigation -->
 <nav class="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
@@ -146,9 +170,27 @@
         </a>
         <div class="flex items-center gap-4">
             {% block nav_right %}{% endblock %}
-            <a href="/blog" class="text-sm text-slate-500 hover:text-slate-700 transition-colors">{{ _("Blog") }}</a>
-            <a href="/map" class="text-sm text-slate-500 hover:text-slate-700 transition-colors">{{ _("Map") }}</a>
-            <a href="/about" class="text-sm text-slate-500 hover:text-slate-700 transition-colors">{{ _("About") }}</a>
+            {% if country_nav %}
+            <div id="country-nav" class="relative">
+                <button id="country-toggle"
+                        class="text-sm text-slate-500 hover:text-slate-700 transition-colors flex items-center gap-1"
+                        aria-expanded="false" aria-haspopup="true">
+                    {% for c in country_nav %}{% if c.code == country %}{{ c.label }}{% endif %}{% endfor %}
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <div id="country-dropdown"
+                     class="hidden absolute right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg py-1 min-w-[140px] z-50">
+                    {% for c in country_nav %}
+                    <a href="{{ c.href }}"
+                       class="block px-4 py-2 text-sm {% if c.code == country %}text-blue-600 font-medium bg-blue-50{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-800{% endif %} transition-colors"
+                       data-active="{{ c.code if c.code == country else '' }}">{{ c.label }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            <a href="{{ country_prefix }}/blog" class="text-sm text-slate-500 hover:text-slate-700 transition-colors">{{ _("Blog") }}</a>
+            <a href="{{ country_prefix }}/map" class="text-sm text-slate-500 hover:text-slate-700 transition-colors">{{ _("Map") }}</a>
+            <a href="{{ country_prefix }}/about" class="text-sm text-slate-500 hover:text-slate-700 transition-colors">{{ _("About") }}</a>
         </div>
     </div>
 </nav>
