@@ -8,7 +8,7 @@ Mornos, Yliki, Evinos, Marathon.
 from __future__ import annotations
 
 import logging
-from datetime import date
+from datetime import date, timedelta
 
 import httpx
 
@@ -61,6 +61,30 @@ _GREECE_DAMS: list[DamInfo] = [
     ),
 ]
 
+# EYDAP API response field → our dam name_en
+_EYDAP_FIELD_MAP: dict[str, str] = {
+    "Eyinos": "Evinos",
+    "Marathonas": "Marathon",
+    "Mornos": "Mornos",
+    "Yliko": "Yliki",
+}
+
+# Lookup capacity by dam name_en for percentage derivation
+_CAPACITY_MAP: dict[str, float] = {d.name_en: d.capacity_mcm for d in _GREECE_DAMS}
+
+_TOTAL_CAPACITY_MCM: float = sum(d.capacity_mcm for d in _GREECE_DAMS)
+
+_EYDAP_BASE_URL = "https://opendata-api-eydap.growthfund.gr"
+
+
+def _parse_eydap_volume(raw: str) -> int:
+    """Convert EYDAP European-format number string to integer m³.
+
+    EYDAP uses dots as thousands separators: "93.063.000" → 93063000.
+    A plain integer string is also accepted.
+    """
+    return int(raw.replace(".", ""))
+
 
 class GreeceProvider:
     """DataProvider implementation for the EYDAP OpenData API (Athens water supply)."""
@@ -71,15 +95,89 @@ class GreeceProvider:
     async def fetch_dams(self) -> list[DamInfo]:
         return list(_GREECE_DAMS)
 
+    async def _fetch_savings(self, target_date: date) -> dict[str, str]:
+        """Call GET /api/Savings/Day/{DD-MM-YYYY} and return the raw JSON dict."""
+        date_str = target_date.strftime("%d-%m-%Y")
+        url = f"{_EYDAP_BASE_URL}/api/Savings/Day/{date_str}"
+        try:
+            response = await self._client.get(url)
+        except httpx.RequestError as exc:
+            raise UpstreamAPIError(f"EYDAP request failed: {exc}") from exc
+
+        if response.status_code != 200:
+            raise UpstreamAPIError(
+                f"EYDAP returned HTTP {response.status_code} for {date_str}"
+            )
+        return response.json()  # type: ignore[no-any-return]
+
     async def fetch_percentages(self, target_date: date) -> PercentageSnapshot:
-        # Stub — will be implemented in G3
-        raise NotImplementedError("G3 will implement this")
+        data = await self._fetch_savings(target_date)
+
+        dam_percentages: list[DamPercentage] = []
+        total_volume_mcm = 0.0
+
+        for api_field, dam_name in _EYDAP_FIELD_MAP.items():
+            raw = data.get(api_field) or "0"
+            volume_m3 = _parse_eydap_volume(raw)
+            volume_mcm = volume_m3 / 1_000_000
+            capacity_mcm = _CAPACITY_MAP[dam_name]
+            pct = volume_mcm / capacity_mcm if capacity_mcm > 0 else 0.0
+            dam_percentages.append(DamPercentage(dam_name_en=dam_name, percentage=pct))
+            total_volume_mcm += volume_mcm
+
+        total_pct = total_volume_mcm / _TOTAL_CAPACITY_MCM if _TOTAL_CAPACITY_MCM > 0 else 0.0
+
+        return PercentageSnapshot(
+            date=target_date,
+            dam_percentages=dam_percentages,
+            total_percentage=total_pct,
+            total_capacity_mcm=_TOTAL_CAPACITY_MCM,
+        )
 
     async def fetch_date_statistics(self, target_date: date) -> DateStatistics:
-        raise NotImplementedError("G3 will implement this")
+        data = await self._fetch_savings(target_date)
+
+        dam_statistics: list[DamStatistic] = []
+        for api_field, dam_name in _EYDAP_FIELD_MAP.items():
+            raw = data.get(api_field) or "0"
+            volume_m3 = _parse_eydap_volume(raw)
+            storage_mcm = volume_m3 / 1_000_000
+            # EYDAP does not publish inflow figures via this endpoint
+            dam_statistics.append(
+                DamStatistic(dam_name_en=dam_name, storage_mcm=storage_mcm, inflow_mcm=0.0)
+            )
+
+        return DateStatistics(date=target_date, dam_statistics=dam_statistics)
 
     async def fetch_timeseries(self) -> list[PercentageSnapshot]:
-        raise NotImplementedError("G3 will implement this")
+        """Fetch daily snapshots for recent years by sampling the first day of each month.
+
+        EYDAP's /api/Savings/Year/{date} returns a single-day aggregate, not an array,
+        so we sample monthly to build a usable timeseries without hammering the API.
+        """
+        snapshots: list[PercentageSnapshot] = []
+        today = date.today()
+
+        # Build a list of first-of-month dates from 2020-01 to last month
+        sample_dates: list[date] = []
+        d = date(2020, 1, 1)
+        while d < today:
+            sample_dates.append(d)
+            # Advance to first day of next month
+            if d.month == 12:
+                d = date(d.year + 1, 1, 1)
+            else:
+                d = date(d.year, d.month + 1, 1)
+
+        for sample_date in sample_dates:
+            try:
+                snapshot = await self.fetch_percentages(sample_date)
+                snapshots.append(snapshot)
+            except UpstreamAPIError as exc:
+                # Log and skip missing data points rather than failing the whole series
+                logger.warning("EYDAP timeseries: skipping %s — %s", sample_date, exc)
+
+        return snapshots
 
     async def fetch_monthly_inflows(self) -> list[MonthlyInflow]:
         return []
