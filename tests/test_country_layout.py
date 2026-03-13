@@ -43,13 +43,13 @@ class TestGreekLayout:
         content = Path("app/templates/gr/layout.html").read_text()
         assert '{% extends "base.html" %}' in content
 
-    def test_gr_layout_sets_lang_el(self):
+    def test_gr_layout_does_not_set_non_english_lang(self):
         content = Path("app/templates/gr/layout.html").read_text()
-        assert 'lang="el"' in content
+        assert 'lang="el"' not in content
 
-    def test_gr_layout_sets_og_locale_el_GR(self):
+    def test_gr_layout_does_not_set_el_GR_locale(self):
         content = Path("app/templates/gr/layout.html").read_text()
-        assert "el_GR" in content
+        assert "el_GR" not in content
 
     def test_gr_layout_references_eydap(self):
         content = Path("app/templates/gr/layout.html").read_text()

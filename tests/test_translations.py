@@ -1,36 +1,17 @@
-"""Tests for translation files."""
-from pathlib import Path
+"""Tests for translation infrastructure — English-only mode.
 
-import pytest
-
-TRANSLATIONS_DIR = Path("app/translations")
-EL_PO_PATH = TRANSLATIONS_DIR / "el" / "LC_MESSAGES" / "messages.po"
-EL_MO_PATH = TRANSLATIONS_DIR / "el" / "LC_MESSAGES" / "messages.mo"
+Multilingual support was removed (all countries use English).
+The i18n extension is kept for _() passthrough but no .po/.mo files are needed.
+"""
 
 
-def test_el_translation_file_exists() -> None:
-    """Verify Greek .po file exists."""
-    assert EL_PO_PATH.exists(), f"Greek .po file not found at {EL_PO_PATH}"
+def test_i18n_is_english_only() -> None:
+    """Verify no non-English translation files exist."""
+    from pathlib import Path
 
-
-def test_el_translation_compiled_mo_exists() -> None:
-    """Verify compiled Greek .mo file exists."""
-    assert EL_MO_PATH.exists(), f"Compiled .mo file not found at {EL_MO_PATH}"
-
-
-def test_el_translation_no_empty_msgstr() -> None:
-    """Every msgid (except the header) must have a non-empty msgstr."""
-    content = EL_PO_PATH.read_text(encoding="utf-8")
-    in_header = True
-    msgid = ""
-
-    for line in content.split("\n"):
-        line = line.strip()
-        if line.startswith("msgid "):
-            msgid = line[7:-1]  # strip msgid " and trailing "
-            if msgid:  # non-empty msgid means we're past the header
-                in_header = False
-        elif line.startswith("msgstr ") and not in_header:
-            msgstr = line[8:-1]  # strip msgstr " and trailing "
-            if msgid and not msgstr:
-                pytest.fail(f"Empty msgstr for msgid: {msgid!r}")
+    translations_dir = Path("app/translations")
+    if translations_dir.exists():
+        locale_dirs = [d for d in translations_dir.iterdir() if d.is_dir()]
+        assert len(locale_dirs) == 0, (
+            f"Expected no locale directories (English-only mode), found: {[d.name for d in locale_dirs]}"
+        )

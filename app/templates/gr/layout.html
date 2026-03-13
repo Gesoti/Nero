@@ -1,10 +1,5 @@
 {% extends "base.html" %}
-{# Greece country layout — overrides locale and attribution for the Greek deployment.
-   Sets lang="el", og:locale="el_GR", and replaces the WDD footer attribution
-   with EYDAP (Athens Water Supply and Sewerage Company). #}
+{# Greece country layout — uses English (same as Cyprus).
+   Overrides the footer attribution to EYDAP. #}
 
-{% block html_lang %}el{% endblock %}
-
-{% block og_locale %}el_GR{% endblock %}
-
-{% block footer_data_source %}{{ _("Data:") }} <a href="https://www.eydap.gr" target="_blank" rel="noopener" class="hover:text-slate-600 underline underline-offset-2">EYDAP (Athens Water Supply and Sewerage Company)</a>{% endblock %}
+{% block footer_data_source %}Data: <a href="https://www.eydap.gr" target="_blank" rel="noopener" class="hover:text-slate-600 underline underline-offset-2">EYDAP (Athens Water Supply and Sewerage Company)</a>{% endblock %}

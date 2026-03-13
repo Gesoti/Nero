@@ -97,18 +97,18 @@ async def test_gr_root_returns_200(gr_client: httpx.AsyncClient) -> None:
     assert resp.status_code == 200
 
 
-async def test_gr_layout_renders_lang_el(gr_client: httpx.AsyncClient) -> None:
-    """GET /gr/ must render with lang=el from gr/layout.html."""
+async def test_gr_layout_renders_lang_en(gr_client: httpx.AsyncClient) -> None:
+    """GET /gr/ must render with lang=en (English only, no i18n)."""
     resp = await gr_client.get("/gr/")
     assert resp.status_code == 200
-    assert 'lang="el"' in resp.text
+    assert 'lang="en"' in resp.text
 
 
-async def test_gr_layout_renders_el_GR_locale(gr_client: httpx.AsyncClient) -> None:
-    """GET /gr/ must render with og:locale=el_GR from gr/layout.html."""
+async def test_gr_layout_no_el_GR_locale(gr_client: httpx.AsyncClient) -> None:
+    """GET /gr/ must not render with el_GR locale (English only)."""
     resp = await gr_client.get("/gr/")
     assert resp.status_code == 200
-    assert "el_GR" in resp.text
+    assert "el_GR" not in resp.text
 
 
 async def test_gr_about_returns_200(gr_client: httpx.AsyncClient) -> None:
@@ -118,14 +118,13 @@ async def test_gr_about_returns_200(gr_client: httpx.AsyncClient) -> None:
 
 # ── layout_template is per-request, not global ───────────────────────────────
 
-async def test_cy_and_gr_use_different_layouts(
+async def test_cy_and_gr_both_use_english(
     gr_seeded_client: httpx.AsyncClient,
 ) -> None:
-    """Verify CY renders with en layout and GR with el layout in same test."""
+    """Verify both CY and GR render with lang=en (English only, no i18n)."""
     gr_resp = await gr_seeded_client.get("/gr/")
     cy_resp = await gr_seeded_client.get("/")
     assert gr_resp.status_code == 200
     assert cy_resp.status_code == 200
-    # Check the <html lang> attribute specifically, not hreflang alternate link tags
-    assert '<html lang="el"' in gr_resp.text
-    assert '<html lang="el"' not in cy_resp.text
+    assert '<html lang="en"' in gr_resp.text
+    assert '<html lang="en"' in cy_resp.text

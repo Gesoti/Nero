@@ -64,11 +64,11 @@ async def test_gr_dashboard_returns_200(gr_client: httpx.AsyncClient) -> None:
     assert resp.status_code == 200
 
 
-async def test_gr_dashboard_uses_el_lang(gr_client: httpx.AsyncClient) -> None:
-    """GET /gr/ must render with lang="el" from gr/layout.html."""
+async def test_gr_dashboard_uses_en_lang(gr_client: httpx.AsyncClient) -> None:
+    """GET /gr/ must render with lang="en" (English only, no i18n)."""
     resp = await gr_client.get("/gr/")
     assert resp.status_code == 200
-    assert 'lang="el"' in resp.text
+    assert 'lang="en"' in resp.text
 
 
 async def test_gr_health_returns_200(gr_client: httpx.AsyncClient) -> None:
@@ -140,11 +140,11 @@ async def test_gr_dashboard_has_og_tags(gr_client: httpx.AsyncClient) -> None:
     assert '<meta property="og:type"' in resp.text
 
 
-async def test_gr_dashboard_has_el_gr_locale(gr_client: httpx.AsyncClient) -> None:
-    """Greek dashboard must have el_GR locale in og:locale."""
+async def test_gr_dashboard_has_en_locale(gr_client: httpx.AsyncClient) -> None:
+    """Greek dashboard must have English locale (no el_GR)."""
     resp = await gr_client.get("/gr/")
     assert resp.status_code == 200
-    assert "el_GR" in resp.text
+    assert "el_GR" not in resp.text
 
 
 async def test_gr_dashboard_security_headers(gr_client: httpx.AsyncClient) -> None:

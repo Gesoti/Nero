@@ -70,10 +70,11 @@ async def test_sitemap_includes_gr_dam_mornos(gr_enabled_client: httpx.AsyncClie
 
 
 async def test_hreflang_cy_page_links_to_gr(gr_enabled_client: httpx.AsyncClient) -> None:
-    """Cyprus / must include hreflang=el pointing toward the /gr/ equivalent."""
+    """Cyprus / must include hreflang pointing toward the /gr/ equivalent."""
     resp = await gr_enabled_client.get("/")
     assert resp.status_code == 200
-    assert 'hreflang="el"' in resp.text
+    # Both countries use "en" locale now; verify GR alternate link exists
+    assert "/gr/" in resp.text
 
 
 async def test_hreflang_gr_page_links_to_cy(gr_enabled_client: httpx.AsyncClient) -> None:

@@ -1,7 +1,5 @@
-"""Tests for i18n integration — Babel + Jinja2."""
+"""Tests for i18n integration — Jinja2 i18n extension (English-only passthrough)."""
 from __future__ import annotations
-
-import pytest
 
 
 class TestI18nSetup:
@@ -15,11 +13,10 @@ class TestI18nSetup:
         """_() must be callable in the Jinja2 environment."""
         from app.routes.pages import templates
         env = templates.env
-        # The i18n extension installs _() as a global
         assert "_" in env.globals or hasattr(env, "install_gettext_translations")
 
     def test_passthrough_translation(self):
-        """With NullTranslations (English default), _() returns the input unchanged."""
+        """With NullTranslations (English-only), _() returns the input unchanged."""
         from app.routes.pages import templates
         env = templates.env
         tmpl = env.from_string("{{ _('Hello World') }}")
@@ -28,36 +25,21 @@ class TestI18nSetup:
 
     def test_existing_templates_still_render(self, async_client):
         """Dashboard still renders correctly with i18n enabled."""
-        # This is covered by existing route tests, but explicit check here
         pass  # Existing tests cover this — presence here documents the requirement
 
 
-class TestTemplateI18nWrapping:
-    """Key UI strings must be wrapped with _() for translation extraction."""
+class TestI18nAlwaysEnglish:
+    """All countries use English-only passthrough (NullTranslations)."""
 
-    def _read_template(self, name: str) -> str:
-        from pathlib import Path
-        return Path(f"app/templates/{name}").read_text()
+    def test_get_translations_returns_null_for_en(self):
+        import gettext
+        from app.i18n import get_translations
+        result = get_translations("en")
+        assert isinstance(result, gettext.NullTranslations)
 
-    def test_base_has_wrapped_nav_strings(self):
-        content = self._read_template("base.html")
-        # Nav items should use _()
-        assert "{{ _(" in content
-
-    def test_dashboard_has_wrapped_headings(self):
-        content = self._read_template("dashboard.html")
-        assert "{{ _(" in content
-
-    def test_dam_detail_has_wrapped_labels(self):
-        content = self._read_template("dam_detail.html")
-        assert "{{ _(" in content
-
-    def test_404_has_wrapped_text(self):
-        content = self._read_template("404.html")
-        assert "{{ _(" in content
-
-
-class TestBabelConfig:
-    def test_babel_cfg_exists(self):
-        from pathlib import Path
-        assert Path("babel.cfg").exists() or Path("app/i18n/babel.cfg").exists()
+    def test_get_translations_returns_null_for_any_locale(self):
+        """Even non-English locales return NullTranslations (English-only mode)."""
+        import gettext
+        from app.i18n import get_translations
+        result = get_translations("el")
+        assert isinstance(result, gettext.NullTranslations)
