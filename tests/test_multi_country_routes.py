@@ -126,5 +126,6 @@ async def test_cy_and_gr_use_different_layouts(
     cy_resp = await gr_seeded_client.get("/")
     assert gr_resp.status_code == 200
     assert cy_resp.status_code == 200
-    assert 'lang="el"' in gr_resp.text
-    assert 'lang="el"' not in cy_resp.text
+    # Check the <html lang> attribute specifically, not hreflang alternate link tags
+    assert '<html lang="el"' in gr_resp.text
+    assert '<html lang="el"' not in cy_resp.text

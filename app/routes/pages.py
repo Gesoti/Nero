@@ -21,7 +21,7 @@ from fastapi.templating import Jinja2Templates
 
 from app.blog import load_all_posts, load_post
 from app.config import settings
-from app.country_config import COUNTRY_MAP_CENTRES
+from app.country_config import COUNTRY_LOCALE_MAP, COUNTRY_MAP_CENTRES
 from app.dam_descriptions import get_dam_description
 from app.gr_dam_descriptions import get_gr_dam_description
 from app.i18n import install_i18n, get_translations
@@ -63,6 +63,47 @@ def _get_dam_description_for_country(country: str, name_en: str) -> str:
     return get_dam_description(name_en)
 
 
+def _build_hreflang_alternates(country: str, request_path: str) -> list[dict[str, str]]:
+    """
+    Build a list of hreflang alternate link dicts for all enabled countries.
+
+    Each entry has 'lang' (BCP-47) and 'href' (absolute URL). The current
+    country is included so search engines see a complete self-referential set.
+    Cross-country path mapping: strip the current country prefix, then prepend
+    the alternate country's prefix.
+    """
+    base = settings.base_url.rstrip("/")
+    enabled = settings.get_enabled_countries()
+    if len(enabled) <= 1:
+        # Single-country deployment — no cross-links needed
+        return []
+
+    # Determine the path without any country prefix (canonical CY path)
+    # e.g. "/gr/map" → "/map", "/map" → "/map"
+    cy_path = request_path
+    for c in enabled:
+        if c != "cy":
+            prefix = f"/{c}"
+            if cy_path.startswith(prefix + "/") or cy_path == prefix:
+                cy_path = cy_path[len(prefix):]
+                if not cy_path:
+                    cy_path = "/"
+                break
+
+    alternates: list[dict[str, str]] = []
+    for c in enabled:
+        lang = COUNTRY_LOCALE_MAP.get(c, "en")
+        if c == "cy":
+            href = f"{base}{cy_path}"
+        else:
+            # Add country prefix; handle root path specially
+            path_with_prefix = f"/{c}{cy_path}" if cy_path != "/" else f"/{c}/"
+            href = f"{base}{path_with_prefix}"
+        alternates.append({"lang": lang, "href": href})
+
+    return alternates
+
+
 def _render_ctx(request: Request, extra: dict) -> dict:
     """
     Build a base template context with per-request country wiring.
@@ -84,6 +125,9 @@ def _render_ctx(request: Request, extra: dict) -> dict:
         "layout_template": f"{country}/layout.html",
         "country_prefix": country_prefix,
         "country": country,
+        # hreflang_alternates is a list of {lang, href} dicts for cross-country links.
+        # Empty for single-country deployments; populated when multiple countries enabled.
+        "hreflang_alternates": _build_hreflang_alternates(country, request.url.path),
     }
     ctx.update(extra)
     return ctx
@@ -390,11 +434,13 @@ async def robots_txt():
 @router.get("/sitemap.xml")
 async def sitemap_xml():
     from datetime import date as date_type
+    from app.country_config import COUNTRY_DB_PATHS
 
     base = settings.base_url.rstrip("/")
-    dams = get_all_dams_with_current_stats()
     blog_posts = load_all_posts()
     today = date_type.today().isoformat()
+
+    # Use the default CY db for the last-sync date stamp
     last_sync = get_last_sync_time()
     data_date = last_sync[:10] if last_sync else today
 
@@ -420,10 +466,51 @@ async def sitemap_xml():
         url_entry("/learn/water-crisis-history", "monthly", "0.5"),
         url_entry("/privacy", "monthly", "0.2"),
     ]
-    for dam in dams:
+
+    # CY dam pages (default country, no prefix) — queried from database
+    cy_db = COUNTRY_DB_PATHS.get("cy", settings.db_path)
+    cy_dams = get_all_dams_with_current_stats(db_path=cy_db)
+    for dam in cy_dams:
         xml_parts.append(url_entry(f"/dam/{quote(dam.name_en, safe='')}", "daily", "0.8"))
-    for post in blog_posts:
+
+    for post in [p for p in blog_posts if not getattr(p, "country", None) or p.country == "cy"]:
         xml_parts.append(url_entry(f"/blog/{post.slug}", "monthly", "0.6", lastmod=post.date.isoformat()))
+
+    # Per-country pages for every enabled non-default country
+    for country in settings.get_enabled_countries():
+        if country == "cy":
+            # Already handled above as the default (no prefix) country
+            continue
+        prefix = f"/{country}"
+        xml_parts.append(url_entry(f"{prefix}/", "daily", "0.9"))
+        xml_parts.append(url_entry(f"{prefix}/map", "daily", "0.7"))
+        xml_parts.append(url_entry(f"{prefix}/about", "monthly", "0.3"))
+        xml_parts.append(url_entry(f"{prefix}/blog", "weekly", "0.7"))
+
+        # Greece dam names come from the provider's static metadata so the
+        # sitemap is correct even when the gr database hasn't been seeded yet.
+        # For future countries, fall back to querying their own database.
+        if country == "gr":
+            from app.providers.greece import _GREECE_DAMS as _gr_dams
+            for dam_info in _gr_dams:
+                xml_parts.append(
+                    url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
+                )
+        else:
+            country_db = COUNTRY_DB_PATHS.get(country, "")
+            if country_db:
+                country_dams = get_all_dams_with_current_stats(db_path=country_db)
+                for dam in country_dams:
+                    xml_parts.append(
+                        url_entry(f"{prefix}/dam/{quote(dam.name_en, safe='')}", "daily", "0.8")
+                    )
+
+        # Blog posts belonging to this country
+        for post in [p for p in blog_posts if getattr(p, "country", None) == country]:
+            xml_parts.append(
+                url_entry(f"{prefix}/blog/{post.slug}", "monthly", "0.6", lastmod=post.date.isoformat())
+            )
+
     xml_parts.append("</urlset>")
 
     return Response(
