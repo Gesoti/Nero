@@ -12,9 +12,13 @@ RUN uv sync --frozen --no-dev
 COPY app/ app/
 COPY main.py .
 
-ENV WL_DB_PATH=/data/water.db \
+ENV WL_ENABLED_COUNTRIES=cy,gr \
     WL_HOST=0.0.0.0 \
     WL_PORT=8000
+
+# Symlink /app/data → /data so relative paths (data/cy/water.db) land on the
+# persistent volume mounted at /data on the host.
+RUN ln -s /data /app/data
 
 EXPOSE 8000
 
