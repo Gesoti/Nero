@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="{% block html_lang %}en{% endblock %}" class="h-full">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,7 +18,7 @@
     <meta property="og:url" content="{{ canonical_url }}" />
     <meta property="og:site_name" content="Nero" />
     <meta property="og:type" content="website" />
-    <meta property="og:locale" content="en_CY" />
+    <meta property="og:locale" content="{% block og_locale %}en_CY{% endblock %}" />
     {% if breadcrumbs %}
     <script type="application/ld+json" nonce="{{ request.state.csp_nonce }}">
     {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{% for bc in breadcrumbs %}{"@type":"ListItem","position":{{ loop.index }},"name":"{{ bc.name }}","item":"{{ bc.url }}"}{% if not loop.last %},{% endif %}{% endfor %}]}
@@ -152,7 +152,7 @@
 <!-- Footer -->
 <footer class="mt-16 border-t border-slate-200 bg-white py-6">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-slate-400">
-        {{ _("Data:") }} <a href="https://cyprus-water.appspot.com" target="_blank" rel="noopener" class="hover:text-slate-600 underline underline-offset-2">Water Development Department, Cyprus</a> (CC BY 2.0)
+        {% block footer_data_source %}{{ _("Data:") }} <a href="https://cyprus-water.appspot.com" target="_blank" rel="noopener" class="hover:text-slate-600 underline underline-offset-2">Water Development Department, Cyprus</a> (CC BY 2.0){% endblock %}
         <span class="mx-2 text-slate-300">·</span>
         <a href="/privacy" class="hover:text-slate-600 underline underline-offset-2">{{ _("Privacy Policy") }}</a>
         {% block footer_extra %}{% endblock %}
