@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}How Dams Work in Cyprus — Nero{% endblock %}
+{% block meta_description %}A guide to how Cyprus's 17 major dams store, manage, and distribute water. Learn about dam types, the Southern Conveyor, desalination, and water infrastructure.{% endblock %}
+
+{% block content %}
+<article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+    <nav class="mb-6 text-sm text-slate-500">
+        <a href="/" class="hover:text-slate-700 transition-colors">Home</a>
+        <span class="mx-2">/</span>
+        <span class="text-slate-800 font-medium">How Dams Work</span>
+    </nav>
+
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold text-slate-900 mb-3">How Dams Work: A Guide to Cyprus Water Infrastructure</h1>
+        <p class="text-slate-500 leading-relaxed">Everything you need to know about how Cyprus stores, manages, and distributes its most precious resource.</p>
+    </header>
+
+    <div class="prose prose-slate max-w-none prose-headings:font-semibold prose-a:text-blue-600 prose-a:underline text-slate-700 leading-relaxed space-y-6">
+
+        <p>
+            Cyprus has 17 major dams with a combined capacity of approximately 327 million cubic metres (MCM). These
+            reservoirs are the backbone of the island's water supply, collecting winter rainfall and storing it for use
+            throughout the long, dry summer. Understanding how they work helps make sense of the data on the
+            <a href="/">Nero dashboard</a>.
+        </p>
+
+        <h2>Types of dams in Cyprus</h2>
+
+        <p>
+            The vast majority of Cyprus's dams are <strong>earth-fill dams</strong> — massive embankments of compacted
+            soil, clay, and rock that block a river valley to create a reservoir behind them. Earth-fill construction
+            was the standard technique when Cyprus built most of its dam infrastructure between the 1960s and 1990s.
+            Dams like <a href="/dam/Kouris">Kouris</a> (completed 1988, 110 metres tall), <a href="/dam/Asprokremmos">Asprokremmos</a>
+            (1982, 53 metres), and <a href="/dam/Germasoyeia">Germasoyeia</a> (1968, 48 metres) are all earth-fill structures.
+        </p>
+        <p>
+            The notable exception is <a href="/dam/Kannaviou">Kannaviou</a>, completed in 2005 using <strong>roller-compacted
+            concrete (RCC)</strong>. RCC is a modern technique where a drier concrete mix is spread in thin layers and
+            compacted with vibratory rollers, similar to road construction. It is faster and more cost-effective than
+            traditional poured concrete, and Kannaviou's 75-metre structure benefits from modern engineering standards
+            including advanced monitoring and spillway design.
+        </p>
+
+        <h2>How water is stored and measured</h2>
+
+        <p>
+            A dam creates an artificial lake (reservoir) by blocking the natural flow of a river. Rainfall in the
+            surrounding <strong>catchment area</strong> — the hills and slopes that drain into the river — flows
+            downstream and accumulates behind the dam wall. The size of the catchment, the amount of rainfall it
+            receives, and the permeability of its geology all determine how quickly a dam fills.
+        </p>
+        <p>
+            Reservoir volume is measured in <strong>MCM (Million Cubic Metres)</strong>. One MCM equals one billion
+            litres — enough to fill roughly 400 Olympic swimming pools. The <strong>percentage full</strong> that Nero
+            displays represents the current stored volume as a fraction of the dam's maximum design capacity. A dam
+            at 50% holds half of what it could theoretically hold if filled to its spillway crest.
+        </p>
+        <p>
+            Not all water in a reservoir is usable. Every dam has a <strong>dead storage</strong> volume — the water
+            that sits below the lowest outlet pipe and cannot be physically extracted. When a dam approaches dead
+            storage, it is effectively empty from a supply perspective even though water may still be visible.
+            Evaporation also claims a significant share: during summer, large reservoir surfaces lose substantial
+            water to the atmosphere, with shallower reservoirs losing a higher proportion of their remaining volume.
+        </p>
+
+        <h2>The Southern Conveyor</h2>
+
+        <p>
+            The <strong>Southern Conveyor</strong> is the most important piece of water infrastructure in Cyprus. It
+            is a network of pipelines, tunnels, and pumping stations that connects the major dams in the Troodos
+            mountains to the population centres on the southern coast — primarily Limassol, Larnaca, and the
+            Vasilikos industrial zone.
+        </p>
+        <p>
+            <a href="/dam/Kouris">Kouris</a> is the primary source for the Southern Conveyor, supplemented by
+            <a href="/dam/Kalavasos">Kalavasos</a> and <a href="/dam/Arminou">Arminou</a>. When these dams are healthy,
+            the Conveyor delivers cheap, gravity-fed surface water to hundreds of thousands of people. When they run
+            low, the system relies more heavily on desalination — which works, but at considerably higher cost and
+            energy consumption.
+        </p>
+
+        <h2>Desalination: the backup supply</h2>
+
+        <p>
+            Cyprus operates several large-scale <strong>reverse-osmosis desalination plants</strong> that convert
+            seawater into drinking water. These plants now produce roughly 70% of the island's domestic drinking
+            water supply, making Cyprus one of the most desalination-dependent countries in the EU.
+        </p>
+        <p>
+            The main plants are located at Dhekelia (near Larnaca), Larnaca, Limassol (Episkopi), and Paphos.
+            Together they can produce approximately 80 MCM per year at full capacity. Desalination provides a
+            drought-proof water source that is independent of rainfall, but it comes at a cost: the process
+            requires substantial electricity (roughly 3-4 kWh per cubic metre), and the plants are expensive
+            to build and maintain. When dam levels are high, desalination can be dialled back, saving energy
+            and money. When dams are empty, the plants must run flat out.
+        </p>
+
+        <h2>How water is distributed</h2>
+
+        <p>
+            Water from dams and desalination plants is distributed through a network managed by the
+            <strong>Water Development Department</strong> (for bulk supply) and local <strong>Water Boards</strong>
+            (for municipal distribution). The system serves three main consumer categories:
+        </p>
+        <ul>
+            <li><strong>Domestic supply</strong> (~70 MCM/year) — household drinking water, predominantly from
+            desalination with dam water as a supplement.</li>
+            <li><strong>Agricultural irrigation</strong> (~150 MCM/year) — the largest consumer. Dam water is
+            allocated to irrigation districts based on reservoir levels. During droughts, agricultural allocations
+            are cut first.</li>
+            <li><strong>Industrial and environmental</strong> (~20 MCM/year) — factories, power plants, and
+            minimum environmental flows in river channels.</li>
+        </ul>
+        <p>
+            Total annual water demand in Cyprus is approximately 240 MCM. When dams hold more than 40% of their
+            combined capacity, the system can comfortably meet demand. Below 20%, supply cuts become unavoidable.
+        </p>
+
+        <h2>Wastewater reuse</h2>
+
+        <p>
+            An increasingly important part of Cyprus's water strategy is <strong>treated wastewater reuse</strong>.
+            Treated effluent from urban wastewater treatment plants is stored and used for agricultural irrigation,
+            reducing demand on dam water. <a href="/dam/Achna">Achna</a> dam in the Famagusta district is the
+            most notable example — it functions primarily as a storage reservoir for treated wastewater, supporting
+            the intensive agriculture of the Kokkinochoria red-soil region.
+        </p>
+
+        <h2>Explore the data</h2>
+
+        <p>
+            Now that you understand how the system works, explore the live data on the
+            <a href="/">Nero dashboard</a>. Click any dam to see its full history, or use the
+            <a href="/map">interactive map</a> to see all 17 dams at their geographic locations. For analysis
+            of current trends, visit the <a href="/blog">blog</a>.
+        </p>
+
+    </div>
+
+    <div class="mt-12 pt-6 border-t border-slate-200 flex gap-4">
+        <a href="/learn/water-crisis-history" class="text-sm text-blue-600 hover:underline">History of Water Crises in Cyprus →</a>
+        <span class="text-slate-300">|</span>
+        <a href="/" class="text-sm text-blue-600 hover:underline">← Dashboard</a>
+    </div>
+</article>
+{% endblock %}

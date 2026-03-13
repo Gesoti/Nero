@@ -442,6 +442,46 @@ class TestMonthlyReportNoindex:
         assert "water-report" not in r.text
 
 
+class TestLearnPages:
+    """Educational /learn/ pages for content depth."""
+
+    async def test_how_dams_work_returns_200(self, async_client):
+        r = await async_client.get("/learn/how-dams-work")
+        assert r.status_code == 200
+
+    async def test_how_dams_work_has_substantial_content(self, async_client):
+        import re
+        r = await async_client.get("/learn/how-dams-work")
+        text = re.sub(r'<[^>]+>', '', r.text)
+        word_count = len(text.split())
+        assert word_count >= 800, f"Learn page too thin ({word_count} words)"
+
+    async def test_how_dams_work_has_nero_title(self, async_client):
+        r = await async_client.get("/learn/how-dams-work")
+        assert "Nero" in r.text
+
+    async def test_water_crisis_history_returns_200(self, async_client):
+        r = await async_client.get("/learn/water-crisis-history")
+        assert r.status_code == 200
+
+    async def test_water_crisis_history_has_substantial_content(self, async_client):
+        import re
+        r = await async_client.get("/learn/water-crisis-history")
+        text = re.sub(r'<[^>]+>', '', r.text)
+        word_count = len(text.split())
+        assert word_count >= 800, f"Learn page too thin ({word_count} words)"
+
+    async def test_learn_pages_in_sitemap(self, async_client):
+        r = await async_client.get("/sitemap.xml")
+        assert "/learn/how-dams-work" in r.text
+        assert "/learn/water-crisis-history" in r.text
+
+    async def test_learn_pages_have_canonical(self, async_client):
+        r = await async_client.get("/learn/how-dams-work")
+        assert '<link rel="canonical"' in r.text
+        assert "/learn/how-dams-work" in r.text
+
+
 class TestHealthRoute:
     async def test_health_returns_200_json(self, async_client):
         r = await async_client.get("/health")

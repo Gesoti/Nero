@@ -260,6 +260,28 @@ async def blog_post_page(request: Request, slug: str):
     )
 
 
+@router.get("/learn/how-dams-work")
+async def learn_how_dams_work(request: Request):
+    return templates.TemplateResponse(
+        request,
+        "learn_how_dams_work.html",
+        {"canonical_url": _canonical("/learn/how-dams-work"),
+         "breadcrumbs": _breadcrumbs(("Learn", "/learn/how-dams-work"),
+                                     ("How Dams Work", "/learn/how-dams-work"))},
+    )
+
+
+@router.get("/learn/water-crisis-history")
+async def learn_water_crisis_history(request: Request):
+    return templates.TemplateResponse(
+        request,
+        "learn_water_crisis_history.html",
+        {"canonical_url": _canonical("/learn/water-crisis-history"),
+         "breadcrumbs": _breadcrumbs(("Learn", "/learn/water-crisis-history"),
+                                     ("Water Crisis History", "/learn/water-crisis-history"))},
+    )
+
+
 @router.get("/ads.txt")
 async def ads_txt():
     body = "google.com, pub-3066658032903900, DIRECT, f08c47fec0942fa0\n"
@@ -306,6 +328,8 @@ async def sitemap_xml():
         url_entry("/map", "daily", "0.7"),
         url_entry("/blog", "weekly", "0.7"),
         url_entry("/about", "monthly", "0.3"),
+        url_entry("/learn/how-dams-work", "monthly", "0.5"),
+        url_entry("/learn/water-crisis-history", "monthly", "0.5"),
         url_entry("/privacy", "monthly", "0.2"),
     ]
     for dam in dams:
