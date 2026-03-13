@@ -1,0 +1,286 @@
+# Translations template for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-03-13 14:01+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: app/templates/404.html:8
+msgid "Page Not Found"
+msgstr ""
+
+#: app/templates/404.html:10
+msgid "The page you're looking for doesn't exist, or the dam name is incorrect."
+msgstr ""
+
+#: app/templates/404.html:15 app/templates/blog_index.html:52
+msgid "← Back to Dashboard"
+msgstr ""
+
+#: app/templates/base.html:62
+msgid "This site uses cookies for advertising via Google AdSense."
+msgstr ""
+
+#: app/templates/base.html:63
+msgid ""
+"By clicking <strong class=\"text-white\">Accept</strong> you consent to "
+"our\n"
+"      <a href=\"/privacy\" class=\"underline hover:text-white transition-"
+"colors\">Privacy Policy</a>."
+msgstr ""
+
+#: app/templates/base.html:70
+msgid "Decline"
+msgstr ""
+
+#: app/templates/base.html:75
+msgid "Accept"
+msgstr ""
+
+#: app/templates/base.html:143 app/templates/blog_index.html:9
+#: app/templates/blog_post.html:39
+msgid "Blog"
+msgstr ""
+
+#: app/templates/base.html:144
+msgid "Map"
+msgstr ""
+
+#: app/templates/base.html:145
+msgid "About"
+msgstr ""
+
+#: app/templates/base.html:155
+msgid "Data:"
+msgstr ""
+
+#: app/templates/base.html:157
+msgid "Privacy Policy"
+msgstr ""
+
+#: app/templates/blog_index.html:10
+msgid "Analysis, explainers, and updates on Cyprus water data."
+msgstr ""
+
+#: app/templates/blog_index.html:22
+msgid "Read more →"
+msgstr ""
+
+#: app/templates/blog_index.html:29
+msgid "No articles yet. Check back soon."
+msgstr ""
+
+#: app/templates/blog_index.html:35
+msgid "Monthly Water Reports"
+msgstr ""
+
+#: app/templates/blog_index.html:36
+msgid ""
+"Auto-generated snapshots of dam levels for each month, compiled from "
+"official data."
+msgstr ""
+
+#: app/templates/blog_post.html:37
+msgid "Home"
+msgstr ""
+
+#: app/templates/blog_post.html:47
+msgid "By"
+msgstr ""
+
+#: app/templates/blog_post.html:68
+msgid "Writing about Cyprus water infrastructure, dam levels, and drought trends."
+msgstr ""
+
+#: app/templates/blog_post.html:69
+msgid "Data sourced from the Water Development Department of Cyprus."
+msgstr ""
+
+#: app/templates/blog_post.html:70
+msgid "Learn more about Nero"
+msgstr ""
+
+#: app/templates/blog_post.html:87
+msgid "← All articles"
+msgstr ""
+
+#: app/templates/dam_detail.html:29 app/templates/dam_detail.html:62
+msgid "← All Dams"
+msgstr ""
+
+#: app/templates/dam_detail.html:91
+msgid "Historical Capacity"
+msgstr ""
+
+#: app/templates/dam_detail.html:94 app/templates/dashboard.html:134
+msgid "Trend"
+msgstr ""
+
+#: app/templates/dam_detail.html:96 app/templates/dashboard.html:136
+msgid "Year on Year"
+msgstr ""
+
+#: app/templates/dam_detail.html:115 app/templates/dashboard.html:155
+msgid "Day"
+msgstr ""
+
+#: app/templates/dam_detail.html:117 app/templates/dashboard.html:157
+msgid "Month"
+msgstr ""
+
+#: app/templates/dam_detail.html:119 app/templates/dashboard.html:159
+msgid "Year"
+msgstr ""
+
+#: app/templates/dam_detail.html:142
+msgid "of capacity remaining"
+msgstr ""
+
+#: app/templates/dam_detail.html:155 app/templates/dashboard.html:102
+msgid "Stored"
+msgstr ""
+
+#: app/templates/dam_detail.html:160
+msgid "Capacity"
+msgstr ""
+
+#: app/templates/dam_detail.html:168
+msgid "Recent Inflow"
+msgstr ""
+
+#: app/templates/dam_detail.html:179
+msgid "Height"
+msgstr ""
+
+#: app/templates/dam_detail.html:185
+msgid "Built"
+msgstr ""
+
+#: app/templates/dam_detail.html:191
+msgid "River"
+msgstr ""
+
+#: app/templates/dam_detail.html:197
+msgid "Type"
+msgstr ""
+
+#: app/templates/dam_detail.html:202
+msgid "Coordinates"
+msgstr ""
+
+#: app/templates/dam_detail.html:209
+msgid "Data date"
+msgstr ""
+
+#: app/templates/dam_detail.html:227
+msgid "Related Dams"
+msgstr ""
+
+#: app/templates/dam_detail.html:243
+msgid "Learn More"
+msgstr ""
+
+#: app/templates/dam_detail.html:245 app/templates/dashboard.html:291
+msgid "How Dams Work"
+msgstr ""
+
+#: app/templates/dam_detail.html:247 app/templates/dashboard.html:292
+msgid "Water Crisis History"
+msgstr ""
+
+#: app/templates/dam_detail.html:249 app/templates/dashboard.html:293
+msgid "Latest Analysis"
+msgstr ""
+
+#: app/templates/dam_detail.html:251
+msgid "All Dams on Map"
+msgstr ""
+
+#: app/templates/dashboard.html:81
+msgid "Live System Status"
+msgstr ""
+
+#: app/templates/dashboard.html:83
+msgid "Cyprus dam levels — live data & analysis"
+msgstr ""
+
+#: app/templates/dashboard.html:87
+msgid "of total capacity remaining"
+msgstr ""
+
+#: app/templates/dashboard.html:109
+msgid "Total Capacity"
+msgstr ""
+
+#: app/templates/dashboard.html:116
+msgid "Last Updated"
+msgstr ""
+
+#: app/templates/dashboard.html:118
+msgid "Syncing..."
+msgstr ""
+
+#: app/templates/dashboard.html:131
+msgid "System Capacity"
+msgstr ""
+
+#: app/templates/dashboard.html:175
+msgid "Critical"
+msgstr ""
+
+#: app/templates/dashboard.html:178
+msgid "Warning"
+msgstr ""
+
+#: app/templates/dashboard.html:181
+msgid "Healthy"
+msgstr ""
+
+#: app/templates/dashboard.html:228
+msgid "Stored:"
+msgstr ""
+
+#: app/templates/dashboard.html:229
+msgid "Capacity:"
+msgstr ""
+
+#: app/templates/dashboard.html:236
+msgid "Data syncing… Check back shortly."
+msgstr ""
+
+#: app/templates/dashboard.html:245
+msgid "Understanding Cyprus Dam Levels"
+msgstr ""
+
+#: app/templates/dashboard.html:255
+msgid "How to Read This Dashboard"
+msgstr ""
+
+#: app/templates/dashboard.html:267
+msgid "What the Numbers Mean"
+msgstr ""
+
+#: app/templates/dashboard.html:278
+msgid "Why Monitoring Matters"
+msgstr ""
+
+#: app/templates/dashboard.html:294
+msgid "Interactive Map"
+msgstr ""
+
+#: app/templates/map.html:15
+msgid "← Dashboard"
+msgstr ""
+
