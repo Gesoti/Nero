@@ -221,10 +221,17 @@ _CAPACITY_MAP: dict[str, float] = {d.name_en: d.capacity_mcm for d in _SPAIN_DAM
 _TOTAL_CAPACITY_MCM: float = sum(d.capacity_mcm for d in _SPAIN_DAMS)
 
 # ── Regex for scraping embalses.net HTML ──────────────────────────────────────
-# Pattern matches: "Agua embalsada (DD-MM-YYYY): X.XXX hm3 XX.XX %"
+# HTML structure:
+#   <div class="Campo"><strong>Agua embalsada (DD-MM-YYYY):</strong></div>
+#   <div class="Resultado"><strong>2.933</strong></div>
+#   <div class="Unidad"><strong>hm<sup ...>3</sup></strong></div>
+#   <div class="Resultado"><strong>91,12</strong></div>
+#   <div class="Unidad2"><strong>%</strong></div>
 _VOLUME_RE = re.compile(
-    r"Agua\s+embalsada\s*\([^)]*\)\s*:\s*([\d.,]+)\s*hm3\s*([\d.,]+)\s*%",
-    re.IGNORECASE,
+    r'Agua\s+embalsada\s*\([^)]*\).*?'
+    r'class="Resultado"[^>]*><strong>([\d.,]+)</strong>.*?'
+    r'class="Resultado"[^>]*><strong>([\d.,]+)</strong>',
+    re.IGNORECASE | re.DOTALL,
 )
 
 

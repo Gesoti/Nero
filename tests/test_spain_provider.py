@@ -112,8 +112,11 @@ def test_parse_es_percentage_integer() -> None:
 
 _MOCK_DAM_HTML = """
 <html><body>
-<div class="FilaSeccion">Agua embalsada (09-03-2026): 2.792 hm3 88.35 %</div>
-<div class="FilaSeccion">Capacidad: 3.160 hm3</div>
+<div class="Campo"><strong>Agua embalsada (09-03-2026):</strong></div>
+<div class="Resultado"><strong>2.792</strong></div>
+<div class="Unidad"><strong>hm<sup style="font-size:10px">3</sup></strong></div>
+<div class="Resultado"><strong>88,35</strong></div>
+<div class="Unidad2"><strong>%</strong></div>
 </body></html>
 """
 
