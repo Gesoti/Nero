@@ -22,6 +22,7 @@ from app.db import init_database, is_database_empty
 from app.middleware.country import CountryPrefixMiddleware
 from app.providers.base import DataProvider
 from app.providers.cyprus import CyprusProvider
+from app.providers.greece import GreeceProvider
 from app.routes.pages import router as page_router
 from app.security import security_headers_middleware
 from app.sync import incremental_sync, initial_seed
@@ -47,20 +48,28 @@ def _build_provider_registry() -> dict[str, tuple[DataProvider, str]]:
     for cc in settings.get_enabled_countries():
         db_path = f"data/{cc}/water.db"
 
+        _timeout = httpx.Timeout(
+            connect=5.0,
+            read=settings.upstream_timeout_seconds,
+            write=5.0,
+            pool=5.0,
+        )
+
         if cc == "cy":
             client = httpx.AsyncClient(
                 base_url=settings.upstream_base_url,
                 headers={"User-Agent": "CyprusWaterDashboard/1.0"},
-                timeout=httpx.Timeout(
-                    connect=5.0,
-                    read=settings.upstream_timeout_seconds,
-                    write=5.0,
-                    pool=5.0,
-                ),
+                timeout=_timeout,
             )
             registry[cc] = (CyprusProvider(client=client), db_path)
+        elif cc == "gr":
+            client = httpx.AsyncClient(
+                base_url="https://opendata-api-eydap.growthfund.gr",
+                headers={"User-Agent": "NeroWaterDashboard/1.0"},
+                timeout=_timeout,
+            )
+            registry[cc] = (GreeceProvider(client=client), db_path)
         else:
-            # Future providers (gr, es) will be added here
             logger.warning("No provider implemented for country '%s' — skipping", cc)
 
     return registry
