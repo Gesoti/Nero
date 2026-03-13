@@ -262,6 +262,12 @@ class SpainProvider:
 
     def __init__(self, client: httpx.AsyncClient) -> None:
         self._client = client
+        # Per-sync cache: avoids re-scraping when fetch_date_statistics and
+        # fetch_percentages are called back-to-back during the same sync cycle.
+        self._page_cache: dict[str, tuple[float, float]] = {}
+
+    def _clear_cache(self) -> None:
+        self._page_cache.clear()
 
     async def fetch_dams(self) -> list[DamInfo]:
         return list(_SPAIN_DAMS)
@@ -269,36 +275,50 @@ class SpainProvider:
     async def _fetch_dam_page(self, dam_name: str) -> tuple[float, float]:
         """Fetch a single dam page and return (volume_mcm, percentage).
 
+        Results are cached in _page_cache for the duration of the sync cycle.
         Returns (0.0, 0.0) on failure so individual dam errors don't
         break the entire sync.
         """
+        if dam_name in self._page_cache:
+            return self._page_cache[dam_name]
+
         url_path = _EMBALSES_URL_MAP.get(dam_name)
         if not url_path:
             logger.warning("No embalses.net URL for dam '%s'", dam_name)
-            return 0.0, 0.0
+            result = (0.0, 0.0)
+            self._page_cache[dam_name] = result
+            return result
 
         url = f"https://www.embalses.net/{url_path}"
         try:
             response = await self._client.get(url)
         except httpx.RequestError as exc:
             logger.warning("embalses.net request failed for %s: %s", dam_name, exc)
-            return 0.0, 0.0
+            result = (0.0, 0.0)
+            self._page_cache[dam_name] = result
+            return result
 
         if response.status_code != 200:
             logger.warning(
                 "embalses.net returned HTTP %d for %s", response.status_code, dam_name
             )
-            return 0.0, 0.0
+            result = (0.0, 0.0)
+            self._page_cache[dam_name] = result
+            return result
 
         html = response.text
         match = _VOLUME_RE.search(html)
         if not match:
             logger.warning("Could not parse volume data from %s page", dam_name)
-            return 0.0, 0.0
+            result = (0.0, 0.0)
+            self._page_cache[dam_name] = result
+            return result
 
         volume_mcm = _parse_es_volume(match.group(1))
         percentage = _parse_es_percentage(match.group(2))
-        return volume_mcm, percentage
+        result = (volume_mcm, percentage)
+        self._page_cache[dam_name] = result
+        return result
 
     async def fetch_percentages(self, target_date: date) -> PercentageSnapshot:
         dam_percentages: list[DamPercentage] = []
@@ -326,6 +346,11 @@ class SpainProvider:
             if _TOTAL_CAPACITY_MCM > 0
             else 0.0
         )
+
+        # Clear cache after building the snapshot so next sync cycle
+        # fetches fresh data. The cache only serves to avoid double-fetching
+        # within the same sync call (fetch_date_statistics + fetch_percentages).
+        self._clear_cache()
 
         return PercentageSnapshot(
             date=target_date,
