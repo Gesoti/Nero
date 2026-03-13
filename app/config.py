@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     base_url: str = "https://nero.cy"
     country: str = "cy"
     locale: str = "en"
+    enabled_countries: str = "cy"
 
     model_config = {"env_prefix": "WL_", "env_file": ".env"}
 
@@ -21,6 +22,10 @@ class Settings(BaseSettings):
         if not self.db_path:
             self.db_path = f"data/{self.country}/water.db"
         return self
+
+    def get_enabled_countries(self) -> list[str]:
+        """Parse enabled_countries CSV string into a list."""
+        return [c.strip() for c in self.enabled_countries.split(",") if c.strip()]
 
 
 settings = Settings()

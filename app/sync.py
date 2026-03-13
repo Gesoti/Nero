@@ -17,15 +17,7 @@ from tenacity import (
     wait_exponential,
 )
 
-from app.api_client import (
-    UpstreamAPIError,
-    fetch_date_statistics,
-    fetch_dams,
-    fetch_events,
-    fetch_monthly_inflows,
-    fetch_percentages,
-    fetch_timeseries,
-)
+from app.providers.base import DataProvider, UpstreamAPIError
 from app.db import (
     update_sync_log,
     upsert_date_statistics,
@@ -46,7 +38,7 @@ _retry_kwargs = dict(
 )
 
 
-async def initial_seed() -> None:
+async def initial_seed(provider: DataProvider, db_path: str) -> None:
     """
     Populate the database from scratch on first startup.
     Steps are sequential: dams must exist before percentages/statistics reference them.
@@ -55,36 +47,36 @@ async def initial_seed() -> None:
     logger.info("Starting initial seed for %s", today)
 
     logger.info("  1/6 Fetching dam metadata")
-    dams = await retry(**_retry_kwargs)(fetch_dams)()
-    upsert_dams(dams)
+    dams = await retry(**_retry_kwargs)(provider.fetch_dams)()
+    upsert_dams(dams, db_path=db_path)
 
     logger.info("  2/6 Fetching historical timeseries (~133 snapshots)")
-    snapshots = await retry(**_retry_kwargs)(fetch_timeseries)()
+    snapshots = await retry(**_retry_kwargs)(provider.fetch_timeseries)()
     for snap in snapshots:
-        upsert_percentage_snapshot(snap)
+        upsert_percentage_snapshot(snap, db_path=db_path)
     logger.info("       Stored %d snapshots", len(snapshots))
 
     logger.info("  3/6 Fetching monthly inflows")
-    inflows = await retry(**_retry_kwargs)(fetch_monthly_inflows)()
-    upsert_monthly_inflows(inflows)
+    inflows = await retry(**_retry_kwargs)(provider.fetch_monthly_inflows)()
+    upsert_monthly_inflows(inflows, db_path=db_path)
 
     logger.info("  4/6 Fetching events since Oct 2009")
-    events = await retry(**_retry_kwargs)(fetch_events)(date(2009, 10, 1), today)
-    upsert_events(events)
+    events = await retry(**_retry_kwargs)(provider.fetch_events)(date(2009, 10, 1), today)
+    upsert_events(events, db_path=db_path)
 
     logger.info("  5/6 Fetching today's statistics (%s)", today)
-    stats = await retry(**_retry_kwargs)(fetch_date_statistics)(today)
-    upsert_date_statistics(stats)
+    stats = await retry(**_retry_kwargs)(provider.fetch_date_statistics)(today)
+    upsert_date_statistics(stats, db_path=db_path)
 
     logger.info("  6/6 Fetching today's percentages (%s)", today)
-    pcts = await retry(**_retry_kwargs)(fetch_percentages)(today)
-    upsert_percentage_snapshot(pcts)
+    pcts = await retry(**_retry_kwargs)(provider.fetch_percentages)(today)
+    upsert_percentage_snapshot(pcts, db_path=db_path)
 
-    update_sync_log("seed", today)
+    update_sync_log("seed", today, db_path=db_path)
     logger.info("Initial seed complete")
 
 
-async def incremental_sync() -> None:
+async def incremental_sync(provider: DataProvider, db_path: str) -> None:
     """
     Refresh today's data. Called every N hours by the APScheduler.
     Non-fatal: if this fails, stale cached data continues serving requests.
@@ -92,17 +84,17 @@ async def incremental_sync() -> None:
     today = date.today()
     logger.info("Incremental sync: %s", today)
 
-    pcts = await retry(**_retry_kwargs)(fetch_percentages)(today)
-    upsert_percentage_snapshot(pcts)
+    pcts = await retry(**_retry_kwargs)(provider.fetch_percentages)(today)
+    upsert_percentage_snapshot(pcts, db_path=db_path)
 
-    stats = await retry(**_retry_kwargs)(fetch_date_statistics)(today)
-    upsert_date_statistics(stats)
+    stats = await retry(**_retry_kwargs)(provider.fetch_date_statistics)(today)
+    upsert_date_statistics(stats, db_path=db_path)
 
-    inflows = await retry(**_retry_kwargs)(fetch_monthly_inflows)()
-    upsert_monthly_inflows(inflows)
+    inflows = await retry(**_retry_kwargs)(provider.fetch_monthly_inflows)()
+    upsert_monthly_inflows(inflows, db_path=db_path)
 
-    events = await retry(**_retry_kwargs)(fetch_events)(date(2009, 10, 1), today)
-    upsert_events(events)
+    events = await retry(**_retry_kwargs)(provider.fetch_events)(date(2009, 10, 1), today)
+    upsert_events(events, db_path=db_path)
 
-    update_sync_log("incremental", today)
+    update_sync_log("incremental", today, db_path=db_path)
     logger.info("Incremental sync complete")

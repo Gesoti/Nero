@@ -9,16 +9,18 @@ import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+import httpx
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from app.api_client import close_client
 from app.config import settings
 from app.i18n import install_i18n
 from app.db import init_database, is_database_empty
+from app.providers.base import DataProvider
+from app.providers.cyprus import CyprusProvider
 from app.routes.pages import router as page_router
 from app.security import security_headers_middleware
 from app.sync import incremental_sync, initial_seed
@@ -32,31 +34,75 @@ logger = logging.getLogger(__name__)
 _templates = Jinja2Templates(directory="app/templates")
 install_i18n(_templates.env)
 
+# Provider registry: country_code → (provider, db_path)
+# Built at startup, used by lifespan and scheduler
+_provider_registry: dict[str, tuple[DataProvider, str]] = {}
+
+
+def _build_provider_registry() -> dict[str, tuple[DataProvider, str]]:
+    """Construct a provider instance + db_path for each enabled country."""
+    registry: dict[str, tuple[DataProvider, str]] = {}
+
+    for cc in settings.get_enabled_countries():
+        db_path = f"data/{cc}/water.db"
+
+        if cc == "cy":
+            client = httpx.AsyncClient(
+                base_url=settings.upstream_base_url,
+                headers={"User-Agent": "CyprusWaterDashboard/1.0"},
+                timeout=httpx.Timeout(
+                    connect=5.0,
+                    read=settings.upstream_timeout_seconds,
+                    write=5.0,
+                    pool=5.0,
+                ),
+            )
+            registry[cc] = (CyprusProvider(client=client), db_path)
+        else:
+            # Future providers (gr, es) will be added here
+            logger.warning("No provider implemented for country '%s' — skipping", cc)
+
+    return registry
+
+
+async def _sync_all_countries() -> None:
+    """Run incremental_sync for every enabled country. Used by APScheduler."""
+    for cc, (provider, db_path) in _provider_registry.items():
+        try:
+            await incremental_sync(provider=provider, db_path=db_path)
+        except Exception as exc:
+            logger.error("Incremental sync failed for %s: %s", cc, exc)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    global _provider_registry
+
     # Ensure data directory exists before SQLite opens the file
     Path("data").mkdir(exist_ok=True)
 
-    init_database()
+    _provider_registry = _build_provider_registry()
 
-    if is_database_empty():
-        logger.info("Empty database — running initial seed (this takes ~5-10s)")
-        await initial_seed()
-    else:
-        logger.info("Existing database — running incremental sync")
-        try:
-            await incremental_sync()
-        except Exception as exc:
-            # Non-fatal: stale cache is better than a crashed startup
-            logger.error("Startup incremental sync failed, serving cached data: %s", exc)
+    # Init + seed/sync each enabled country
+    for cc, (provider, db_path) in _provider_registry.items():
+        init_database(db_path=db_path)
+
+        if is_database_empty(db_path=db_path):
+            logger.info("[%s] Empty database — running initial seed", cc)
+            await initial_seed(provider=provider, db_path=db_path)
+        else:
+            logger.info("[%s] Existing database — running incremental sync", cc)
+            try:
+                await incremental_sync(provider=provider, db_path=db_path)
+            except Exception as exc:
+                logger.error("[%s] Startup sync failed, serving cached data: %s", cc, exc)
 
     scheduler = AsyncIOScheduler()
     scheduler.add_job(
-        incremental_sync,
+        _sync_all_countries,
         trigger="interval",
         hours=settings.sync_interval_hours,
-        id="incremental_sync",
+        id="sync_all_countries",
         replace_existing=True,
     )
     scheduler.start()
@@ -65,7 +111,9 @@ async def lifespan(app: FastAPI):
     yield
 
     scheduler.shutdown(wait=False)
-    await close_client()
+    for _cc, (provider, _db_path) in _provider_registry.items():
+        await provider.close()
+    _provider_registry.clear()
     logger.info("Shutdown complete")
 
 

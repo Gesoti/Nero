@@ -78,8 +78,9 @@ def get_severity(percentage: float) -> str:
 
 
 # ── Connection factory ────────────────────────────────────────────────────────
-def _get_connection() -> sqlite3.Connection:
-    conn = sqlite3.connect(settings.db_path)
+def _get_connection(db_path: str = "") -> sqlite3.Connection:
+    path = db_path or settings.db_path
+    conn = sqlite3.connect(path)
     conn.row_factory = sqlite3.Row
     # WAL allows concurrent reads while the scheduler performs writes
     conn.execute("PRAGMA journal_mode=WAL")
@@ -88,10 +89,11 @@ def _get_connection() -> sqlite3.Connection:
 
 
 # ── Schema initialisation ─────────────────────────────────────────────────────
-def init_database() -> None:
+def init_database(db_path: str = "") -> None:
     """Create all tables and indexes if they do not already exist."""
-    Path(settings.db_path).parent.mkdir(parents=True, exist_ok=True)
-    conn = _get_connection()
+    path = db_path or settings.db_path
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    conn = _get_connection(db_path)
     try:
         with conn:
             conn.executescript("""
@@ -167,7 +169,7 @@ def init_database() -> None:
         _migrate_add_slug(conn)
     finally:
         conn.close()
-    logger.info("Database initialised at %s", settings.db_path)
+    logger.info("Database initialised at %s", path)
 
 
 def _migrate_add_slug(conn: sqlite3.Connection) -> None:
@@ -185,9 +187,9 @@ def _migrate_add_slug(conn: sqlite3.Connection) -> None:
         logger.info("Migrated dams table: added slug column (%d rows backfilled)", len(rows))
 
 
-def is_database_empty() -> bool:
+def is_database_empty(db_path: str = "") -> bool:
     """Return True if sync_log has no rows (first-run detection)."""
-    conn = _get_connection()
+    conn = _get_connection(db_path)
     try:
         row = conn.execute("SELECT COUNT(*) AS cnt FROM sync_log").fetchone()
         return row["cnt"] == 0
@@ -196,8 +198,8 @@ def is_database_empty() -> bool:
 
 
 # ── Upsert functions (called by sync.py) ─────────────────────────────────────
-def upsert_dams(dams: list[DamInfo]) -> None:
-    conn = _get_connection()
+def upsert_dams(dams: list[DamInfo], db_path: str = "") -> None:
+    conn = _get_connection(db_path)
     try:
         with conn:
             conn.executemany(
@@ -230,9 +232,9 @@ def upsert_dams(dams: list[DamInfo]) -> None:
     logger.debug("Upserted %d dams", len(dams))
 
 
-def upsert_percentage_snapshot(snapshot) -> None:
+def upsert_percentage_snapshot(snapshot, db_path: str = "") -> None:
     date_str = snapshot.date.isoformat()
-    conn = _get_connection()
+    conn = _get_connection(db_path)
     try:
         with conn:
             conn.executemany(
@@ -257,9 +259,9 @@ def upsert_percentage_snapshot(snapshot) -> None:
         conn.close()
 
 
-def upsert_date_statistics(stats) -> None:
+def upsert_date_statistics(stats, db_path: str = "") -> None:
     date_str = stats.date.isoformat()
-    conn = _get_connection()
+    conn = _get_connection(db_path)
     try:
         with conn:
             conn.executemany(
@@ -276,8 +278,8 @@ def upsert_date_statistics(stats) -> None:
         conn.close()
 
 
-def upsert_monthly_inflows(inflows) -> None:
-    conn = _get_connection()
+def upsert_monthly_inflows(inflows, db_path: str = "") -> None:
+    conn = _get_connection(db_path)
     try:
         with conn:
             conn.executemany(
@@ -294,8 +296,8 @@ def upsert_monthly_inflows(inflows) -> None:
         conn.close()
 
 
-def upsert_events(events) -> None:
-    conn = _get_connection()
+def upsert_events(events, db_path: str = "") -> None:
+    conn = _get_connection(db_path)
     try:
         with conn:
             conn.executemany(
@@ -317,9 +319,9 @@ def upsert_events(events) -> None:
         conn.close()
 
 
-def update_sync_log(data_type: str, last_date: date) -> None:
+def update_sync_log(data_type: str, last_date: date, db_path: str = "") -> None:
     now = datetime.now(timezone.utc).isoformat()
-    conn = _get_connection()
+    conn = _get_connection(db_path)
     try:
         with conn:
             conn.execute(
