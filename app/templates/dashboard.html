@@ -78,13 +78,13 @@
 <!-- Crisis Hero Banner -->
 <section class="bg-gradient-to-br from-red-950 to-slate-900 text-white py-12 px-4">
     <div class="max-w-7xl mx-auto">
-        <p class="text-red-300 uppercase tracking-widest text-xs font-semibold mb-2">Live System Status</p>
+        <p class="text-red-300 uppercase tracking-widest text-xs font-semibold mb-2">{{ _("Live System Status") }}</p>
         <h1 class="text-3xl sm:text-4xl font-bold mb-1">Nero</h1>
-        <p class="text-slate-400 text-sm mb-8">Cyprus dam levels — live data &amp; analysis</p>
+        <p class="text-slate-400 text-sm mb-8">{{ _("Cyprus dam levels — live data & analysis") }}</p>
 
         <div class="mb-8">
             <span class="text-7xl font-black tracking-tight {{ hero_num }}">{{ pct_display }}{% if totals %}%{% endif %}</span>
-            <p class="text-slate-400 mt-1">of total capacity remaining</p>
+            <p class="text-slate-400 mt-1">{{ _("of total capacity remaining") }}</p>
         </div>
 
         <!-- System progress bar -->
@@ -99,23 +99,23 @@
         <!-- Stat boxes -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
-                <p class="text-slate-400 text-xs uppercase tracking-wider mb-1">Stored</p>
+                <p class="text-slate-400 text-xs uppercase tracking-wider mb-1">{{ _("Stored") }}</p>
                 <p class="text-2xl font-bold">
                     {{ "%.1f"|format(totals.total_storage_mcm) if totals else "—" }}
                     <span class="text-sm font-normal text-slate-400">MCM</span>
                 </p>
             </div>
             <div class="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
-                <p class="text-slate-400 text-xs uppercase tracking-wider mb-1">Total Capacity</p>
+                <p class="text-slate-400 text-xs uppercase tracking-wider mb-1">{{ _("Total Capacity") }}</p>
                 <p class="text-2xl font-bold">
                     {{ "%.1f"|format(totals.total_capacity_mcm) if totals else "—" }}
                     <span class="text-sm font-normal text-slate-400">MCM</span>
                 </p>
             </div>
             <div class="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
-                <p class="text-slate-400 text-xs uppercase tracking-wider mb-1">Last Updated</p>
+                <p class="text-slate-400 text-xs uppercase tracking-wider mb-1">{{ _("Last Updated") }}</p>
                 <p class="text-sm font-medium truncate">
-                    {{ last_updated[:10] if last_updated else "Syncing..." }}
+                    {{ last_updated[:10] if last_updated else _("Syncing...") }}
                 </p>
             </div>
         </div>
@@ -128,12 +128,12 @@
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div class="flex items-center gap-3">
-                <h2 class="text-lg font-semibold text-slate-800">System Capacity</h2>
+                <h2 class="text-lg font-semibold text-slate-800">{{ _("System Capacity") }}</h2>
                 <div class="flex bg-slate-100 rounded-lg p-0.5">
                     <button data-chart-mode="trend" id="mode-trend"
-                            class="chart-mode-btn px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm transition-all duration-150">Trend</button>
+                            class="chart-mode-btn px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm transition-all duration-150">{{ _("Trend") }}</button>
                     <button data-chart-mode="yoy" id="mode-yoy"
-                            class="chart-mode-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">Year on Year</button>
+                            class="chart-mode-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">{{ _("Year on Year") }}</button>
                 </div>
             </div>
             <div id="range-buttons" class="flex gap-2">
@@ -152,11 +152,11 @@
                         class="px-2 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-700 bg-white"></select>
                 <div class="flex bg-slate-100 rounded-lg p-0.5 ml-2">
                     <button data-granularity="day"
-                            class="gran-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">Day</button>
+                            class="gran-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">{{ _("Day") }}</button>
                     <button data-granularity="month"
-                            class="gran-btn px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm transition-all duration-150">Month</button>
+                            class="gran-btn px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm transition-all duration-150">{{ _("Month") }}</button>
                     <button data-granularity="year"
-                            class="gran-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">Year</button>
+                            class="gran-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">{{ _("Year") }}</button>
                 </div>
             </div>
         </div>
@@ -172,13 +172,13 @@
         <h2 class="text-xl font-semibold text-slate-800">All {{ dams|length }} Dams</h2>
         <div class="flex items-center gap-4 text-xs text-slate-500 flex-wrap">
             <span class="flex items-center gap-1.5">
-                <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>Critical &lt;20%
+                <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>{{ _("Critical") }} &lt;20%
             </span>
             <span class="flex items-center gap-1.5">
-                <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>Warning 20–40%
+                <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>{{ _("Warning") }} 20–40%
             </span>
             <span class="flex items-center gap-1.5">
-                <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>Healthy &gt;40%
+                <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>{{ _("Healthy") }} &gt;40%
             </span>
         </div>
     </div>
@@ -225,15 +225,15 @@
                 </div>
 
                 <div class="text-xs text-slate-500 space-y-0.5">
-                    <p>Stored: <span class="font-medium {{ txt }}">{{ "%.2f"|format(dam.storage_mcm) }} MCM</span></p>
-                    <p>Capacity: <span class="font-medium text-slate-600">{{ "%.1f"|format(dam.capacity_mcm) }} MCM</span></p>
+                    <p>{{ _("Stored:") }} <span class="font-medium {{ txt }}">{{ "%.2f"|format(dam.storage_mcm) }} MCM</span></p>
+                    <p>{{ _("Capacity:") }} <span class="font-medium text-slate-600">{{ "%.1f"|format(dam.capacity_mcm) }} MCM</span></p>
                 </div>
             </a>
         {% endfor %}
     </div>
     {% else %}
     <div class="text-center py-16 text-slate-400">
-        <p class="text-lg">Data syncing… Check back shortly.</p>
+        <p class="text-lg">{{ _("Data syncing… Check back shortly.") }}</p>
     </div>
     {% endif %}
 </section>
@@ -242,7 +242,7 @@
 <section id="editorial" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 pb-12">
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 space-y-6 text-slate-700 leading-relaxed">
 
-        <h2 class="text-xl font-semibold text-slate-800">Understanding Cyprus Dam Levels</h2>
+        <h2 class="text-xl font-semibold text-slate-800">{{ _("Understanding Cyprus Dam Levels") }}</h2>
 
         <p>
             Cyprus is one of the most water-stressed countries in the European Union. The island receives an average of
@@ -252,7 +252,7 @@
             updated every six hours from official Water Development Department records spanning back to 2009.
         </p>
 
-        <h3 class="text-lg font-semibold text-slate-800">How to Read This Dashboard</h3>
+        <h3 class="text-lg font-semibold text-slate-800">{{ _("How to Read This Dashboard") }}</h3>
 
         <p>
             The <strong>system capacity chart</strong> at the top of this page shows the combined fill level of all 17
@@ -264,7 +264,7 @@
             means above 40%. Click any dam card to see its full history, technical details, and year-on-year comparisons.
         </p>
 
-        <h3 class="text-lg font-semibold text-slate-800">What the Numbers Mean</h3>
+        <h3 class="text-lg font-semibold text-slate-800">{{ _("What the Numbers Mean") }}</h3>
 
         <p>
             <strong>Percentage</strong> represents how full a dam is relative to its maximum design capacity. A dam at
@@ -275,7 +275,7 @@
             island uses around 240 MCM of water per year across domestic, agricultural, and industrial consumption.
         </p>
 
-        <h3 class="text-lg font-semibold text-slate-800">Why Monitoring Matters</h3>
+        <h3 class="text-lg font-semibold text-slate-800">{{ _("Why Monitoring Matters") }}</h3>
 
         <p>
             Dam levels are not just an engineering metric — they directly affect water supply policy, agricultural
@@ -288,10 +288,10 @@
         </p>
 
         <div class="flex flex-wrap gap-3 mt-2">
-            <a href="/learn/how-dams-work" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">How Dams Work</a>
-            <a href="/learn/water-crisis-history" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">Water Crisis History</a>
-            <a href="/blog" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">Latest Analysis</a>
-            <a href="/map" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">Interactive Map</a>
+            <a href="/learn/how-dams-work" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">{{ _("How Dams Work") }}</a>
+            <a href="/learn/water-crisis-history" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">{{ _("Water Crisis History") }}</a>
+            <a href="/blog" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">{{ _("Latest Analysis") }}</a>
+            <a href="/map" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">{{ _("Interactive Map") }}</a>
         </div>
 
         <p class="text-sm text-slate-500 mt-4">

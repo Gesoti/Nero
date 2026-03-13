@@ -16,6 +16,7 @@ from fastapi.templating import Jinja2Templates
 from app.blog import load_all_posts, load_post
 from app.config import settings
 from app.dam_descriptions import get_dam_description
+from app.i18n import install_i18n
 
 from app.db import (
     get_all_dams_with_current_stats,
@@ -30,6 +31,7 @@ from app.db import (
 logger = logging.getLogger(__name__)
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
+install_i18n(templates.env)
 
 
 def _canonical(path: str) -> str:

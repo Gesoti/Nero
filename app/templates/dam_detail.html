@@ -26,7 +26,7 @@
 {% endblock %}
 
 {% block nav_right %}
-<a href="/" class="text-sm text-slate-500 hover:text-slate-700 transition-colors">← All Dams</a>
+<a href="/" class="text-sm text-slate-500 hover:text-slate-700 transition-colors">{{ _("← All Dams") }}</a>
 {% endblock %}
 
 {% block content %}
@@ -59,7 +59,7 @@
 
     <!-- Breadcrumb -->
     <nav class="mb-6 text-sm text-slate-500">
-        <a href="/" class="hover:text-slate-700 transition-colors">← All Dams</a>
+        <a href="/" class="hover:text-slate-700 transition-colors">{{ _("← All Dams") }}</a>
         <span class="mx-2">/</span>
         <span class="text-slate-800 font-medium">{{ dam.name_en }}</span>
     </nav>
@@ -88,12 +88,12 @@
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                     <div class="flex items-center gap-3">
-                        <h2 class="text-lg font-semibold text-slate-800">Historical Capacity</h2>
+                        <h2 class="text-lg font-semibold text-slate-800">{{ _("Historical Capacity") }}</h2>
                         <div class="flex bg-slate-100 rounded-lg p-0.5">
                             <button data-dam-mode="trend" id="dam-mode-trend"
-                                    class="dam-mode-btn px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm transition-all duration-150">Trend</button>
+                                    class="dam-mode-btn px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm transition-all duration-150">{{ _("Trend") }}</button>
                             <button data-dam-mode="yoy" id="dam-mode-yoy"
-                                    class="dam-mode-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">Year on Year</button>
+                                    class="dam-mode-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">{{ _("Year on Year") }}</button>
                         </div>
                     </div>
                     <div id="dam-range-buttons" class="flex gap-2">
@@ -112,11 +112,11 @@
                                 class="px-2 py-1 rounded-lg text-xs font-medium border border-slate-200 text-slate-700 bg-white"></select>
                         <div class="flex bg-slate-100 rounded-lg p-0.5 ml-2">
                             <button data-dam-granularity="day"
-                                    class="dam-gran-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">Day</button>
+                                    class="dam-gran-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">{{ _("Day") }}</button>
                             <button data-dam-granularity="month"
-                                    class="dam-gran-btn px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm transition-all duration-150">Month</button>
+                                    class="dam-gran-btn px-3 py-1 rounded-md text-xs font-medium bg-white text-slate-800 shadow-sm transition-all duration-150">{{ _("Month") }}</button>
                             <button data-dam-granularity="year"
-                                    class="dam-gran-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">Year</button>
+                                    class="dam-gran-btn px-3 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-700 transition-all duration-150">{{ _("Year") }}</button>
                         </div>
                     </div>
                 </div>
@@ -139,7 +139,7 @@
 
                 <div class="text-center py-4">
                     <span class="text-6xl font-black {{ txt }}">{{ pct }}%</span>
-                    <p class="text-sm text-slate-400 mt-1">of capacity remaining</p>
+                    <p class="text-sm text-slate-400 mt-1">{{ _("of capacity remaining") }}</p>
                 </div>
 
                 <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
@@ -152,12 +152,12 @@
             <!-- Volume grid -->
             <div class="grid grid-cols-2 gap-3">
                 <div class="bg-white rounded-xl border border-slate-200 p-4 text-center">
-                    <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Stored</p>
+                    <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">{{ _("Stored") }}</p>
                     <p class="text-xl font-bold text-slate-800">{{ "%.2f"|format(dam.storage_mcm) }}</p>
                     <p class="text-xs text-slate-400">MCM</p>
                 </div>
                 <div class="bg-white rounded-xl border border-slate-200 p-4 text-center">
-                    <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Capacity</p>
+                    <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">{{ _("Capacity") }}</p>
                     <p class="text-xl font-bold text-slate-800">{{ "%.1f"|format(dam.capacity_mcm) }}</p>
                     <p class="text-xs text-slate-400">MCM</p>
                 </div>
@@ -165,7 +165,7 @@
 
             <!-- Inflow -->
             <div class="bg-white rounded-xl border border-slate-200 p-4">
-                <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Recent Inflow</p>
+                <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">{{ _("Recent Inflow") }}</p>
                 <p class="text-2xl font-bold text-blue-600">
                     {{ "%.3f"|format(dam.inflow_mcm) }}
                     <span class="text-sm font-normal text-slate-400">MCM</span>
@@ -176,37 +176,37 @@
             <div class="bg-white rounded-xl border border-slate-200 p-4 text-sm space-y-2">
                 {% if dam.height_m %}
                 <div class="flex justify-between">
-                    <span class="text-slate-400">Height</span>
+                    <span class="text-slate-400">{{ _("Height") }}</span>
                     <span class="font-medium text-slate-700">{{ dam.height_m }} m</span>
                 </div>
                 {% endif %}
                 {% if dam.year_built %}
                 <div class="flex justify-between">
-                    <span class="text-slate-400">Built</span>
+                    <span class="text-slate-400">{{ _("Built") }}</span>
                     <span class="font-medium text-slate-700">{{ dam.year_built }}</span>
                 </div>
                 {% endif %}
                 {% if dam.river_name_el %}
                 <div class="flex justify-between">
-                    <span class="text-slate-400">River</span>
+                    <span class="text-slate-400">{{ _("River") }}</span>
                     <span class="font-medium text-slate-700">{{ dam.river_name_el }}</span>
                 </div>
                 {% endif %}
                 {% if dam.type_el %}
                 <div class="flex justify-between">
-                    <span class="text-slate-400">Type</span>
+                    <span class="text-slate-400">{{ _("Type") }}</span>
                     <span class="font-medium text-slate-700">{{ dam.type_el }}</span>
                 </div>
                 {% endif %}
                 <div class="flex justify-between">
-                    <span class="text-slate-400">Coordinates</span>
+                    <span class="text-slate-400">{{ _("Coordinates") }}</span>
                     <span class="font-medium text-slate-700 text-xs">
                         {{ "%.4f"|format(dam.lat) }}, {{ "%.4f"|format(dam.lng) }}
                     </span>
                 </div>
                 {% if dam.current_date %}
                 <div class="flex justify-between">
-                    <span class="text-slate-400">Data date</span>
+                    <span class="text-slate-400">{{ _("Data date") }}</span>
                     <span class="font-medium text-slate-700">{{ dam.current_date }}</span>
                 </div>
                 {% endif %}
@@ -224,7 +224,7 @@
 
 {% if related_dams %}
 <div id="related-dams" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-    <h2 class="text-lg font-semibold text-slate-800 mb-4">Related Dams</h2>
+    <h2 class="text-lg font-semibold text-slate-800 mb-4">{{ _("Related Dams") }}</h2>
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {% for rd in related_dams %}
         <a href="/dam/{{ rd.name_en }}"
@@ -240,15 +240,15 @@
 <!-- Learn More -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
     <div class="bg-slate-50 rounded-xl border border-slate-200 p-5">
-        <h3 class="text-sm font-semibold text-slate-700 mb-3 uppercase tracking-wider">Learn More</h3>
+        <h3 class="text-sm font-semibold text-slate-700 mb-3 uppercase tracking-wider">{{ _("Learn More") }}</h3>
         <div class="flex flex-wrap gap-2 text-sm">
-            <a href="/learn/how-dams-work" class="text-blue-600 hover:underline">How Dams Work</a>
+            <a href="/learn/how-dams-work" class="text-blue-600 hover:underline">{{ _("How Dams Work") }}</a>
             <span class="text-slate-300">·</span>
-            <a href="/learn/water-crisis-history" class="text-blue-600 hover:underline">Water Crisis History</a>
+            <a href="/learn/water-crisis-history" class="text-blue-600 hover:underline">{{ _("Water Crisis History") }}</a>
             <span class="text-slate-300">·</span>
-            <a href="/blog" class="text-blue-600 hover:underline">Latest Analysis</a>
+            <a href="/blog" class="text-blue-600 hover:underline">{{ _("Latest Analysis") }}</a>
             <span class="text-slate-300">·</span>
-            <a href="/map" class="text-blue-600 hover:underline">All Dams on Map</a>
+            <a href="/map" class="text-blue-600 hover:underline">{{ _("All Dams on Map") }}</a>
         </div>
     </div>
 </div>

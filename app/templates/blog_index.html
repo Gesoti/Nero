@@ -6,8 +6,8 @@
 
 {% block content %}
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <h1 class="text-3xl font-bold text-slate-900 mb-2">Blog</h1>
-    <p class="text-slate-500 mb-8">Analysis, explainers, and updates on Cyprus water data.</p>
+    <h1 class="text-3xl font-bold text-slate-900 mb-2">{{ _("Blog") }}</h1>
+    <p class="text-slate-500 mb-8">{{ _("Analysis, explainers, and updates on Cyprus water data.") }}</p>
 
     {% if posts %}
     <div class="space-y-6">
@@ -19,21 +19,21 @@
                 {% if post.description %}
                 <p class="text-slate-500 mt-2 text-sm leading-relaxed">{{ post.description }}</p>
                 {% endif %}
-                <span class="inline-block mt-3 text-sm text-blue-600 font-medium">Read more →</span>
+                <span class="inline-block mt-3 text-sm text-blue-600 font-medium">{{ _("Read more →") }}</span>
             </a>
         </article>
         {% endfor %}
     </div>
     {% else %}
     <div class="text-center py-16 text-slate-400">
-        <p class="text-lg">No articles yet. Check back soon.</p>
+        <p class="text-lg">{{ _("No articles yet. Check back soon.") }}</p>
     </div>
     {% endif %}
 
     {% if report_months %}
     <div id="monthly-reports" class="mt-12">
-        <h2 class="text-xl font-semibold text-slate-800 mb-2">Monthly Water Reports</h2>
-        <p class="text-sm text-slate-500 mb-4">Auto-generated snapshots of dam levels for each month, compiled from official data.</p>
+        <h2 class="text-xl font-semibold text-slate-800 mb-2">{{ _("Monthly Water Reports") }}</h2>
+        <p class="text-sm text-slate-500 mb-4">{{ _("Auto-generated snapshots of dam levels for each month, compiled from official data.") }}</p>
         <div class="bg-white rounded-2xl border border-slate-200 p-6">
             <div class="flex flex-wrap gap-2">
                 {% for report in report_months %}
@@ -49,7 +49,7 @@
     {% endif %}
 
     <div class="mt-8">
-        <a href="/" class="text-sm text-blue-600 hover:underline">← Back to Dashboard</a>
+        <a href="/" class="text-sm text-blue-600 hover:underline">{{ _("← Back to Dashboard") }}</a>
     </div>
 </div>
 {% endblock %}

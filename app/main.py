@@ -17,6 +17,7 @@ from fastapi.templating import Jinja2Templates
 
 from app.api_client import close_client
 from app.config import settings
+from app.i18n import install_i18n
 from app.db import init_database, is_database_empty
 from app.routes.pages import router as page_router
 from app.security import security_headers_middleware
@@ -29,6 +30,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 _templates = Jinja2Templates(directory="app/templates")
+install_i18n(_templates.env)
 
 
 @asynccontextmanager
