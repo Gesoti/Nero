@@ -21,10 +21,10 @@ ENV WL_ENABLED_COUNTRIES=cy,gr,es,pt \
 RUN ln -s /data /app/data
 
 # Run as non-root user for security
-RUN groupadd --system nero && useradd --system --gid nero --no-create-home nero \
-    && chown -R nero:nero /app
+# RUN groupadd --system nero && useradd --system --gid nero --no-create-home nero \
+#     && chown -R nero:nero /app
 
-USER nero
+# USER nero
 
 EXPOSE 8000
 
