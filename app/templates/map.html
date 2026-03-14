@@ -16,7 +16,12 @@
 {% endblock %}
 
 {% block content %}
-<div id="map"></div>
+<div id="map"
+     data-label-fill-level="{{ _('Fill Level') }}"
+     data-label-critical="{{ _('Critical') }} &lt;20%"
+     data-label-warning="{{ _('Warning') }} 20–40%"
+     data-label-healthy="{{ _('Healthy') }} &gt;40%"
+     data-label-view-details="{{ _('View details') }}"></div>
 {% endblock %}
 
 {% block scripts %}
@@ -29,6 +34,16 @@
     'use strict';
 
     var dams = {{ dams_json | safe }};
+
+    // Read translated labels injected by the template into data attributes
+    var mapEl = document.getElementById('map');
+    var LABELS = {
+        fillLevel:   mapEl.dataset.labelFillLevel,
+        critical:    mapEl.dataset.labelCritical,
+        warning:     mapEl.dataset.labelWarning,
+        healthy:     mapEl.dataset.labelHealthy,
+        viewDetails: mapEl.dataset.labelViewDetails
+    };
 
     var SEVERITY_COLORS = {
         critical: '#ef4444',
@@ -68,7 +83,7 @@
                     dam.storage_mcm.toFixed(1) + ' / ' + dam.capacity_mcm.toFixed(1) + ' MCM' +
                 '</span><br>' +
                 '<a href="{{ country_prefix }}/dam/' + encodeURIComponent(dam.name_en) + '" ' +
-                   'style="color:#3b82f6;font-size:12px;text-decoration:underline">View details &rarr;</a>' +
+                   'style="color:#3b82f6;font-size:12px;text-decoration:underline">' + LABELS.viewDetails + ' &rarr;</a>' +
             '</div>',
             { closeButton: false, maxWidth: 200 }
         );
@@ -82,16 +97,16 @@
         });
     });
 
-    // Legend
+    // Legend — uses translated labels read from data attributes above
     var legend = L.control({ position: 'bottomright' });
     legend.onAdd = function () {
         var div = L.DomUtil.create('div');
         div.style.cssText = 'background:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,.2);font-size:12px;line-height:1.8';
         div.innerHTML =
-            '<strong style="font-size:13px">Fill Level</strong><br>' +
-            '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#ef4444;margin-right:6px;vertical-align:middle"></span>Critical &lt;20%<br>' +
-            '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f59e0b;margin-right:6px;vertical-align:middle"></span>Warning 20–40%<br>' +
-            '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#10b981;margin-right:6px;vertical-align:middle"></span>Healthy &gt;40%';
+            '<strong style="font-size:13px">' + LABELS.fillLevel + '</strong><br>' +
+            '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#ef4444;margin-right:6px;vertical-align:middle"></span>' + LABELS.critical + '<br>' +
+            '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f59e0b;margin-right:6px;vertical-align:middle"></span>' + LABELS.warning + '<br>' +
+            '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#10b981;margin-right:6px;vertical-align:middle"></span>' + LABELS.healthy;
         return div;
     };
     legend.addTo(map);

@@ -4,13 +4,13 @@
 
 {% block content %}
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <h1 class="text-3xl font-bold text-slate-900 mb-2">Privacy Policy</h1>
-    <p class="text-slate-500 mb-8">Last updated: 2026-02-20</p>
+    <h1 class="text-3xl font-bold text-slate-900 mb-2">{{ _("Privacy Policy") }}</h1>
+    <p class="text-slate-500 mb-8">{{ _("Last updated:") }} 2026-02-20</p>
 
     <div class="space-y-6 text-slate-700">
 
         <section class="bg-white rounded-2xl border border-slate-200 p-6">
-            <h2 class="text-lg font-semibold text-slate-800 mb-3">1. Introduction</h2>
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">{{ _("1. Introduction") }}</h2>
             <p class="leading-relaxed">
                 Nero (<strong>nero.cy</strong>) is an independent, open-source dashboard
                 that displays publicly available reservoir data from government water agencies across
@@ -25,7 +25,7 @@
         </section>
 
         <section class="bg-white rounded-2xl border border-slate-200 p-6">
-            <h2 class="text-lg font-semibold text-slate-800 mb-3">2. Data We Collect</h2>
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">{{ _("2. Data We Collect") }}</h2>
             <p class="leading-relaxed mb-3">
                 This site does <strong>not</strong> require you to create an account, submit a form, or
                 provide any personal information directly. The only data collected passively is:
@@ -43,7 +43,7 @@
         </section>
 
         <section class="bg-white rounded-2xl border border-slate-200 p-6">
-            <h2 class="text-lg font-semibold text-slate-800 mb-3">3. Cookies &amp; Advertising</h2>
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">{{ _("3. Cookies & Advertising") }}</h2>
             <p class="leading-relaxed mb-3">
                 This site may display advertisements served by <strong>Google AdSense</strong>, a service
                 provided by Google LLC. AdSense uses cookies to show you ads that are relevant to your
@@ -73,7 +73,7 @@
         </section>
 
         <section class="bg-white rounded-2xl border border-slate-200 p-6">
-            <h2 class="text-lg font-semibold text-slate-800 mb-3">4. Third-Party Services</h2>
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">{{ _("4. Third-Party Services") }}</h2>
             <p class="leading-relaxed mb-3">
                 This site loads the following third-party resources. Each third party operates its own
                 privacy policy, which governs the data they collect.
@@ -123,7 +123,7 @@
         </section>
 
         <section class="bg-white rounded-2xl border border-slate-200 p-6">
-            <h2 class="text-lg font-semibold text-slate-800 mb-3">5. Your Rights (GDPR — Articles 15–21)</h2>
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">{{ _("5. Your Rights (GDPR — Articles 15–21)") }}</h2>
             <p class="leading-relaxed mb-3">
                 If you are located in the European Economic Area (EEA) or the United Kingdom, you have the
                 following rights under the General Data Protection Regulation (GDPR) and equivalent
@@ -169,7 +169,7 @@
         </section>
 
         <section class="bg-white rounded-2xl border border-slate-200 p-6">
-            <h2 class="text-lg font-semibold text-slate-800 mb-3">6. How to Withdraw Consent</h2>
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">{{ _("6. How to Withdraw Consent") }}</h2>
             <p class="leading-relaxed mb-3">
                 You can withdraw your consent to advertising cookies at any time without affecting the
                 lawfulness of processing carried out before withdrawal. To do so:
@@ -188,7 +188,7 @@
         </section>
 
         <section class="bg-white rounded-2xl border border-slate-200 p-6">
-            <h2 class="text-lg font-semibold text-slate-800 mb-3">7. Data Retention</h2>
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">{{ _("7. Data Retention") }}</h2>
             <p class="leading-relaxed">
                 Server access logs are retained for a maximum of <strong>30 days</strong>, after which
                 they are automatically deleted. This retention period is the minimum necessary for security
@@ -203,7 +203,7 @@
         </section>
 
         <section class="bg-white rounded-2xl border border-slate-200 p-6">
-            <h2 class="text-lg font-semibold text-slate-800 mb-3">8. Contact</h2>
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">{{ _("8. Contact") }}</h2>
             <p class="leading-relaxed">
                 For any privacy-related questions, requests to exercise your GDPR rights, or concerns
                 about data processing on this site, please email:
@@ -222,7 +222,7 @@
     </div>
 
     <div class="mt-8">
-        <a href="{{ country_prefix }}/" class="text-sm text-blue-600 hover:underline">← Back to Dashboard</a>
+        <a href="{{ country_prefix }}/" class="text-sm text-blue-600 hover:underline">{{ _("← Back to Dashboard") }}</a>
     </div>
 </div>
 {% endblock %}

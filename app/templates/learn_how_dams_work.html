@@ -7,14 +7,14 @@
 <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
     <nav class="mb-6 text-sm text-slate-500">
-        <a href="/" class="hover:text-slate-700 transition-colors">Home</a>
+        <a href="/" class="hover:text-slate-700 transition-colors">{{ _("Home") }}</a>
         <span class="mx-2">/</span>
-        <span class="text-slate-800 font-medium">How Dams Work</span>
+        <span class="text-slate-800 font-medium">{{ _("How Dams Work") }}</span>
     </nav>
 
     <header class="mb-8">
-        <h1 class="text-3xl font-bold text-slate-900 mb-3">How Dams Work: A Guide to Cyprus Water Infrastructure</h1>
-        <p class="text-slate-500 leading-relaxed">Everything you need to know about how Cyprus stores, manages, and distributes its most precious resource.</p>
+        <h1 class="text-3xl font-bold text-slate-900 mb-3">{{ _("How Dams Work: A Guide to Cyprus Water Infrastructure") }}</h1>
+        <p class="text-slate-500 leading-relaxed">{{ _("Everything you need to know about how Cyprus stores, manages, and distributes its most precious resource.") }}</p>
     </header>
 
     <div class="prose prose-slate max-w-none prose-headings:font-semibold prose-a:text-blue-600 prose-a:underline text-slate-700 leading-relaxed space-y-6">
@@ -26,7 +26,7 @@
             <a href="/">Nero dashboard</a>.
         </p>
 
-        <h2>Types of dams in Cyprus</h2>
+        <h2>{{ _("Types of dams in Cyprus") }}</h2>
 
         <p>
             The vast majority of Cyprus's dams are <strong>earth-fill dams</strong> — massive embankments of compacted
@@ -43,7 +43,7 @@
             including advanced monitoring and spillway design.
         </p>
 
-        <h2>How water is stored and measured</h2>
+        <h2>{{ _("How water is stored and measured") }}</h2>
 
         <p>
             A dam creates an artificial lake (reservoir) by blocking the natural flow of a river. Rainfall in the
@@ -65,7 +65,7 @@
             water to the atmosphere, with shallower reservoirs losing a higher proportion of their remaining volume.
         </p>
 
-        <h2>The Southern Conveyor</h2>
+        <h2>{{ _("The Southern Conveyor") }}</h2>
 
         <p>
             The <strong>Southern Conveyor</strong> is the most important piece of water infrastructure in Cyprus. It
@@ -81,7 +81,7 @@
             energy consumption.
         </p>
 
-        <h2>Desalination: the backup supply</h2>
+        <h2>{{ _("Desalination: the backup supply") }}</h2>
 
         <p>
             Cyprus operates several large-scale <strong>reverse-osmosis desalination plants</strong> that convert
@@ -97,7 +97,7 @@
             and money. When dams are empty, the plants must run flat out.
         </p>
 
-        <h2>How water is distributed</h2>
+        <h2>{{ _("How water is distributed") }}</h2>
 
         <p>
             Water from dams and desalination plants is distributed through a network managed by the
@@ -118,7 +118,7 @@
             combined capacity, the system can comfortably meet demand. Below 20%, supply cuts become unavoidable.
         </p>
 
-        <h2>Wastewater reuse</h2>
+        <h2>{{ _("Wastewater reuse") }}</h2>
 
         <p>
             An increasingly important part of Cyprus's water strategy is <strong>treated wastewater reuse</strong>.
@@ -128,7 +128,7 @@
             the intensive agriculture of the Kokkinochoria red-soil region.
         </p>
 
-        <h2>Explore the data</h2>
+        <h2>{{ _("Explore the data") }}</h2>
 
         <p>
             Now that you understand how the system works, explore the live data on the
@@ -140,9 +140,9 @@
     </div>
 
     <div class="mt-12 pt-6 border-t border-slate-200 flex gap-4">
-        <a href="/learn/water-crisis-history" class="text-sm text-blue-600 hover:underline">History of Water Crises in Cyprus →</a>
+        <a href="/learn/water-crisis-history" class="text-sm text-blue-600 hover:underline">{{ _("History of Water Crises in Cyprus →") }}</a>
         <span class="text-slate-300">|</span>
-        <a href="/" class="text-sm text-blue-600 hover:underline">← Dashboard</a>
+        <a href="/" class="text-sm text-blue-600 hover:underline">{{ _("← Dashboard") }}</a>
     </div>
 </article>
 {% endblock %}

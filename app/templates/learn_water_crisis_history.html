@@ -7,14 +7,14 @@
 <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
     <nav class="mb-6 text-sm text-slate-500">
-        <a href="/" class="hover:text-slate-700 transition-colors">Home</a>
+        <a href="/" class="hover:text-slate-700 transition-colors">{{ _("Home") }}</a>
         <span class="mx-2">/</span>
-        <span class="text-slate-800 font-medium">Water Crisis History</span>
+        <span class="text-slate-800 font-medium">{{ _("Water Crisis History") }}</span>
     </nav>
 
     <header class="mb-8">
-        <h1 class="text-3xl font-bold text-slate-900 mb-3">A History of Water Crises in Cyprus</h1>
-        <p class="text-slate-500 leading-relaxed">From independence to the present: how Cyprus has faced, survived, and adapted to recurring drought.</p>
+        <h1 class="text-3xl font-bold text-slate-900 mb-3">{{ _("A History of Water Crises in Cyprus") }}</h1>
+        <p class="text-slate-500 leading-relaxed">{{ _("From independence to the present: how Cyprus has faced, survived, and adapted to recurring drought.") }}</p>
     </header>
 
     <div class="prose prose-slate max-w-none prose-headings:font-semibold prose-a:text-blue-600 prose-a:underline text-slate-700 leading-relaxed space-y-6">
@@ -27,7 +27,7 @@
             irrigation schemes and no major dam infrastructure.
         </p>
 
-        <h2>The construction era (1960s–1990s)</h2>
+        <h2>{{ _("The construction era (1960s–1990s)") }}</h2>
 
         <p>
             The first post-independence dams were modest structures built to support local agriculture.
@@ -51,7 +51,7 @@
             reserve against future drought. For a decade, it worked beautifully.
         </p>
 
-        <h2>The 1990s drought</h2>
+        <h2>{{ _("The 1990s drought") }}</h2>
 
         <p>
             The late 1990s brought Cyprus's first major test of its new infrastructure. Below-average rainfall in
@@ -66,7 +66,7 @@
             consecutive seasons, the system had no backup.
         </p>
 
-        <h2>The 2008 crisis: water by tanker</h2>
+        <h2>{{ _("The 2008 crisis: water by tanker") }}</h2>
 
         <p>
             The drought of 2007–2008 was the worst in living memory at that point. Multiple consecutive dry winters
@@ -91,7 +91,7 @@
             infrastructure investment.</li>
         </ul>
 
-        <h2>The desalination revolution</h2>
+        <h2>{{ _("The desalination revolution") }}</h2>
 
         <p>
             Between 2009 and 2015, Cyprus transformed its water supply model. The Dhekelia, Larnaca, Episkopi (Limassol),
@@ -106,7 +106,7 @@
             must run at full capacity, electricity bills — and ultimately water bills — rise.
         </p>
 
-        <h2>Recent droughts and the new normal</h2>
+        <h2>{{ _("Recent droughts and the new normal") }}</h2>
 
         <p>
             The period since 2020 has brought a new pattern: drought is no longer exceptional. The 2020–2021 winter
@@ -126,7 +126,7 @@
             be the new normal — or even the good times, compared to what lies ahead.
         </p>
 
-        <h2>What comes next</h2>
+        <h2>{{ _("What comes next") }}</h2>
 
         <p>
             Cyprus's water future will be shaped by three parallel tracks:
@@ -146,7 +146,7 @@
             and who will bear the burden.
         </p>
 
-        <h2>Track the data</h2>
+        <h2>{{ _("Track the data") }}</h2>
 
         <p>
             The <a href="/">Nero dashboard</a> provides real-time data on all 17 major dams, updated every six hours.
@@ -157,9 +157,9 @@
     </div>
 
     <div class="mt-12 pt-6 border-t border-slate-200 flex gap-4">
-        <a href="/learn/how-dams-work" class="text-sm text-blue-600 hover:underline">← How Dams Work</a>
+        <a href="/learn/how-dams-work" class="text-sm text-blue-600 hover:underline">{{ _("← How Dams Work") }}</a>
         <span class="text-slate-300">|</span>
-        <a href="/" class="text-sm text-blue-600 hover:underline">Dashboard</a>
+        <a href="/" class="text-sm text-blue-600 hover:underline">{{ _("Dashboard") }}</a>
     </div>
 </article>
 {% endblock %}

@@ -5,13 +5,13 @@
 
 {% block content %}
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <h1 class="text-3xl font-bold text-slate-900 mb-2">About Nero</h1>
-    <p class="text-slate-500 mb-8">An open-source dashboard monitoring water reservoir levels in real time.</p>
+    <h1 class="text-3xl font-bold text-slate-900 mb-2">{{ _("About Nero") }}</h1>
+    <p class="text-slate-500 mb-8">{{ _("An open-source dashboard monitoring water reservoir levels in real time.") }}</p>
 
     <div class="space-y-6 text-slate-700">
 
         <section class="bg-white rounded-2xl border border-slate-200 p-6">
-            <h2 class="text-lg font-semibold text-slate-800 mb-3">Our Mission</h2>
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">{{ _("Our Mission") }}</h2>
             <p class="leading-relaxed">
                 Nero exists to make water data accessible, understandable, and useful. We monitor reservoir levels
                 across multiple countries in the Mediterranean, starting with Cyprus and Greece. Raw data from
@@ -30,10 +30,10 @@
         </section>
 
         <section class="bg-white rounded-2xl border border-slate-200 p-6">
-            <h2 class="text-lg font-semibold text-slate-800 mb-3">Countries We Monitor</h2>
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">{{ _("Countries We Monitor") }}</h2>
             <div class="space-y-4">
                 <div>
-                    <h3 class="font-semibold text-slate-800 mb-1">Cyprus</h3>
+                    <h3 class="font-semibold text-slate-800 mb-1">{{ _("Cyprus") }}</h3>
                     <p class="text-sm text-slate-600 leading-relaxed">
                         17 major dams with data from the <strong>Water Development Department</strong>. Historical
                         records from 2009 to the present, updated every six hours. Data published under
@@ -42,7 +42,7 @@
                     </p>
                 </div>
                 <div>
-                    <h3 class="font-semibold text-slate-800 mb-1">Greece</h3>
+                    <h3 class="font-semibold text-slate-800 mb-1">{{ _("Greece") }}</h3>
                     <p class="text-sm text-slate-600 leading-relaxed">
                         Major reservoirs serving the Athens metropolitan area, with data from
                         <strong>EYDAP</strong> (Athens Water Supply and Sewerage Company). Updated every six hours.
@@ -52,7 +52,7 @@
         </section>
 
         <section class="bg-white rounded-2xl border border-slate-200 p-6">
-            <h2 class="text-lg font-semibold text-slate-800 mb-3">Methodology</h2>
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">{{ _("Methodology") }}</h2>
             <p class="leading-relaxed">
                 Nero fetches data from official government water agencies via their public APIs. The data is
                 refreshed automatically every six hours. On first launch, Nero performs an initial seed that
@@ -66,7 +66,7 @@
         </section>
 
         <section class="bg-white rounded-2xl border border-slate-200 p-6">
-            <h2 class="text-lg font-semibold text-slate-800 mb-3">Severity Thresholds</h2>
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">{{ _("Severity Thresholds") }}</h2>
             <p class="leading-relaxed mb-3">
                 Nero uses a three-tier colour system to communicate the urgency of each reservoir's fill level
                 at a glance:
@@ -74,50 +74,50 @@
             <ul class="space-y-3 text-sm">
                 <li class="flex items-start gap-3">
                     <span class="w-4 h-4 rounded-full bg-red-500 flex-shrink-0 mt-0.5"></span>
-                    <span><strong class="text-red-700">Critical</strong> — below 20% capacity. Evaporation
+                    <span>{% trans %}<strong class="text-red-700">Critical</strong> — below 20% capacity. Evaporation
                     losses accelerate, water quality degrades, and dams may approach dead storage. Agricultural
-                    allocations are typically cut and municipal rationing may be introduced.</span>
+                    allocations are typically cut and municipal rationing may be introduced.{% endtrans %}</span>
                 </li>
                 <li class="flex items-start gap-3">
                     <span class="w-4 h-4 rounded-full bg-amber-500 flex-shrink-0 mt-0.5"></span>
-                    <span><strong class="text-amber-700">Warning</strong> — 20 to 40% capacity. Reserves are
-                    reduced and conservation measures are advised. Desalination output may increase to compensate.</span>
+                    <span>{% trans %}<strong class="text-amber-700">Warning</strong> — 20 to 40% capacity. Reserves are
+                    reduced and conservation measures are advised. Desalination output may increase to compensate.{% endtrans %}</span>
                 </li>
                 <li class="flex items-start gap-3">
                     <span class="w-4 h-4 rounded-full bg-emerald-500 flex-shrink-0 mt-0.5"></span>
-                    <span><strong class="text-emerald-700">Healthy</strong> — above 40% capacity. Normal
-                    operational levels with full allocations and sufficient reserves.</span>
+                    <span>{% trans %}<strong class="text-emerald-700">Healthy</strong> — above 40% capacity. Normal
+                    operational levels with full allocations and sufficient reserves.{% endtrans %}</span>
                 </li>
             </ul>
         </section>
 
         <section id="faq" class="bg-white rounded-2xl border border-slate-200 p-6">
-            <h2 class="text-lg font-semibold text-slate-800 mb-4">Frequently Asked Questions</h2>
+            <h2 class="text-lg font-semibold text-slate-800 mb-4">{{ _("Frequently Asked Questions") }}</h2>
             <div class="space-y-4 text-sm">
                 <div>
-                    <h3 class="font-semibold text-slate-800 mb-1">How often is the data updated?</h3>
+                    <h3 class="font-semibold text-slate-800 mb-1">{{ _("How often is the data updated?") }}</h3>
                     <p class="text-slate-600 leading-relaxed">Every six hours, automatically. The sync runs in
                     the background and fetches the latest readings from each country's water agency API.</p>
                 </div>
                 <div>
-                    <h3 class="font-semibold text-slate-800 mb-1">Why do some dams show 0% or very low levels?</h3>
+                    <h3 class="font-semibold text-slate-800 mb-1">{{ _("Why do some dams show 0% or very low levels?") }}</h3>
                     <p class="text-slate-600 leading-relaxed">Small dams can empty entirely during extended dry
                     periods. This is a physical reality, not a data error. These dams respond dramatically to
                     even modest rainfall and can swing from empty to full within days.</p>
                 </div>
                 <div>
-                    <h3 class="font-semibold text-slate-800 mb-1">What is MCM?</h3>
+                    <h3 class="font-semibold text-slate-800 mb-1">{{ _("What is MCM?") }}</h3>
                     <p class="text-slate-600 leading-relaxed">MCM stands for Million Cubic Metres, the standard
                     unit for measuring reservoir volumes. One MCM equals one billion litres — enough to fill
                     roughly 400 Olympic swimming pools.</p>
                 </div>
                 <div>
-                    <h3 class="font-semibold text-slate-800 mb-1">Is this site affiliated with any government?</h3>
+                    <h3 class="font-semibold text-slate-800 mb-1">{{ _("Is this site affiliated with any government?") }}</h3>
                     <p class="text-slate-600 leading-relaxed">No. Nero is an independent open-source project that
                     reuses publicly available data from government water agencies.</p>
                 </div>
                 <div>
-                    <h3 class="font-semibold text-slate-800 mb-1">Can I use this data for research or journalism?</h3>
+                    <h3 class="font-semibold text-slate-800 mb-1">{{ _("Can I use this data for research or journalism?") }}</h3>
                     <p class="text-slate-600 leading-relaxed">Yes. The underlying data is published by government
                     agencies under open data licences. You are free to cite, reproduce, or build upon it with
                     appropriate attribution.</p>
@@ -126,7 +126,7 @@
         </section>
 
         <section class="bg-white rounded-2xl border border-slate-200 p-6">
-            <h2 class="text-lg font-semibold text-slate-800 mb-3">About the Project</h2>
+            <h2 class="text-lg font-semibold text-slate-800 mb-3">{{ _("About the Project") }}</h2>
             <p class="leading-relaxed">
                 The name "Nero" comes from the Greek word for water (νερό), reflecting the project's focus and
                 its Mediterranean roots. The project is maintained by an independent developer and has no
@@ -138,7 +138,7 @@
     </div>
 
     <div class="mt-8">
-        <a href="{{ country_prefix }}/" class="text-sm text-blue-600 hover:underline">← Back to Dashboard</a>
+        <a href="{{ country_prefix }}/" class="text-sm text-blue-600 hover:underline">{{ _("← Back to Dashboard") }}</a>
     </div>
 </div>
 {% endblock %}
