@@ -16,7 +16,7 @@ import logging
 from urllib.parse import quote
 
 from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import JSONResponse, PlainTextResponse, Response
+from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 
 from app.blog import load_all_posts, load_post
@@ -26,7 +26,7 @@ from app.dam_descriptions import get_dam_description
 from app.es_dam_descriptions import get_es_dam_description
 from app.pt_dam_descriptions import get_pt_dam_description
 from app.gr_dam_descriptions import get_gr_dam_description
-from app.i18n import install_i18n, get_translations
+from app.i18n import install_i18n, get_translations, SUPPORTED_LOCALES, LANGUAGE_LABELS
 
 from app.db import (
     get_all_dams_with_current_stats,
@@ -116,16 +116,26 @@ def _render_ctx(request: Request, extra: dict) -> dict:
 
     Installs the correct translations onto the shared Jinja2 environment
     before each render so that _() calls resolve to the right locale.
+    Language is determined by the user's wl_lang cookie (default: English).
     This is safe for our single-worker dev server and acceptable for
     production (workers are single-threaded per request in Uvicorn/Gunicorn).
     """
     country: str = getattr(request.state, "country", settings.country)
-    locale: str = getattr(request.state, "locale", settings.locale)
     country_prefix: str = getattr(request.state, "country_prefix", "")
 
+    # Language preference: cookie > default (en)
+    lang = request.cookies.get("wl_lang", "en")
+    if lang not in SUPPORTED_LOCALES:
+        lang = "en"
+
     # Install correct translations for this request before Jinja2 renders.
-    # NullTranslations for "en", compiled .mo for other locales.
-    templates.env.install_gettext_translations(get_translations(locale))
+    templates.env.install_gettext_translations(get_translations(lang))
+
+    # Build language navigation data for the dropdown
+    available_langs = [
+        {"code": code, "label": label}
+        for code, label in LANGUAGE_LABELS.items()
+    ]
 
     # Build country navigation data for the nav bar
     enabled = settings.get_enabled_countries()
@@ -139,6 +149,9 @@ def _render_ctx(request: Request, extra: dict) -> dict:
         "country_prefix": country_prefix,
         "country": country,
         "country_nav": country_nav,
+        "current_lang": lang,
+        "current_lang_label": LANGUAGE_LABELS.get(lang, "English"),
+        "available_langs": available_langs,
         # hreflang_alternates is a list of {lang, href} dicts for cross-country links.
         # Empty for single-country deployments; populated when multiple countries enabled.
         "hreflang_alternates": _build_hreflang_alternates(country, request.url.path),
@@ -543,6 +556,26 @@ async def sitemap_xml():
         content="\n".join(xml_parts),
         media_type="application/xml",
     )
+
+
+@router.get("/set-lang")
+async def set_language(lang: str = "en", next: str = "/"):
+    """Set the user's language preference cookie and redirect back."""
+    if lang not in SUPPORTED_LOCALES:
+        lang = "en"
+    # Prevent open redirect — next must be a relative path
+    if not next.startswith("/"):
+        next = "/"
+    response = RedirectResponse(url=next, status_code=302)
+    response.set_cookie(
+        key="wl_lang",
+        value=lang,
+        max_age=31536000,  # 1 year
+        path="/",
+        samesite="lax",
+        httponly=True,
+    )
+    return response
 
 
 @router.get("/health")

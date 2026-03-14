@@ -1,19 +1,30 @@
 """
-Internationalization setup — Jinja2 i18n extension (English-only passthrough).
+Internationalization setup — Jinja2 i18n extension with Babel translations.
 
 `install_i18n` wires the i18n extension onto a Jinja2 environment once at
-startup using NullTranslations (English passthrough). _() calls in templates
-return their input unchanged.
+startup. `get_translations` loads compiled .mo files for non-English locales
+and caches them via lru_cache for the lifetime of the process.
 
-`get_translations` always returns NullTranslations (English-only mode).
-Multilingual support was removed; this module exists to keep _() working
-in templates as a no-op passthrough.
+Supported locales are defined in SUPPORTED_LOCALES. Unknown locale values
+fall back to English (NullTranslations).
 """
 from __future__ import annotations
 
 import gettext
+from functools import lru_cache
+from pathlib import Path
 
 from jinja2 import Environment
+
+_TRANSLATIONS_DIR = Path(__file__).parent / "translations"
+
+SUPPORTED_LOCALES: frozenset[str] = frozenset({"en", "el"})
+
+# Labels for the language dropdown (native names)
+LANGUAGE_LABELS: dict[str, str] = {
+    "en": "English",
+    "el": "Ελληνικά",
+}
 
 
 def install_i18n(env: Environment) -> None:
@@ -22,6 +33,21 @@ def install_i18n(env: Environment) -> None:
     env.install_gettext_translations(gettext.NullTranslations())
 
 
+@lru_cache(maxsize=8)
 def get_translations(locale: str) -> gettext.NullTranslations:
-    """Return NullTranslations for any locale (English-only mode)."""
-    return gettext.NullTranslations()
+    """Return compiled translations for the given locale.
+
+    English and unknown locales get NullTranslations (passthrough).
+    Non-English supported locales get GNUTranslations from .mo files.
+    Falls back to NullTranslations if the .mo file is missing.
+    """
+    if locale == "en" or locale not in SUPPORTED_LOCALES:
+        return gettext.NullTranslations()
+    try:
+        return gettext.translation(
+            "messages",
+            localedir=str(_TRANSLATIONS_DIR),
+            languages=[locale],
+        )
+    except FileNotFoundError:
+        return gettext.NullTranslations()

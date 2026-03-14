@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{% block html_lang %}en{% endblock %}" class="h-full">
+<html lang="{% block html_lang %}{{ current_lang|default('en') }}{% endblock %}" class="h-full">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -137,29 +137,31 @@
 </script>
 <!-- ── End Cookie Consent ──────────────────────────────────────── -->
 
-<!-- ── Country Dropdown Toggle ──────────────────────────────────── -->
-{% if country_nav %}
+<!-- ── Dropdown Toggle Scripts ──────────────────────────────────── -->
 <script nonce="{{ request.state.csp_nonce }}">
 (function () {
   'use strict';
-  document.addEventListener('DOMContentLoaded', function () {
-    var toggle = document.getElementById('country-toggle');
-    var dropdown = document.getElementById('country-dropdown');
-    if (!toggle || !dropdown) return;
-    toggle.addEventListener('click', function (e) {
-      e.stopPropagation();
-      var open = !dropdown.classList.contains('hidden');
-      dropdown.classList.toggle('hidden');
-      toggle.setAttribute('aria-expanded', String(!open));
+  function initDropdown(toggleId, dropdownId) {
+    document.addEventListener('DOMContentLoaded', function () {
+      var toggle = document.getElementById(toggleId);
+      var dropdown = document.getElementById(dropdownId);
+      if (!toggle || !dropdown) return;
+      toggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var open = !dropdown.classList.contains('hidden');
+        dropdown.classList.toggle('hidden');
+        toggle.setAttribute('aria-expanded', String(!open));
+      });
+      document.addEventListener('click', function () {
+        dropdown.classList.add('hidden');
+        toggle.setAttribute('aria-expanded', 'false');
+      });
     });
-    document.addEventListener('click', function () {
-      dropdown.classList.add('hidden');
-      toggle.setAttribute('aria-expanded', 'false');
-    });
-  });
+  }
+  initDropdown('lang-toggle', 'lang-dropdown');
+  initDropdown('country-toggle', 'country-dropdown');
 }());
 </script>
-{% endif %}
 
 <!-- Navigation -->
 <nav class="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
@@ -191,6 +193,23 @@
             <a href="{{ country_prefix }}/blog" class="text-sm text-slate-500 hover:text-slate-700 transition-colors">{{ _("Blog") }}</a>
             <a href="{{ country_prefix }}/map" class="text-sm text-slate-500 hover:text-slate-700 transition-colors">{{ _("Map") }}</a>
             <a href="{{ country_prefix }}/about" class="text-sm text-slate-500 hover:text-slate-700 transition-colors">{{ _("About") }}</a>
+            {% if available_langs and available_langs|length > 1 %}
+            <div class="relative">
+                <button id="lang-toggle"
+                        class="text-sm text-slate-500 hover:text-slate-700 transition-colors flex items-center gap-1"
+                        aria-expanded="false" aria-haspopup="true">
+                    {{ current_lang_label }}
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <div id="lang-dropdown"
+                     class="hidden absolute right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg py-1 min-w-[140px] z-50">
+                    {% for lang in available_langs %}
+                    <a href="{{ country_prefix }}/set-lang?lang={{ lang.code }}&next={{ request.url.path }}"
+                       class="block px-4 py-2 text-sm {% if lang.code == current_lang %}text-blue-600 font-medium bg-blue-50{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-800{% endif %} transition-colors">{{ lang.label }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </nav>
