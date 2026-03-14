@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import json
 import logging
-import re
 from datetime import date
 
 import httpx
@@ -221,12 +220,6 @@ _UPSTREAM_NAME_MAP: dict[str, str] = {
 _CAPACITY_MAP: dict[str, float] = {d.name_en: d.capacity_mcm for d in _PORTUGAL_DAMS}
 _TOTAL_CAPACITY_MCM: float = sum(d.capacity_mcm for d in _PORTUGAL_DAMS)
 
-# Regex to extract DATA_SupStations JSON array from HTML
-_DATA_RE = re.compile(
-    r'var\s+DATA_SupStations\s*=\s*(\[.*?\])\s*;',
-    re.DOTALL,
-)
-
 _INFOAGUA_URL = "/pt/seca/secas-pesquisa"
 
 
@@ -236,6 +229,33 @@ def _parse_pt_volume(raw: str) -> float:
     The source uses dot as decimal separator (not European format).
     """
     return float(raw.strip())
+
+
+def _extract_json_array(html: str, var_name: str) -> str:
+    """Extract a JavaScript array assignment from HTML using bracket counting.
+
+    The DATA_SupStations array contains nested objects with arrays inside,
+    so a simple regex with .*? can't find the correct closing bracket.
+    """
+    marker = f"var {var_name}"
+    start = html.find(marker)
+    if start == -1:
+        return ""
+
+    bracket_start = html.find("[", start)
+    if bracket_start == -1:
+        return ""
+
+    depth = 0
+    for i in range(bracket_start, len(html)):
+        if html[i] == "[":
+            depth += 1
+        elif html[i] == "]":
+            depth -= 1
+            if depth == 0:
+                return html[bracket_start : i + 1]
+
+    return ""
 
 
 class PortugalProvider:
@@ -267,12 +287,12 @@ class PortugalProvider:
             )
 
         html = response.text
-        match = _DATA_RE.search(html)
-        if not match:
+        raw_json = _extract_json_array(html, "DATA_SupStations")
+        if not raw_json:
             raise UpstreamAPIError("Could not find DATA_SupStations in infoagua page")
 
         try:
-            stations: list[dict[str, str | float]] = json.loads(match.group(1))
+            stations: list[dict[str, str | float]] = json.loads(raw_json)
         except json.JSONDecodeError as exc:
             raise UpstreamAPIError(f"Failed to parse DATA_SupStations JSON: {exc}") from exc
 
