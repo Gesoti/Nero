@@ -1,0 +1,306 @@
+# Portuguese translations for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-03-14 16:19+0200\n"
+"PO-Revision-Date: 2026-03-14 22:13+0200\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: pt\n"
+"Language-Team: pt <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: app/templates/404.html:8
+msgid "Page Not Found"
+msgstr "Página Não Encontrada"
+
+#: app/templates/404.html:10
+msgid "The page you're looking for doesn't exist, or the dam name is incorrect."
+msgstr "A página que procura não existe ou o nome da barragem está incorreto."
+
+#: app/templates/404.html:15 app/templates/blog_index.html:52
+msgid "← Back to Dashboard"
+msgstr "← Voltar ao Painel"
+
+#: app/templates/base.html:68
+msgid "This site uses cookies for advertising via Google AdSense."
+msgstr "Este site utiliza cookies para publicidade através do Google AdSense."
+
+#: app/templates/base.html:69
+#, python-format
+msgid ""
+"By clicking <strong class=\"text-white\">Accept</strong> you consent to "
+"our\n"
+"      <a href=\"%(country_prefix)s/privacy\" class=\"underline hover"
+":text-white transition-colors\">Privacy Policy</a>."
+msgstr ""
+"Ao clicar em <strong class=\"text-white\">Aceitar</strong>, concorda com a "
+"nossa\n"
+"      <a href=\"%(country_prefix)s/privacy\" class=\"underline hover"
+":text-white transition-colors\">Política de Privacidade</a>."
+
+#: app/templates/base.html:76
+msgid "Decline"
+msgstr "Recusar"
+
+#: app/templates/base.html:81
+msgid "Accept"
+msgstr "Aceitar"
+
+#: app/templates/base.html:191 app/templates/blog_index.html:9
+#: app/templates/blog_post.html:39
+msgid "Blog"
+msgstr "Blog"
+
+#: app/templates/base.html:192
+msgid "Map"
+msgstr "Mapa"
+
+#: app/templates/base.html:193
+msgid "About"
+msgstr "Sobre"
+
+#: app/templates/base.html:203
+msgid "Data:"
+msgstr "Dados:"
+
+#: app/templates/base.html:205
+msgid "Privacy Policy"
+msgstr "Política de Privacidade"
+
+#: app/templates/blog_index.html:10
+msgid "Analysis, explainers, and updates on Cyprus water data."
+msgstr "Análises, explicações e atualizações sobre os dados hídricos."
+
+#: app/templates/blog_index.html:22
+msgid "Read more →"
+msgstr "Ler mais →"
+
+#: app/templates/blog_index.html:29
+msgid "No articles yet. Check back soon."
+msgstr "Ainda sem artigos. Volte em breve."
+
+#: app/templates/blog_index.html:35
+msgid "Monthly Water Reports"
+msgstr "Relatórios Mensais de Água"
+
+#: app/templates/blog_index.html:36
+msgid ""
+"Auto-generated snapshots of dam levels for each month, compiled from "
+"official data."
+msgstr ""
+"Instantâneos gerados automaticamente dos níveis das barragens por mês, "
+"compilados a partir de dados oficiais."
+
+#: app/templates/blog_post.html:37
+msgid "Home"
+msgstr "Início"
+
+#: app/templates/blog_post.html:47
+msgid "By"
+msgstr "Por"
+
+#: app/templates/blog_post.html:68
+msgid "Writing about Cyprus water infrastructure, dam levels, and drought trends."
+msgstr "Escrevemos sobre infraestruturas hídricas, níveis de barragens e tendências de seca."
+
+#: app/templates/blog_post.html:69
+msgid "Data sourced from the Water Development Department of Cyprus."
+msgstr "Dados provenientes do Departamento de Desenvolvimento Hídrico do Chipre."
+
+#: app/templates/blog_post.html:70
+msgid "Learn more about Nero"
+msgstr "Saiba mais sobre o Nero"
+
+#: app/templates/blog_post.html:87
+msgid "← All articles"
+msgstr "← Todos os artigos"
+
+#: app/templates/dam_detail.html:29 app/templates/dam_detail.html:62
+msgid "← All Dams"
+msgstr "← Todas as Barragens"
+
+#: app/templates/dam_detail.html:91
+msgid "Historical Capacity"
+msgstr "Capacidade Histórica"
+
+#: app/templates/dam_detail.html:94 app/templates/dashboard.html:134
+msgid "Trend"
+msgstr "Tendência"
+
+#: app/templates/dam_detail.html:96 app/templates/dashboard.html:136
+msgid "Year on Year"
+msgstr "Ano a Ano"
+
+#: app/templates/dam_detail.html:115 app/templates/dashboard.html:155
+msgid "Day"
+msgstr "Dia"
+
+#: app/templates/dam_detail.html:117 app/templates/dashboard.html:157
+msgid "Month"
+msgstr "Mês"
+
+#: app/templates/dam_detail.html:119 app/templates/dashboard.html:159
+msgid "Year"
+msgstr "Ano"
+
+#: app/templates/dam_detail.html:143
+msgid "of capacity remaining"
+msgstr "de capacidade restante"
+
+#: app/templates/dam_detail.html:156 app/templates/dashboard.html:102
+msgid "Stored"
+msgstr "Armazenado"
+
+#: app/templates/dam_detail.html:161
+msgid "Capacity"
+msgstr "Capacidade"
+
+#: app/templates/dam_detail.html:169
+msgid "Recent Inflow"
+msgstr "Caudal Recente"
+
+#: app/templates/dam_detail.html:180
+msgid "Height"
+msgstr "Altura"
+
+#: app/templates/dam_detail.html:186
+msgid "Built"
+msgstr "Construída"
+
+#: app/templates/dam_detail.html:192
+msgid "River"
+msgstr "Rio"
+
+#: app/templates/dam_detail.html:198
+msgid "Type"
+msgstr "Tipo"
+
+#: app/templates/dam_detail.html:203
+msgid "Coordinates"
+msgstr "Coordenadas"
+
+#: app/templates/dam_detail.html:210
+msgid "Data date"
+msgstr "Data dos dados"
+
+#: app/templates/dam_detail.html:228
+msgid "Related Dams"
+msgstr "Barragens Relacionadas"
+
+#: app/templates/dam_detail.html:244
+msgid "Learn More"
+msgstr "Saiba Mais"
+
+#: app/templates/dam_detail.html:246 app/templates/dashboard.html:333
+msgid "How Dams Work"
+msgstr "Como Funcionam as Barragens"
+
+#: app/templates/dam_detail.html:248 app/templates/dashboard.html:334
+msgid "Water Crisis History"
+msgstr "História das Crises Hídricas"
+
+#: app/templates/dam_detail.html:250 app/templates/dashboard.html:276
+#: app/templates/dashboard.html:335
+msgid "Latest Analysis"
+msgstr "Última Análise"
+
+#: app/templates/dam_detail.html:252
+msgid "All Dams on Map"
+msgstr "Todas as Barragens no Mapa"
+
+#: app/templates/dashboard.html:81
+msgid "Live System Status"
+msgstr "Estado do Sistema em Tempo Real"
+
+#: app/templates/dashboard.html:83
+msgid "Cyprus dam levels — live data & analysis"
+msgstr "Níveis das barragens — dados em tempo real e análise"
+
+#: app/templates/dashboard.html:87
+msgid "of total capacity remaining"
+msgstr "da capacidade total restante"
+
+#: app/templates/dashboard.html:109
+msgid "Total Capacity"
+msgstr "Capacidade Total"
+
+#: app/templates/dashboard.html:116
+msgid "Last Updated"
+msgstr "Última Atualização"
+
+#: app/templates/dashboard.html:118
+msgid "Syncing..."
+msgstr "A sincronizar..."
+
+#: app/templates/dashboard.html:131
+msgid "System Capacity"
+msgstr "Capacidade do Sistema"
+
+#: app/templates/dashboard.html:176
+msgid "Critical"
+msgstr "Crítico"
+
+#: app/templates/dashboard.html:179
+msgid "Warning"
+msgstr "Alerta"
+
+#: app/templates/dashboard.html:182
+msgid "Healthy"
+msgstr "Saudável"
+
+#: app/templates/dashboard.html:229
+msgid "Stored:"
+msgstr "Armazenado:"
+
+#: app/templates/dashboard.html:230
+msgid "Capacity:"
+msgstr "Capacidade:"
+
+#: app/templates/dashboard.html:237
+msgid "Data syncing… Check back shortly."
+msgstr "A sincronizar os dados… Volte em breve."
+
+#: app/templates/dashboard.html:249
+msgid "Understanding Athens' Water Supply"
+msgstr "Compreender o Abastecimento de Água de Atenas"
+
+#: app/templates/dashboard.html:255 app/templates/dashboard.html:297
+msgid "How to Read This Dashboard"
+msgstr "Como Interpretar este Painel"
+
+#: app/templates/dashboard.html:261 app/templates/dashboard.html:309
+msgid "What the Numbers Mean"
+msgstr "O Que Significam os Números"
+
+#: app/templates/dashboard.html:267 app/templates/dashboard.html:320
+msgid "Why Monitoring Matters"
+msgstr "Por Que Razão a Monitorização É Importante"
+
+#: app/templates/dashboard.html:274
+msgid "Athens Water System"
+msgstr "Sistema Hídrico de Atenas"
+
+#: app/templates/dashboard.html:275
+msgid "Mornos Reservoir"
+msgstr "Reservatório de Mornos"
+
+#: app/templates/dashboard.html:277 app/templates/dashboard.html:336
+msgid "Interactive Map"
+msgstr "Mapa Interativo"
+
+#: app/templates/dashboard.html:287
+msgid "Understanding Cyprus Dam Levels"
+msgstr "Compreender os Níveis das Barragens do Chipre"
+
+#: app/templates/map.html:15
+msgid "← Dashboard"
+msgstr "← Painel"

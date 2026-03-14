@@ -18,12 +18,14 @@ from jinja2 import Environment
 
 _TRANSLATIONS_DIR = Path(__file__).parent / "translations"
 
-SUPPORTED_LOCALES: frozenset[str] = frozenset({"en", "el"})
+SUPPORTED_LOCALES: frozenset[str] = frozenset({"en", "el", "es", "pt"})
 
 # Labels for the language dropdown (native names)
 LANGUAGE_LABELS: dict[str, str] = {
     "en": "English",
     "el": "Ελληνικά",
+    "es": "Español",
+    "pt": "Português",
 }
 
 
