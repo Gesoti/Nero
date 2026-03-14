@@ -360,7 +360,7 @@ async def monthly_report(request: Request, year: int, month: int):
     )
 
     import mistune
-    _md = mistune.create_markdown(escape=False)
+    _md = mistune.create_markdown(escape=True)
 
     @dc(frozen=True)
     class _ReportPost:
@@ -558,15 +558,25 @@ async def sitemap_xml():
     )
 
 
+import re
+
+_SAFE_REDIRECT_RE = re.compile(r"^/[^/\\]")
+
+
+def _safe_redirect(next_url: str) -> str:
+    """Accept only relative paths that start with a single /."""
+    if next_url and _SAFE_REDIRECT_RE.match(next_url):
+        return next_url
+    return "/"
+
+
 @router.get("/set-lang")
 async def set_language(lang: str = "en", next: str = "/"):
     """Set the user's language preference cookie and redirect back."""
     if lang not in SUPPORTED_LOCALES:
         lang = "en"
-    # Prevent open redirect — next must be a relative path
-    if not next.startswith("/"):
-        next = "/"
-    response = RedirectResponse(url=next, status_code=302)
+    safe_next = _safe_redirect(next)
+    response = RedirectResponse(url=safe_next, status_code=302)
     response.set_cookie(
         key="wl_lang",
         value=lang,
@@ -574,6 +584,7 @@ async def set_language(lang: str = "en", next: str = "/"):
         path="/",
         samesite="lax",
         httponly=True,
+        secure=True,
     )
     return response
 

@@ -20,6 +20,12 @@ ENV WL_ENABLED_COUNTRIES=cy,gr,es,pt \
 # persistent volume mounted at /data on the host.
 RUN ln -s /data /app/data
 
+# Run as non-root user for security
+RUN groupadd --system nero && useradd --system --gid nero --no-create-home nero \
+    && chown -R nero:nero /app
+
+USER nero
+
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \

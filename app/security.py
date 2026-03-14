@@ -23,8 +23,9 @@ _CDN_ADSENSE_FRAME = (
 _CDN_JSDELIVR = "https://cdn.jsdelivr.net"
 
 _CSP_TEMPLATE = (
+    "upgrade-insecure-requests; "
     "default-src 'self'; "
-    "script-src 'nonce-{nonce}' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https:; "
+    "script-src 'nonce-{nonce}' 'strict-dynamic'; "
     "style-src 'self' 'unsafe-inline' {fonts_css} {cdn_jsdelivr}; "
     "font-src {fonts_ttf}; "
     "img-src 'self' data: https:; "
@@ -59,6 +60,7 @@ async def security_headers_middleware(request: Request, call_next) -> Response:
     h["X-Frame-Options"]        = "DENY"
     h["Referrer-Policy"]        = "strict-origin-when-cross-origin"
     h["Permissions-Policy"]     = _PERMISSIONS
+    h["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     h["Content-Security-Policy"] = _CSP_TEMPLATE.format(
         nonce=nonce,
         fonts_css=_GOOGLE_FONTS_CSS,

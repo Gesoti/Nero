@@ -59,8 +59,8 @@ jobs:
       id-token: write
       contents: read
     env:
-      INSTANCE_ID: REDACTED_EC2_INSTANCE_ID
-      ECR_URI: REDACTED_AWS_ACCOUNT_ID.dkr.ecr.eu-south-2.amazonaws.com
+      INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
+      ECR_URI: ${{ secrets.ECR_URI }}
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4

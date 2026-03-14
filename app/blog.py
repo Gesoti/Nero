@@ -38,7 +38,9 @@ class BlogPost:
     country: str = "cy"  # Default to Cyprus for backwards compatibility
 
 
-_markdown = mistune.create_markdown(escape=False)
+_markdown = mistune.create_markdown(escape=True)
+
+_SLUG_RE = __import__("re").compile(r"^[a-zA-Z0-9][a-zA-Z0-9\-]*$")
 
 
 def _parse_frontmatter(text: str) -> tuple[dict[str, str], str]:
@@ -54,8 +56,14 @@ def _parse_frontmatter(text: str) -> tuple[dict[str, str], str]:
 
 
 def load_post(slug: str) -> BlogPost | None:
-    """Load a single blog post by slug."""
+    """Load a single blog post by slug. Rejects slugs with path traversal characters."""
+    if not _SLUG_RE.match(slug):
+        return None
     filepath = POSTS_DIR / f"{slug}.md"
+    try:
+        filepath.resolve().relative_to(POSTS_DIR.resolve())
+    except ValueError:
+        return None
     if not filepath.is_file():
         return None
     return _load_file(filepath)
