@@ -133,3 +133,55 @@ async def test_hreflang_es_page_links_to_cy_and_gr(three_country_client: httpx.A
     assert resp.status_code == 200
     assert 'hreflang="en"' in resp.text
     assert "/gr/" in resp.text
+
+
+# ── Four-country hreflang/sitemap tests (with Portugal) ──────────────────
+
+
+@pytest_asyncio.fixture
+async def four_country_client(in_memory_db):
+    """Client with cy,gr,es,pt all enabled."""
+    from app.db import upsert_dams, upsert_percentage_snapshot
+
+    upsert_dams([_DamStub()])
+    upsert_percentage_snapshot(_SnapshotStub())
+
+    with patch.object(settings, "enabled_countries", "cy,gr,es,pt"):
+        wrapped = CountryPrefixMiddleware(
+            app=app,
+            enabled_countries=["cy", "gr", "es", "pt"],
+            default_country="cy",
+        )
+        transport = httpx.ASGITransport(app=wrapped)
+        async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+            yield client
+
+
+async def test_sitemap_includes_pt_root(four_country_client: httpx.AsyncClient) -> None:
+    """Sitemap must include /pt/ when Portugal is enabled."""
+    resp = await four_country_client.get("/sitemap.xml")
+    assert resp.status_code == 200
+    assert "/pt/" in resp.text
+
+
+async def test_sitemap_includes_pt_dam_alqueva(four_country_client: httpx.AsyncClient) -> None:
+    """Sitemap must include /pt/dam/Alqueva from static metadata."""
+    resp = await four_country_client.get("/sitemap.xml")
+    assert resp.status_code == 200
+    assert "/pt/dam/Alqueva" in resp.text
+
+
+async def test_hreflang_cy_page_links_to_pt(four_country_client: httpx.AsyncClient) -> None:
+    """CY dashboard must include hreflang link to /pt/."""
+    resp = await four_country_client.get("/")
+    assert resp.status_code == 200
+    assert "/pt/" in resp.text
+
+
+async def test_hreflang_pt_page_links_to_cy_and_gr_and_es(four_country_client: httpx.AsyncClient) -> None:
+    """Portugal /pt/ must include hreflang links to CY, GR, and ES."""
+    resp = await four_country_client.get("/pt/")
+    assert resp.status_code == 200
+    assert 'hreflang="en"' in resp.text
+    assert "/gr/" in resp.text
+    assert "/es/" in resp.text
