@@ -39,6 +39,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/static/css/tailwind.min.css" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css"
+          integrity="sha384-aQuvIWWIbpu/mSqULLDiUveyYiPoJzPKAWjUmGJ+Elm+N/LJhzfZqsutsfw870JS"
+          crossorigin="anonymous" />
     <script nonce="{{ request.state.csp_nonce }}"
             src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"
             integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ"
@@ -177,15 +181,21 @@
                 <button id="country-toggle"
                         class="text-sm text-slate-500 hover:text-slate-700 transition-colors flex items-center gap-1"
                         aria-expanded="false" aria-haspopup="true">
-                    {% for c in country_nav %}{% if c.code == country %}{{ c.label }}{% endif %}{% endfor %}
+                    {% for c in country_nav %}{% if c.code == country %}
+                    <span class="fi fi-{{ c.code }} rounded-sm" aria-hidden="true"></span>
+                    {{ c.label }}
+                    {% endif %}{% endfor %}
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </button>
                 <div id="country-dropdown"
                      class="hidden absolute right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg py-1 min-w-[140px] z-50">
                     {% for c in country_nav %}
                     <a href="{{ c.href }}"
-                       class="block px-4 py-2 text-sm {% if c.code == country %}text-blue-600 font-medium bg-blue-50{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-800{% endif %} transition-colors"
-                       data-active="{{ c.code if c.code == country else '' }}">{{ c.label }}</a>
+                       class="flex items-center gap-2 px-4 py-2 text-sm {% if c.code == country %}text-blue-600 font-medium bg-blue-50{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-800{% endif %} transition-colors"
+                       data-active="{{ c.code if c.code == country else '' }}">
+                        <span class="fi fi-{{ c.code }} rounded-sm" aria-hidden="true"></span>
+                        {{ c.label }}
+                    </a>
                     {% endfor %}
                 </div>
             </div>
