@@ -34,9 +34,9 @@
 
     <!-- Breadcrumb -->
     <nav class="mb-6 text-sm text-slate-500">
-        <a href="/" class="hover:text-slate-700 transition-colors">{{ _("Home") }}</a>
+        <a href="{{ country_prefix }}/" class="hover:text-slate-700 transition-colors">{{ _("Home") }}</a>
         <span class="mx-2">/</span>
-        <a href="/blog" class="hover:text-slate-700 transition-colors">{{ _("Blog") }}</a>
+        <a href="{{ country_prefix }}/blog" class="hover:text-slate-700 transition-colors">{{ _("Blog") }}</a>
         <span class="mx-2">/</span>
         <span class="text-slate-800 font-medium">{{ post.title }}</span>
     </nav>
@@ -67,7 +67,7 @@
                 <p class="text-sm text-slate-500 mt-1 leading-relaxed">
                     {{ _("Writing about Cyprus water infrastructure, dam levels, and drought trends.") }}
                     {{ _("Data sourced from the Water Development Department of Cyprus.") }}
-                    <a href="/about" class="text-blue-600 hover:underline">{{ _("Learn more about Nero") }}</a>.
+                    <a href="{{ country_prefix }}/about" class="text-blue-600 hover:underline">{{ _("Learn more about Nero") }}</a>.
                 </p>
             </div>
         </div>
@@ -84,7 +84,7 @@
     </div>
 
     <div class="mt-8 pt-6 border-t border-slate-200">
-        <a href="/blog" class="text-sm text-blue-600 hover:underline">{{ _("← All articles") }}</a>
+        <a href="{{ country_prefix }}/blog" class="text-sm text-blue-600 hover:underline">{{ _("← All articles") }}</a>
     </div>
 </article>
 {% endblock %}

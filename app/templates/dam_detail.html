@@ -228,7 +228,7 @@
     <h2 class="text-lg font-semibold text-slate-800 mb-4">{{ _("Related Dams") }}</h2>
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {% for rd in related_dams %}
-        <a href="/dam/{{ rd.name_en }}"
+        <a href="{{ country_prefix }}/dam/{{ rd.name_en }}"
            class="bg-white rounded-xl border border-slate-200 p-4 text-center hover:shadow-md transition-shadow">
             <p class="font-medium text-slate-800 text-sm mb-1">{{ rd.name_en }}</p>
             <p class="text-lg font-bold {% if rd.severity == 'critical' %}text-red-600{% elif rd.severity == 'warning' %}text-amber-600{% else %}text-emerald-600{% endif %}">{{ rd.percentage }}%</p>
@@ -247,9 +247,9 @@
             <span class="text-slate-300">·</span>
             <a href="/learn/water-crisis-history" class="text-blue-600 hover:underline">{{ _("Water Crisis History") }}</a>
             <span class="text-slate-300">·</span>
-            <a href="/blog" class="text-blue-600 hover:underline">{{ _("Latest Analysis") }}</a>
+            <a href="{{ country_prefix }}/blog" class="text-blue-600 hover:underline">{{ _("Latest Analysis") }}</a>
             <span class="text-slate-300">·</span>
-            <a href="/map" class="text-blue-600 hover:underline">{{ _("All Dams on Map") }}</a>
+            <a href="{{ country_prefix }}/map" class="text-blue-600 hover:underline">{{ _("All Dams on Map") }}</a>
         </div>
     </div>
 </div>

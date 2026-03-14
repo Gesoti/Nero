@@ -156,6 +156,14 @@ async def test_gr_dashboard_security_headers(gr_client: httpx.AsyncClient) -> No
     assert resp.headers.get("x-frame-options") == "DENY"
 
 
+async def test_gr_dashboard_dam_links_have_gr_prefix(gr_seeded_client: httpx.AsyncClient) -> None:
+    """Dam card links on the GR dashboard must point to /gr/dam/..., not /dam/..."""
+    resp = await gr_seeded_client.get("/gr/")
+    assert resp.status_code == 200
+    # The seeded dam is Kouris — its link must include the /gr/ prefix
+    assert '/gr/dam/Kouris' in resp.text
+
+
 # ── Dam detail routes with seeded data ────────────────────────────────────
 
 async def test_gr_dam_detail_returns_200(gr_seeded_client: httpx.AsyncClient) -> None:

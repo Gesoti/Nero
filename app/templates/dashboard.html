@@ -207,7 +207,7 @@
                 {% set txt = "text-emerald-700" %}
                 {% set badge = "bg-emerald-100 text-emerald-700" %}
             {% endif %}
-            <a href="/dam/{{ dam.name_en }}"
+            <a href="{{ country_prefix }}/dam/{{ dam.name_en }}"
                class="block rounded-xl border {{ border }} {{ bg }} p-4
                       hover:-translate-y-0.5 hover:shadow-md transition-all duration-200
                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
@@ -273,8 +273,8 @@
         <div class="flex flex-wrap gap-3 mt-2">
             <a href="/blog/athens-water-supply-system" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">{{ _("Athens Water System") }}</a>
             <a href="/blog/mornos-reservoir-athens-lifeline" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">{{ _("Mornos Reservoir") }}</a>
-            <a href="/blog" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">{{ _("Latest Analysis") }}</a>
-            <a href="/map" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">{{ _("Interactive Map") }}</a>
+            <a href="{{ country_prefix }}/blog" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">{{ _("Latest Analysis") }}</a>
+            <a href="{{ country_prefix }}/map" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">{{ _("Interactive Map") }}</a>
         </div>
 
         <p class="text-sm text-slate-500 mt-4">
@@ -332,8 +332,8 @@
         <div class="flex flex-wrap gap-3 mt-2">
             <a href="/learn/how-dams-work" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">{{ _("How Dams Work") }}</a>
             <a href="/learn/water-crisis-history" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">{{ _("Water Crisis History") }}</a>
-            <a href="/blog" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">{{ _("Latest Analysis") }}</a>
-            <a href="/map" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">{{ _("Interactive Map") }}</a>
+            <a href="{{ country_prefix }}/blog" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">{{ _("Latest Analysis") }}</a>
+            <a href="{{ country_prefix }}/map" class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">{{ _("Interactive Map") }}</a>
         </div>
 
         <p class="text-sm text-slate-500 mt-4">

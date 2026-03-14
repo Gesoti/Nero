@@ -67,7 +67,7 @@
     <p class="text-sm text-slate-300 leading-relaxed">
       {{ _("This site uses cookies for advertising via Google AdSense.") }}
       {% trans %}By clicking <strong class="text-white">Accept</strong> you consent to our
-      <a href="/privacy" class="underline hover:text-white transition-colors">Privacy Policy</a>.{% endtrans %}
+      <a href="{{ country_prefix }}/privacy" class="underline hover:text-white transition-colors">Privacy Policy</a>.{% endtrans %}
     </p>
     <div class="flex gap-2 shrink-0">
       <button id="cookie-decline"
@@ -202,7 +202,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-slate-400">
         {% block footer_data_source %}{{ _("Data:") }} <a href="https://cyprus-water.appspot.com" target="_blank" rel="noopener" class="hover:text-slate-600 underline underline-offset-2">Water Development Department, Cyprus</a> (CC BY 2.0){% endblock %}
         <span class="mx-2 text-slate-300">·</span>
-        <a href="/privacy" class="hover:text-slate-600 underline underline-offset-2">{{ _("Privacy Policy") }}</a>
+        <a href="{{ country_prefix }}/privacy" class="hover:text-slate-600 underline underline-offset-2">{{ _("Privacy Policy") }}</a>
         {% block footer_extra %}{% endblock %}
     </div>
 </footer>

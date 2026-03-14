@@ -67,7 +67,7 @@
                 '<span style="color:#94a3b8;font-size:11px">' +
                     dam.storage_mcm.toFixed(1) + ' / ' + dam.capacity_mcm.toFixed(1) + ' MCM' +
                 '</span><br>' +
-                '<a href="/dam/' + encodeURIComponent(dam.name_en) + '" ' +
+                '<a href="{{ country_prefix }}/dam/' + encodeURIComponent(dam.name_en) + '" ' +
                    'style="color:#3b82f6;font-size:12px;text-decoration:underline">View details &rarr;</a>' +
             '</div>',
             { closeButton: false, maxWidth: 200 }
