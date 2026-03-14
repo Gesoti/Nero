@@ -23,6 +23,7 @@ from app.middleware.country import CountryPrefixMiddleware
 from app.providers.base import DataProvider
 from app.providers.cyprus import CyprusProvider
 from app.providers.greece import GreeceProvider
+from app.providers.portugal import PortugalProvider
 from app.providers.spain import SpainProvider
 from app.routes.pages import router as page_router
 from app.security import security_headers_middleware
@@ -77,6 +78,13 @@ def _build_provider_registry() -> dict[str, tuple[DataProvider, str]]:
                 timeout=_timeout,
             )
             registry[cc] = (SpainProvider(client=client), db_path)
+        elif cc == "pt":
+            client = httpx.AsyncClient(
+                base_url="https://infoagua.apambiente.pt",
+                headers={"User-Agent": "NeroWaterDashboard/1.0"},
+                timeout=_timeout,
+            )
+            registry[cc] = (PortugalProvider(client=client), db_path)
         else:
             logger.warning("No provider implemented for country '%s' — skipping", cc)
 

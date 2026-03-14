@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{# Portugal country layout — uses English (same as other countries).
+   Overrides the footer attribution to APA/SNIRH. #}
+
+{% block footer_data_source %}Data: <a href="https://infoagua.apambiente.pt" target="_blank" rel="noopener" class="hover:text-slate-600 underline underline-offset-2">APA/InfoAgua</a> / <a href="https://snirh.apambiente.pt" target="_blank" rel="noopener" class="hover:text-slate-600 underline underline-offset-2">SNIRH</a>{% endblock %}
