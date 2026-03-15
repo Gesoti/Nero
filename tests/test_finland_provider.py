@@ -11,6 +11,7 @@ from datetime import date
 from app.providers.finland import (
     FinlandProvider,
     _FINLAND_DAMS,
+    _STATION_IDS,
 )
 from app.providers.base import (
     DataProvider,
@@ -23,7 +24,7 @@ from app.providers.base import (
 
 @pytest.fixture
 def finland_provider() -> FinlandProvider:
-    client = httpx.AsyncClient(base_url="http://rajapinnat.ymparisto.fi")
+    client = httpx.AsyncClient(base_url="https://rajapinnat.ymparisto.fi")
     return FinlandProvider(client=client)
 
 
@@ -35,7 +36,7 @@ def test_finland_provider_importable() -> None:
 
 
 def test_finland_provider_implements_protocol() -> None:
-    client = httpx.AsyncClient(base_url="http://example.com")
+    client = httpx.AsyncClient(base_url="https://example.com")
     provider = FinlandProvider(client=client)
     assert isinstance(provider, DataProvider)
 
@@ -103,26 +104,37 @@ async def test_fetch_dams_paijanne_present(finland_provider: FinlandProvider) ->
     assert "Paijanne" in names
 
 
+# ── Station ID mapping tests ──────────────────────────────────────────────────
+
+def test_station_ids_all_mapped() -> None:
+    """Every dam in _FINLAND_DAMS must have a corresponding entry in _STATION_IDS."""
+    dam_names = {dam.name_en for dam in _FINLAND_DAMS}
+    missing = dam_names - _STATION_IDS.keys()
+    assert not missing, f"Dams missing station IDs: {missing}"
+
+
+def test_station_ids_are_positive_integers() -> None:
+    """All station IDs must be positive integers (SYKE Paikka_Id values)."""
+    for name, station_id in _STATION_IDS.items():
+        assert isinstance(station_id, int), f"{name} station ID is not an int"
+        assert station_id > 0, f"{name} station ID must be positive"
+
+
 # ── fetch_percentages tests (mocked HTTP) ────────────────────────────────────
 
-# Minimal mock XML that matches what SYKE OData returns for water level observations.
-# Real endpoint: /api/Hydrologiarajapinta/1.1/Havainto
-# Returns Atom feed with <d:Arvo> (value in cm) and <d:Aika> (timestamp).
-_MOCK_SYKE_XML = """\
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"
-      xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices"
-      xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata">
-  <title type="text">Havainto</title>
-  <entry>
-    <content type="application/xml">
-      <m:properties>
-        <d:Arvo>120</d:Arvo>
-        <d:Aika>2026-03-14T00:00:00</d:Aika>
-      </m:properties>
-    </content>
-  </entry>
-</feed>
+# Minimal mock JSON that matches what SYKE OData Vedenkorkeus returns.
+# Real endpoint: /api/Hydrologiarajapinta/1.1/odata/Vedenkorkeus
+# Returns JSON {"value": [{"Paikka_Id": N, "Aika": "...", "Arvo": N}]}
+_MOCK_SYKE_JSON = """\
+{
+  "value": [
+    {
+      "Paikka_Id": 1900,
+      "Aika": "2026-03-14T00:00:00",
+      "Arvo": 120
+    }
+  ]
+}
 """
 
 
@@ -131,8 +143,9 @@ async def test_fetch_percentages_returns_snapshot_with_15_entries() -> None:
     """On a valid API response, fetch_percentages returns a snapshot for all 15 dams."""
     mock_response = httpx.Response(
         200,
-        text=_MOCK_SYKE_XML,
-        request=httpx.Request("GET", "http://example.com"),
+        text=_MOCK_SYKE_JSON,
+        headers={"content-type": "application/json"},
+        request=httpx.Request("GET", "https://example.com"),
     )
     client = AsyncMock(spec=httpx.AsyncClient)
     client.get = AsyncMock(return_value=mock_response)
@@ -146,12 +159,55 @@ async def test_fetch_percentages_returns_snapshot_with_15_entries() -> None:
 
 
 @pytest.mark.asyncio
+async def test_fetch_percentages_calls_api_per_dam() -> None:
+    """fetch_percentages must make one API call per dam (15 calls total), not one shared call."""
+    mock_response = httpx.Response(
+        200,
+        text=_MOCK_SYKE_JSON,
+        headers={"content-type": "application/json"},
+        request=httpx.Request("GET", "https://example.com"),
+    )
+    client = AsyncMock(spec=httpx.AsyncClient)
+    client.get = AsyncMock(return_value=mock_response)
+    client.is_closed = False
+
+    provider = FinlandProvider(client=client)
+    await provider.fetch_percentages(date(2026, 3, 14))
+
+    assert client.get.call_count == 15, (
+        f"Expected 15 API calls (one per dam), got {client.get.call_count}"
+    )
+
+
+@pytest.mark.asyncio
+async def test_fetch_percentages_uses_correct_endpoint() -> None:
+    """Each API call must hit the Vedenkorkeus OData endpoint."""
+    mock_response = httpx.Response(
+        200,
+        text=_MOCK_SYKE_JSON,
+        headers={"content-type": "application/json"},
+        request=httpx.Request("GET", "https://example.com"),
+    )
+    client = AsyncMock(spec=httpx.AsyncClient)
+    client.get = AsyncMock(return_value=mock_response)
+    client.is_closed = False
+
+    provider = FinlandProvider(client=client)
+    await provider.fetch_percentages(date(2026, 3, 14))
+
+    for call in client.get.call_args_list:
+        url = call.args[0] if call.args else call.kwargs.get("url", "")
+        assert "Vedenkorkeus" in url, f"Expected Vedenkorkeus endpoint, got: {url}"
+
+
+@pytest.mark.asyncio
 async def test_fetch_percentages_percentages_in_valid_range() -> None:
     """All returned percentages must be in [0, 1] range."""
     mock_response = httpx.Response(
         200,
-        text=_MOCK_SYKE_XML,
-        request=httpx.Request("GET", "http://example.com"),
+        text=_MOCK_SYKE_JSON,
+        headers={"content-type": "application/json"},
+        request=httpx.Request("GET", "https://example.com"),
     )
     client = AsyncMock(spec=httpx.AsyncClient)
     client.get = AsyncMock(return_value=mock_response)
@@ -171,7 +227,7 @@ async def test_fetch_percentages_graceful_on_http_error() -> None:
     """On HTTP error, fetch_percentages returns zero-fill defaults (does not raise)."""
     mock_response = httpx.Response(
         500,
-        request=httpx.Request("GET", "http://example.com"),
+        request=httpx.Request("GET", "https://example.com"),
     )
     client = AsyncMock(spec=httpx.AsyncClient)
     client.get = AsyncMock(return_value=mock_response)
@@ -204,8 +260,9 @@ async def test_fetch_percentages_date_matches_target() -> None:
     """Snapshot date must match the requested target date."""
     mock_response = httpx.Response(
         200,
-        text=_MOCK_SYKE_XML,
-        request=httpx.Request("GET", "http://example.com"),
+        text=_MOCK_SYKE_JSON,
+        headers={"content-type": "application/json"},
+        request=httpx.Request("GET", "https://example.com"),
     )
     client = AsyncMock(spec=httpx.AsyncClient)
     client.get = AsyncMock(return_value=mock_response)
@@ -223,8 +280,9 @@ async def test_fetch_percentages_date_matches_target() -> None:
 async def test_fetch_date_statistics_returns_stats_for_all_dams() -> None:
     mock_response = httpx.Response(
         200,
-        text=_MOCK_SYKE_XML,
-        request=httpx.Request("GET", "http://example.com"),
+        text=_MOCK_SYKE_JSON,
+        headers={"content-type": "application/json"},
+        request=httpx.Request("GET", "https://example.com"),
     )
     client = AsyncMock(spec=httpx.AsyncClient)
     client.get = AsyncMock(return_value=mock_response)

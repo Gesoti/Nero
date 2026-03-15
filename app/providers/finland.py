@@ -1,22 +1,25 @@
 """
 Finland data provider — fetches from SYKE (Finnish Environment Institute) OData API.
 
-Upstream: http://rajapinnat.ymparisto.fi/api/Hydrologiarajapinta/1.1/
-Format: OData 3.0 (Atom XML)
+Upstream: https://rajapinnat.ymparisto.fi/api/Hydrologiarajapinta/1.1/
+Format: OData JSON (the XML/Atom format returns HTTP 400)
 Coverage: ~5,000 monitoring stations with daily water level data (cm).
 
 Finnish "reservoirs" are mostly regulated natural lakes, some of the largest
-water bodies in Northern Europe. The API provides water level in cm; for MVP
-we compute approximate fill percentages from the regulation boundaries defined
-in _REGULATION_LEVELS. If the API is unreachable or parsing fails, the provider
-returns zero-fill defaults rather than raising — the scheduler will retry on the
-next cycle.
+water bodies in Northern Europe. The API provides water level in cm above a
+station-local gauge zero point (datum); values vary enormously between stations
+(e.g. Saimaa ~309 cm, Lokka ~24302 cm) because each station uses a different
+local datum offset — the numbers are NOT comparable between lakes.
+
+For MVP we treat any positive reading as a proxy for a healthy lake and map it
+to 0.70 (70%). If the API is unreachable or parsing fails the provider returns
+zero-fill defaults rather than raising — the scheduler retries on the next cycle.
 """
 from __future__ import annotations
 
 import logging
-import xml.etree.ElementTree as ET
 from datetime import date
+from typing import Any
 
 import httpx
 
@@ -162,51 +165,61 @@ _FINLAND_DAMS: list[DamInfo] = [
 
 _TOTAL_CAPACITY_MCM: float = sum(d.capacity_mcm for d in _FINLAND_DAMS)
 
-# SYKE OData base URL
-_SYKE_API_BASE = "http://rajapinnat.ymparisto.fi/api/Hydrologiarajapinta/1.1"
+# SYKE station IDs (Paikka_Id) for each lake — verified against live API 2026-03-14.
+# These are required for the per-lake Vedenkorkeus query; without them the API
+# returns data for an arbitrary station rather than the correct lake.
+_STATION_IDS: dict[str, int] = {
+    "Inarijarvi":   2562,
+    "Saimaa":       1898,
+    "Paijanne":     1998,
+    "Oulujarvi":    2405,
+    "Lokka":        2468,
+    "Porttipahta":  2458,
+    "Pielinen":     1749,
+    "Kemijarvi":    2475,
+    "Nasijarvi":    2226,
+    "Pyhajarvi":    2168,
+    "Ontojarvi":    2394,
+    "Nuasjarvi":    2400,
+    "Kiantajarvi":  2372,
+    "Vuokkijarvi":  2375,
+    "Koitere":      1770,
+}
 
-# OData Atom XML namespace constants
-_ATOM_NS = "http://www.w3.org/2005/Atom"
-_DATA_NS = "http://schemas.microsoft.com/ado/2007/08/dataservices"
-_META_NS = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"
+# SYKE OData base URL — HTTPS required (HTTP returns 400 for OData endpoints)
+_SYKE_API_BASE = "https://rajapinnat.ymparisto.fi/api/Hydrologiarajapinta/1.1"
 
 
-def _parse_syke_xml(xml_text: str) -> float | None:
-    """Extract the first <d:Arvo> value from a SYKE OData Atom XML response.
+def _parse_syke_json(json_data: dict[str, Any]) -> float | None:
+    """Extract the first Arvo value from a SYKE OData JSON response.
 
     Returns the water level in cm, or None if no value is found.
-    The API can return an empty feed (no entries) when a station has no recent data.
+    The API can return an empty value array when a station has no recent data.
     """
-    try:
-        root = ET.fromstring(xml_text)
-    except ET.ParseError as exc:
-        logger.warning("Failed to parse SYKE XML: %s", exc)
+    value_list = json_data.get("value", [])
+    if not value_list:
         return None
-
-    # Find the first d:Arvo element across any entry
-    arvo_tag = f"{{{_DATA_NS}}}Arvo"
-    for element in root.iter(arvo_tag):
-        text = element.text
-        if text and text.strip():
-            try:
-                return float(text.strip())
-            except ValueError:
-                logger.warning("Unexpected non-numeric Arvo value: %r", text)
-                return None
-
-    return None
+    first = value_list[0]
+    raw = first.get("Arvo")
+    if raw is None:
+        return None
+    try:
+        return float(raw)
+    except (TypeError, ValueError):
+        logger.warning("Unexpected non-numeric Arvo value: %r", raw)
+        return None
 
 
 def _water_level_to_percentage(level_cm: float, capacity_mcm: float) -> float:
     """Convert a raw water level observation to an approximate fill percentage.
 
-    Finnish regulated lakes report water level in cm above sea level (N2000 or
-    NN datum), not as a percentage. Without per-lake regulation boundary data
-    this conversion is approximate: we treat any valid API observation as
-    a proxy for a healthy lake and map it to 0.70 (70%) as a reasonable
-    mid-range estimate. This gives the dashboard a meaningful visual without
-    false precision. Future improvement: fetch regulation boundaries from
-    /api/jarvirajapinta/1.1/ and compute a true fill ratio.
+    Finnish regulated lakes report water level in cm above a station-local gauge
+    zero point, not as a percentage. The values are not comparable between lakes
+    because each uses a different datum offset. Without per-lake regulation
+    boundary data this conversion is approximate: we treat any valid API
+    observation as a proxy for a healthy lake and map it to 0.70 (70%) as a
+    reasonable mid-range estimate. Future improvement: fetch regulation
+    boundaries from /api/jarvirajapinta/1.1/ and compute a true fill ratio.
     """
     # Ignore unused parameter — placeholder for future improvement
     _ = capacity_mcm
@@ -218,10 +231,12 @@ class FinlandProvider:
     """DataProvider implementation for SYKE Finnish hydrology OData API.
 
     Fetches current water level readings for Finland's 15 largest regulated
-    lakes. Because SYKE reports water level (cm above datum) rather than
-    fill percentage, approximate percentages are computed via
-    _water_level_to_percentage(). If the API is unavailable, all percentages
-    default to 0.0 — the scheduler will retry at the next sync interval.
+    lakes. Each lake is queried individually by its Paikka_Id station ID to
+    ensure station-specific data rather than a generic sample. Because SYKE
+    reports water level (cm above datum) rather than fill percentage,
+    approximate percentages are computed via _water_level_to_percentage(). If
+    the API is unavailable, all percentages default to 0.0 — the scheduler
+    will retry at the next sync interval.
     """
 
     def __init__(self, client: httpx.AsyncClient) -> None:
@@ -231,20 +246,22 @@ class FinlandProvider:
         return list(_FINLAND_DAMS)
 
     async def _fetch_level_for_dam(self, dam: DamInfo) -> float:
-        """Fetch the latest water level (cm) for a dam from the SYKE OData API.
+        """Fetch the latest water level (cm) for a specific dam from SYKE OData.
 
+        Queries by Paikka_Id so we get data for the correct monitoring station.
         Returns 0.0 on any error so that a single failing station doesn't abort
         the whole sync.
         """
-        # The SYKE API requires a station ID for precise queries; since we don't
-        # store station IDs in DamInfo, we query the general recent-observations
-        # endpoint and use the first returned value as a representative sample.
-        # This is acceptable for MVP — future work should map dam names → station IDs.
-        url = f"{_SYKE_API_BASE}/Havainto"
+        station_id = _STATION_IDS.get(dam.name_en)
+        if station_id is None:
+            logger.warning("No station ID mapped for %s — skipping", dam.name_en)
+            return 0.0
+
+        url = f"{_SYKE_API_BASE}/odata/Vedenkorkeus"
         params = {
-            "$top": "1",
+            "$filter": f"Paikka_Id eq {station_id}",
             "$orderby": "Aika desc",
-            "$format": "atom",
+            "$top": "1",
         }
         try:
             response = await self._client.get(url, params=params)
@@ -258,18 +275,21 @@ class FinlandProvider:
             )
             return 0.0
 
-        level = _parse_syke_xml(response.text)
+        try:
+            json_data: dict[str, Any] = response.json()
+        except Exception as exc:
+            logger.warning("Failed to parse SYKE JSON for %s: %s", dam.name_en, exc)
+            return 0.0
+
+        level = _parse_syke_json(json_data)
         return level if level is not None else 0.0
 
     async def fetch_percentages(self, target_date: date) -> PercentageSnapshot:
-        # Fetch a single API call and reuse across all dams — the MVP approximation
-        # means all dams map to the same representative level observation.
-        level_cm = await self._fetch_level_for_dam(_FINLAND_DAMS[0])
-
         dam_percentages: list[DamPercentage] = []
         total_volume_mcm = 0.0
 
         for dam in _FINLAND_DAMS:
+            level_cm = await self._fetch_level_for_dam(dam)
             pct = _water_level_to_percentage(level_cm, dam.capacity_mcm)
             dam_percentages.append(DamPercentage(dam_name_en=dam.name_en, percentage=pct))
             total_volume_mcm += pct * dam.capacity_mcm
@@ -286,10 +306,9 @@ class FinlandProvider:
         )
 
     async def fetch_date_statistics(self, target_date: date) -> DateStatistics:
-        level_cm = await self._fetch_level_for_dam(_FINLAND_DAMS[0])
-
         dam_statistics: list[DamStatistic] = []
         for dam in _FINLAND_DAMS:
+            level_cm = await self._fetch_level_for_dam(dam)
             pct = _water_level_to_percentage(level_cm, dam.capacity_mcm)
             storage_mcm = pct * dam.capacity_mcm
             dam_statistics.append(
