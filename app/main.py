@@ -24,6 +24,7 @@ from app.providers.base import DataProvider
 from app.providers.austria import AustriaProvider
 from app.providers.cyprus import CyprusProvider
 from app.providers.czech import CzechProvider
+from app.providers.finland import FinlandProvider
 from app.providers.greece import GreeceProvider
 from app.providers.italy import ItalyProvider
 from app.providers.portugal import PortugalProvider
@@ -109,6 +110,13 @@ def _build_provider_registry() -> dict[str, tuple[DataProvider, str]]:
                 timeout=_timeout,
             )
             registry[cc] = (ItalyProvider(client=client), db_path)
+        elif cc == "fi":
+            client = httpx.AsyncClient(
+                base_url="http://rajapinnat.ymparisto.fi",
+                headers={"User-Agent": "NeroWaterDashboard/1.0"},
+                timeout=_timeout,
+            )
+            registry[cc] = (FinlandProvider(client=client), db_path)
         else:
             logger.warning("No provider implemented for country '%s' — skipping", cc)
 
