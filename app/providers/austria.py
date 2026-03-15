@@ -1,13 +1,20 @@
 """
-Austria data provider — fetches from ehyd.gv.at (Austrian federal hydrological data).
+Austria data provider — Austrian Alpine hydroelectric reservoir levels.
 
-Upstream: ehyd.gv.at (Austrian Federal Hydrographic Service)
 Covers Austria's 15 largest reservoirs by capacity — primarily Alpine
 hydroelectric storage dams in the states of Carinthia, Tyrol, and Vorarlberg.
 
-Note: eHYD does not expose a simple machine-readable API for reservoir levels.
-The provider returns hardcoded dam metadata with 0.0 percentages as a fallback.
-The scheduler will populate real data if a parseable endpoint becomes available.
+Data source status (researched 2026-03-15):
+- eHYD (ehyd.gv.at): River gauges, precipitation, groundwater only. NO reservoir fill data.
+- VERBUND: Operates most dams but keeps fill data private (electricity trading).
+- PegelAlarm: River water levels only, not reservoir storage.
+- data.gv.at: Metadata only (locations, water rights), no fill levels.
+- ENTSO-E Transparency Platform: ONLY viable source. Provides aggregate weekly
+  Austrian hydro storage in MWh (Article 16.1.D). Requires free API token
+  (register at transparency.entsoe.eu, ~3 business days). Country-level aggregate
+  only — all dams would show the same fill percentage.
+
+Current fallback: Returns 0.0 percentages until ENTSO-E token is configured.
 """
 from __future__ import annotations
 
