@@ -6,15 +6,20 @@ Covers Sicily's 13 largest reservoirs managed by the Sicilian Basin Authority.
 Data is sourced from a community project that extracts data from official PDF reports.
 Updates are typically daily, though lag varies with PDF publication schedule.
 
-CSV columns: nome_diga, data, volume_autorizzato_mc, volume_invasato_mc
-Volumes are in cubic metres (m³). Divide by 1_000_000 to get hm³ (= MCM).
+Daily CSV columns: nome_diga, data, volume_autorizzato_mc, volume_invasato_mc
+  Volumes are in cubic metres (m³). Divide by 1_000_000 to get hm³ (= MCM).
+
+Historical monthly CSV columns: cod, diga, data, volume
+  Volumes are already in hm³ (no conversion needed).
+  Date range: December 2016 – present (~9 years, ~8,400 rows, 29 dams).
 """
 from __future__ import annotations
 
+import collections
 import csv
 import io
 import logging
-from datetime import date
+from datetime import date, datetime
 
 import httpx
 
@@ -172,6 +177,34 @@ _CSV_URL = (
     "/refs/heads/main/risorse/sicilia_dighe_volumi_giornalieri_latest.csv"
 )
 
+# Historical monthly CSV — December 2016 to present, 29 dams, volumes in hm³.
+# We filter to only the 13 dams we track.  Names in this CSV may differ slightly
+# from _UPSTREAM_NAME_MAP — this map normalises them to our name_en keys.
+_HISTORICAL_CSV_URL = (
+    "https://raw.githubusercontent.com/opendatasicilia/emergenza-idrica-sicilia"
+    "/refs/heads/main/risorse/sicilia_dighe_volumi.csv"
+)
+
+# Maps the monthly CSV's "diga" column value → our tracked name_en.
+# All 13 tracked dams have identical names in both CSVs, so this is a 1:1 mapping.
+# Untracked dams (the other 16 out of 29) simply won't appear in this dict and
+# will be skipped during timeseries parsing.
+_HISTORICAL_NAME_MAP: dict[str, str] = {
+    "Ancipa": "Ancipa",
+    "Pozzillo": "Pozzillo",
+    "Ogliastro": "Ogliastro",
+    "Prizzi": "Prizzi",
+    "Fanaco": "Fanaco",
+    "Gammauta": "Gammauta",
+    "Leone": "Leone",
+    "Garcia": "Garcia",
+    "Piana degli Albanesi": "Piana degli Albanesi",
+    "Scanzano": "Scanzano",
+    "Rosamarina": "Rosamarina",
+    "Cimia": "Cimia",
+    "Ragoleto": "Ragoleto",
+}
+
 
 def _parse_it_volume_mc(raw: str) -> float:
     """Parse volume in cubic metres from CSV string; return as hm³ (MCM).
@@ -304,9 +337,84 @@ class ItalyProvider:
         return DateStatistics(date=target_date, dam_statistics=dam_statistics)
 
     async def fetch_timeseries(self) -> list[PercentageSnapshot]:
-        # The 'latest' CSV has no historical data. Timeseries accumulates
-        # over time via the scheduler's incremental_sync calls.
-        return []
+        """Fetch ~9 years of monthly historical data from the OpenData Sicilia archive.
+
+        The historical CSV has columns: cod, diga, data, volume (hm³).
+        We aggregate per date, calculate per-dam and total percentages, and return
+        one PercentageSnapshot per unique date, sorted ascending.
+
+        Returns [] on any HTTP or network error so the caller can continue with
+        whatever data is already in the local database.
+        """
+        try:
+            response = await self._client.get(_HISTORICAL_CSV_URL)
+        except httpx.RequestError as exc:
+            logger.warning("Historical timeseries request failed: %s", exc)
+            return []
+
+        if response.status_code != 200:
+            logger.warning(
+                "Historical timeseries returned HTTP %s", response.status_code
+            )
+            return []
+
+        # Group rows by date string first, then build one snapshot per date.
+        # Using defaultdict(dict) keyed as: date_str → {name_en: volume_hm3}
+        by_date: dict[str, dict[str, float]] = collections.defaultdict(dict)
+
+        reader = csv.DictReader(io.StringIO(response.text))
+        for row in reader:
+            diga = row.get("diga", "").strip()
+            name_en = _HISTORICAL_NAME_MAP.get(diga)
+            if name_en is None:
+                # Not one of our 13 tracked dams — skip.
+                continue
+
+            raw_date = row.get("data", "").strip()
+            raw_volume = row.get("volume", "").strip()
+            if not raw_date or not raw_volume:
+                continue
+
+            try:
+                volume_hm3 = float(raw_volume)
+                # Validate the date is parseable; store as string for dict key.
+                datetime.strptime(raw_date, "%Y-%m-%d")
+            except ValueError as exc:
+                logger.warning("Skipping row with bad date/volume (%s): %s", row, exc)
+                continue
+
+            by_date[raw_date][name_en] = volume_hm3
+
+        snapshots: list[PercentageSnapshot] = []
+        for date_str, dam_volumes in by_date.items():
+            snapshot_date = date.fromisoformat(date_str)
+
+            dam_percentages: list[DamPercentage] = []
+            total_volume_hm3 = 0.0
+
+            for dam in _ITALY_DAMS:
+                volume_hm3 = dam_volumes.get(dam.name_en, 0.0)
+                # Cap at 1.0 — overfill readings occasionally appear in the source data.
+                pct = min(volume_hm3 / dam.capacity_mcm, 1.0) if dam.capacity_mcm > 0 else 0.0
+                dam_percentages.append(DamPercentage(dam_name_en=dam.name_en, percentage=pct))
+                total_volume_hm3 += volume_hm3
+
+            total_pct = (
+                min(total_volume_hm3 / _TOTAL_CAPACITY_MCM, 1.0)
+                if _TOTAL_CAPACITY_MCM > 0
+                else 0.0
+            )
+
+            snapshots.append(
+                PercentageSnapshot(
+                    date=snapshot_date,
+                    dam_percentages=dam_percentages,
+                    total_percentage=total_pct,
+                    total_capacity_mcm=_TOTAL_CAPACITY_MCM,
+                )
+            )
+
+        return sorted(snapshots, key=lambda s: s.date)
 
     async def fetch_monthly_inflows(self) -> list[MonthlyInflow]:
         return []

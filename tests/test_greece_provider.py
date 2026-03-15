@@ -2,7 +2,7 @@ import pytest
 import pytest_asyncio
 import httpx
 from unittest.mock import AsyncMock
-from datetime import date
+from datetime import date, timedelta
 from app.providers.greece import GreeceProvider, _parse_eydap_volume
 from app.providers.base import DataProvider, PercentageSnapshot, DateStatistics, UpstreamAPIError
 
@@ -200,3 +200,126 @@ def test_date_format_is_dd_mm_yyyy() -> None:
     """The EYDAP API expects DD-MM-YYYY format."""
     d = date(2026, 3, 12)
     assert d.strftime("%d-%m-%Y") == "12-03-2026"
+
+
+# ── fetch_timeseries tests (Year endpoint) ──────────────────────────────────────
+
+# Three daily records spanning 2025-01-01 to 2025-01-08.  The weekly sampler
+# keeps every 7th record (indices 0, 7, 14, ...) so from 3 records only
+# index 0 is retained.
+_YEAR_RESPONSE_3_RECORDS = [
+    {
+        "Date": "01-01-2025",
+        "Eyinos": "100.000.000",
+        "Marathonas": "30.000.000",
+        "Mornos": "600.000.000",
+        "Yliko": "400.000.000",
+        "Total": "1.130.000.000",
+    },
+    {
+        "Date": "02-01-2025",
+        "Eyinos": "99.500.000",
+        "Marathonas": "29.800.000",
+        "Mornos": "598.000.000",
+        "Yliko": "399.000.000",
+        "Total": "1.126.300.000",
+    },
+    {
+        "Date": "08-01-2025",
+        "Eyinos": "98.000.000",
+        "Marathonas": "29.000.000",
+        "Mornos": "595.000.000",
+        "Yliko": "397.000.000",
+        "Total": "1.119.000.000",
+    },
+]
+
+
+def _make_year_mock(status: int, payload: object) -> AsyncMock:
+    """Return an httpx.AsyncClient mock that always responds with the given status and payload."""
+    mock_response = httpx.Response(
+        status,
+        json=payload,
+        request=httpx.Request("GET", "https://example.com"),
+    )
+    client = AsyncMock(spec=httpx.AsyncClient)
+    client.get = AsyncMock(return_value=mock_response)
+    client.is_closed = False
+    return client
+
+
+@pytest.mark.asyncio
+async def test_fetch_timeseries_returns_snapshots() -> None:
+    """Year endpoint response is parsed into PercentageSnapshot objects."""
+    client = _make_year_mock(200, _YEAR_RESPONSE_3_RECORDS)
+    provider = GreeceProvider(client=client)
+
+    result = await provider.fetch_timeseries()
+
+    assert len(result) >= 1
+    assert all(isinstance(s, PercentageSnapshot) for s in result)
+    # Dates come back in ascending order
+    dates = [s.date for s in result]
+    assert dates == sorted(dates)
+
+
+@pytest.mark.asyncio
+async def test_fetch_timeseries_weekly_sampling() -> None:
+    """365-record response is down-sampled to roughly one entry per week (~52)."""
+    # Build a synthetic 365-day year dataset
+    records = []
+    start = date(2024, 1, 1)
+    for i in range(365):
+        d = start + timedelta(days=i)
+        records.append({
+            "Date": d.strftime("%d-%m-%Y"),
+            "Eyinos": "100.000.000",
+            "Marathonas": "30.000.000",
+            "Mornos": "600.000.000",
+            "Yliko": "400.000.000",
+            "Total": "1.130.000.000",
+        })
+
+    client = _make_year_mock(200, records)
+    provider = GreeceProvider(client=client)
+    result = await provider.fetch_timeseries()
+
+    # Weekly sampling (every 7th record) from a 365-record year yields ~52 per year.
+    # With 10 years of data that is ~520 total.
+    # Upper bound: if all 3650 records were kept (no sampling), the test fails.
+    # Lower bound: must be more than just one-per-year (i.e. > 10).
+    # Tight bound: should be approximately 52 per year * 10 years = 520,
+    # within 30% to allow for year-range variations.
+    total_records_no_sampling = 365 * 10
+    assert len(result) < total_records_no_sampling, "Weekly sampling must reduce total record count"
+    # Each year contributes ~52 weekly samples; 10 years → ~520 entries.
+    # Allow ±50% tolerance for exact year-count/date-range variation.
+    assert len(result) >= 200, f"Expected ~520 weekly samples across 10 years, got {len(result)}"
+
+
+@pytest.mark.asyncio
+async def test_fetch_timeseries_graceful_on_year_error() -> None:
+    """A 500 for one year is logged and skipped; other years still return data."""
+    good_response = httpx.Response(
+        200,
+        json=_YEAR_RESPONSE_3_RECORDS,
+        request=httpx.Request("GET", "https://example.com"),
+    )
+    bad_response = httpx.Response(
+        500,
+        request=httpx.Request("GET", "https://example.com"),
+    )
+
+    # First call fails, then enough good responses to cover all remaining years.
+    # The Year-based backfill makes one call per year (~10 years), so 15 good
+    # responses is sufficient headroom.
+    client = AsyncMock(spec=httpx.AsyncClient)
+    client.get = AsyncMock(side_effect=[bad_response] + [good_response] * 15)
+    client.is_closed = False
+
+    provider = GreeceProvider(client=client)
+    # Must not raise — graceful degradation
+    result = await provider.fetch_timeseries()
+
+    # At least some snapshots come back from the successful years
+    assert len(result) >= 1

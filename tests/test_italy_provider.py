@@ -232,12 +232,97 @@ async def test_fetch_date_statistics_pozzillo_volume() -> None:
     assert abs(pozzillo.storage_mcm - 120.0) < 0.1
 
 
-# ── Empty-return methods ──────────────────────────────────────────────────────
+# ── fetch_timeseries tests (mocked HTTP, monthly historical CSV) ──────────────
+
+# Monthly historical CSV columns: cod, diga, data, volume (hm³)
+# This differs from the daily CSV which uses nome_diga and m³.
+_MOCK_TIMESERIES_CSV = """cod,diga,data,volume
+1,Ancipa,2024-01-01,15.5
+2,Pozzillo,2024-01-01,45.2
+1,Ancipa,2024-02-01,14.8
+2,Pozzillo,2024-02-01,42.1
+"""
+
 
 @pytest.mark.asyncio
-async def test_fetch_timeseries_returns_empty(italy_provider: ItalyProvider) -> None:
-    result = await italy_provider.fetch_timeseries()
+async def test_fetch_timeseries_returns_historical_snapshots() -> None:
+    """Timeseries returns one PercentageSnapshot per unique date."""
+    mock_response = httpx.Response(
+        200,
+        text=_MOCK_TIMESERIES_CSV,
+        request=httpx.Request("GET", "https://example.com"),
+    )
+    client = AsyncMock(spec=httpx.AsyncClient)
+    client.get = AsyncMock(return_value=mock_response)
+    client.is_closed = False
+
+    provider = ItalyProvider(client=client)
+    result = await provider.fetch_timeseries()
+
+    assert isinstance(result, list)
+    assert len(result) == 2
+    assert all(isinstance(s, PercentageSnapshot) for s in result)
+
+
+@pytest.mark.asyncio
+async def test_fetch_timeseries_computes_correct_percentage() -> None:
+    """Ancipa at 15.5 hm³ / 30.4 hm³ capacity ≈ 0.5099."""
+    mock_response = httpx.Response(
+        200,
+        text=_MOCK_TIMESERIES_CSV,
+        request=httpx.Request("GET", "https://example.com"),
+    )
+    client = AsyncMock(spec=httpx.AsyncClient)
+    client.get = AsyncMock(return_value=mock_response)
+    client.is_closed = False
+
+    provider = ItalyProvider(client=client)
+    result = await provider.fetch_timeseries()
+
+    jan_snapshot = next(s for s in result if s.date.month == 1)
+    ancipa = next(dp for dp in jan_snapshot.dam_percentages if dp.dam_name_en == "Ancipa")
+    expected = 15.5 / 30.4
+    assert abs(ancipa.percentage - expected) < 0.001
+
+
+@pytest.mark.asyncio
+async def test_fetch_timeseries_graceful_on_error() -> None:
+    """fetch_timeseries returns [] on HTTP 500 (never raises)."""
+    mock_response = httpx.Response(
+        500,
+        request=httpx.Request("GET", "https://example.com"),
+    )
+    client = AsyncMock(spec=httpx.AsyncClient)
+    client.get = AsyncMock(return_value=mock_response)
+    client.is_closed = False
+
+    provider = ItalyProvider(client=client)
+    result = await provider.fetch_timeseries()
     assert result == []
+
+
+@pytest.mark.asyncio
+async def test_fetch_timeseries_sorted_by_date() -> None:
+    """Snapshots are returned in ascending date order."""
+    # Deliberately put the later date first in the CSV to test sorting.
+    reversed_csv = """cod,diga,data,volume
+1,Ancipa,2024-02-01,14.8
+1,Ancipa,2024-01-01,15.5
+"""
+    mock_response = httpx.Response(
+        200,
+        text=reversed_csv,
+        request=httpx.Request("GET", "https://example.com"),
+    )
+    client = AsyncMock(spec=httpx.AsyncClient)
+    client.get = AsyncMock(return_value=mock_response)
+    client.is_closed = False
+
+    provider = ItalyProvider(client=client)
+    result = await provider.fetch_timeseries()
+
+    assert len(result) == 2
+    assert result[0].date < result[1].date
 
 
 @pytest.mark.asyncio

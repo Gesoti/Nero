@@ -160,34 +160,99 @@ class GreeceProvider:
 
         return DateStatistics(date=target_date, dam_statistics=dam_statistics)
 
-    async def fetch_timeseries(self) -> list[PercentageSnapshot]:
-        """Fetch daily snapshots for recent years by sampling the first day of each month.
+    async def _fetch_year(self, year: int) -> list[dict[str, str]]:
+        """Call GET /api/Savings/Year/{01-01-{year+1}} to get ~365 daily records.
 
-        EYDAP's /api/Savings/Year/{date} returns a single-day aggregate, not an array,
-        so we sample monthly to build a usable timeseries without hammering the API.
+        Using 01-01-{year+1} as the request date retrieves all daily records
+        for the calendar year `year`.  The Year endpoint returns a JSON list
+        of dicts with the same field schema as the Day endpoint.
+        """
+        # Request date is the first day of the following year so the API
+        # returns the full preceding year's worth of daily records.
+        request_date = date(year + 1, 1, 1)
+        date_str = request_date.strftime("%d-%m-%Y")
+        url = f"{_EYDAP_BASE_URL}/api/Savings/Year/{date_str}"
+        try:
+            response = await self._client.get(url)
+        except httpx.RequestError as exc:
+            raise UpstreamAPIError(f"EYDAP Year request failed: {exc}") from exc
+
+        if response.status_code != 200:
+            raise UpstreamAPIError(
+                f"EYDAP Year endpoint returned HTTP {response.status_code} for year {year}"
+            )
+
+        payload = response.json()
+        if not isinstance(payload, list):
+            raise UpstreamAPIError(f"EYDAP Year endpoint returned unexpected type for year {year}")
+        return payload  # type: ignore[return-value]
+
+    def _record_to_snapshot(self, record: dict[str, str]) -> PercentageSnapshot:
+        """Convert a single EYDAP daily record dict into a PercentageSnapshot."""
+        raw_date = record.get("Date", "")
+        # EYDAP date format is DD-MM-YYYY
+        record_date = date(
+            int(raw_date[6:10]),
+            int(raw_date[3:5]),
+            int(raw_date[0:2]),
+        )
+
+        dam_percentages: list[DamPercentage] = []
+        total_volume_mcm = 0.0
+
+        for api_field, dam_name in _EYDAP_FIELD_MAP.items():
+            raw = record.get(api_field) or "0"
+            volume_m3 = _parse_eydap_volume(raw)
+            volume_mcm = volume_m3 / 1_000_000
+            capacity_mcm = _CAPACITY_MAP[dam_name]
+            pct = volume_mcm / capacity_mcm if capacity_mcm > 0 else 0.0
+            dam_percentages.append(DamPercentage(dam_name_en=dam_name, percentage=pct))
+            total_volume_mcm += volume_mcm
+
+        total_pct = total_volume_mcm / _TOTAL_CAPACITY_MCM if _TOTAL_CAPACITY_MCM > 0 else 0.0
+
+        return PercentageSnapshot(
+            date=record_date,
+            dam_percentages=dam_percentages,
+            total_percentage=total_pct,
+            total_capacity_mcm=_TOTAL_CAPACITY_MCM,
+        )
+
+    async def fetch_timeseries(self) -> list[PercentageSnapshot]:
+        """Fetch historical daily snapshots using the Year endpoint.
+
+        Calls /api/Savings/Year/{date} once per calendar year from 2015 to the
+        current year.  Each call returns ~365 daily records.  Records are
+        down-sampled weekly (every 7th record) to keep DB size manageable while
+        still providing meaningful trend data.
+
+        A single failing year is logged and skipped rather than aborting the
+        entire backfill — partial history is better than no history.
         """
         snapshots: list[PercentageSnapshot] = []
         today = date.today()
+        start_year = today.year - 10  # last 10 years
 
-        # Build a list of first-of-month dates from 2020-01 to last month
-        sample_dates: list[date] = []
-        d = date(2020, 1, 1)
-        while d < today:
-            sample_dates.append(d)
-            # Advance to first day of next month
-            if d.month == 12:
-                d = date(d.year + 1, 1, 1)
-            else:
-                d = date(d.year, d.month + 1, 1)
-
-        for sample_date in sample_dates:
+        for year in range(start_year, today.year + 1):
             try:
-                snapshot = await self.fetch_percentages(sample_date)
-                snapshots.append(snapshot)
+                records = await self._fetch_year(year)
             except UpstreamAPIError as exc:
-                # Log and skip missing data points rather than failing the whole series
-                logger.warning("EYDAP timeseries: skipping %s — %s", sample_date, exc)
+                logger.warning("EYDAP timeseries: skipping year %s — %s", year, exc)
+                continue
 
+            # Weekly sampling: retain every 7th record to reduce volume while
+            # preserving enough data points for meaningful trend visualisation.
+            sampled = records[::7]
+
+            for record in sampled:
+                try:
+                    snapshot = self._record_to_snapshot(record)
+                    snapshots.append(snapshot)
+                except (KeyError, ValueError) as exc:
+                    logger.warning("EYDAP timeseries: skipping malformed record — %s", exc)
+
+        # Sort ascending by date so callers receive a chronological series
+        snapshots.sort(key=lambda s: s.date)
         return snapshots
 
     async def fetch_monthly_inflows(self) -> list[MonthlyInflow]:
