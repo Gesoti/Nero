@@ -152,10 +152,21 @@ def _render_ctx(request: Request, extra: dict) -> dict:
         for code, label in LANGUAGE_LABELS.items()
     ]
 
-    # Build country navigation data for the nav bar
+    # Build country navigation data for the nav bar — preserves current page path
+    # so switching countries on /map stays on /map, not redirecting to /
     enabled = settings.get_enabled_countries()
-    country_nav = [
-        {"code": cc, "label": COUNTRY_LABELS.get(cc, cc.upper()), "href": f"/{cc}/" if cc != "cy" else "/"}
+    current_path = request.url.path
+    # Strip country prefix to get the page-relative path (e.g., /gr/map → /map)
+    page_path = current_path
+    if country_prefix and current_path.startswith(country_prefix):
+        page_path = current_path[len(country_prefix):] or "/"
+
+    country_nav_with_path = [
+        {
+            "code": cc,
+            "label": COUNTRY_LABELS.get(cc, cc.upper()),
+            "href": (f"/{cc}{page_path}" if cc != "cy" else page_path) if page_path != "/" else (f"/{cc}/" if cc != "cy" else "/"),
+        }
         for cc in enabled
     ] if len(enabled) > 1 else []
 
@@ -163,7 +174,8 @@ def _render_ctx(request: Request, extra: dict) -> dict:
         "layout_template": f"{country}/layout.html",
         "country_prefix": country_prefix,
         "country": country,
-        "country_nav": country_nav,
+        "country_label": COUNTRY_LABELS.get(country, country.upper()),
+        "country_nav": country_nav_with_path,
         "current_lang": lang,
         "current_lang_label": LANGUAGE_LABELS.get(lang, "English"),
         "current_lang_flag": LANGUAGE_FLAGS.get(lang, lang),
