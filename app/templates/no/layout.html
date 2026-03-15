@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{# Norway country layout — uses Norwegian Bokmål (nb).
+   lang="nb" is set on the <html> element; og:locale uses nb_NO.
+   Footer attribution points to NVE (Norwegian Water Resources and Energy Directorate). #}
+
+{% block html_lang %}nb{% endblock %}
+{% block og_locale %}nb_NO{% endblock %}
+
+{% block footer_data_source %}Data: <a href="https://www.nve.no" target="_blank" rel="noopener" class="hover:text-slate-600 underline underline-offset-2">NVE</a> (Norwegian Water Resources and Energy Directorate){% endblock %}

@@ -28,6 +28,7 @@ from app.dam_descriptions import get_dam_description
 from app.es_dam_descriptions import get_es_dam_description
 from app.fi_dam_descriptions import get_fi_dam_description
 from app.it_dam_descriptions import get_it_dam_description
+from app.no_dam_descriptions import get_no_dam_description
 from app.pt_dam_descriptions import get_pt_dam_description
 from app.gr_dam_descriptions import get_gr_dam_description
 from app.i18n import install_i18n, get_translations, SUPPORTED_LOCALES, LANGUAGE_FLAGS, LANGUAGE_LABELS
@@ -78,6 +79,8 @@ def _get_dam_description_for_country(country: str, name_en: str) -> str:
         return get_it_dam_description(name_en)
     if country == "fi":
         return get_fi_dam_description(name_en)
+    if country == "no":
+        return get_no_dam_description(name_en)
     return get_dam_description(name_en)
 
 

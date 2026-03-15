@@ -1,0 +1,603 @@
+# Norwegian Bokmål translations for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-03-14 21:48+0200\n"
+"PO-Revision-Date: 2026-03-15 11:36+0200\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: nb\n"
+"Language-Team: nb <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: app/templates/404.html:8
+msgid "Page Not Found"
+msgstr "Side ikke funnet"
+
+#: app/templates/404.html:10
+msgid "The page you're looking for doesn't exist, or the dam name is incorrect."
+msgstr "Siden du leter etter finnes ikke, eller demningsnavnet er feil."
+
+#: app/templates/404.html:15 app/templates/about.html:141
+#: app/templates/blog_index.html:52 app/templates/privacy.html:213
+msgid "← Back to Dashboard"
+msgstr "← Tilbake til oversikten"
+
+#: app/templates/about.html:8
+msgid "About Nero"
+msgstr "Om Nero"
+
+#: app/templates/about.html:9
+msgid "An open-source dashboard monitoring water reservoir levels in real time."
+msgstr "Et åpen kildekode-dashbord som overvåker vannreservoarnivåer i sanntid."
+
+#: app/templates/about.html:14
+msgid "Our Mission"
+msgstr "Vårt oppdrag"
+
+#: app/templates/about.html:33
+msgid "Countries We Monitor"
+msgstr "Land vi overvåker"
+
+#: app/templates/about.html:36
+msgid "Cyprus"
+msgstr "Kypros"
+
+#: app/templates/about.html:45
+msgid "Greece"
+msgstr "Hellas"
+
+#: app/templates/about.html:55
+msgid "Methodology"
+msgstr "Metodikk"
+
+#: app/templates/about.html:69
+msgid "Severity Thresholds"
+msgstr "Alvorlighetsgrenser"
+
+#: app/templates/about.html:77
+#, python-format
+msgid ""
+"<strong class=\"text-red-700\">Critical</strong> — below 20% capacity. "
+"Evaporation\n"
+"                    losses accelerate, water quality degrades, and dams "
+"may approach dead storage. Agricultural\n"
+"                    allocations are typically cut and municipal rationing"
+" may be introduced."
+msgstr ""
+"<strong class=\"text-red-700\">Kritisk</strong> — under 20 % kapasitet. "
+"Fordampnings-\n"
+"                    tap akselererer, vannkvaliteten forringes, og demninger "
+"kan nærme seg dødvolum. Jordbruks-\n"
+"                    tildelinger kuttes vanligvis og kommunal rasjonering"
+" kan bli innført."
+
+#: app/templates/about.html:83
+#, python-format
+msgid ""
+"<strong class=\"text-amber-700\">Warning</strong> — 20 to 40% capacity. "
+"Reserves are\n"
+"                    reduced and conservation measures are advised. "
+"Desalination output may increase to compensate."
+msgstr ""
+"<strong class=\"text-amber-700\">Advarsel</strong> — 20 til 40 % kapasitet. "
+"Reservene er\n"
+"                    redusert og bevaringstiltak anbefales. "
+"Avsaltingskapasiteten kan økes for å kompensere."
+
+#: app/templates/about.html:88
+#, python-format
+msgid ""
+"<strong class=\"text-emerald-700\">Healthy</strong> — above 40% capacity."
+" Normal\n"
+"                    operational levels with full allocations and "
+"sufficient reserves."
+msgstr ""
+"<strong class=\"text-emerald-700\">Normal</strong> — over 40 % kapasitet."
+" Normale\n"
+"                    driftsnivåer med fulle tildelinger og "
+"tilstrekkelige reserver."
+
+#: app/templates/about.html:95
+msgid "Frequently Asked Questions"
+msgstr "Ofte stilte spørsmål"
+
+#: app/templates/about.html:98
+msgid "How often is the data updated?"
+msgstr "Hvor ofte oppdateres dataene?"
+
+#: app/templates/about.html:103
+#, python-format
+msgid "Why do some dams show 0% or very low levels?"
+msgstr "Hvorfor viser noen demninger 0 % eller svært lave nivåer?"
+
+#: app/templates/about.html:109
+msgid "What is MCM?"
+msgstr "Hva er MCM?"
+
+#: app/templates/about.html:115
+msgid "Is this site affiliated with any government?"
+msgstr "Er dette nettstedet tilknyttet noen regjering?"
+
+#: app/templates/about.html:120
+msgid "Can I use this data for research or journalism?"
+msgstr "Kan jeg bruke disse dataene til forskning eller journalistikk?"
+
+#: app/templates/about.html:129
+msgid "About the Project"
+msgstr "Om prosjektet"
+
+#: app/templates/base.html:68
+msgid "This site uses cookies for advertising via Google AdSense."
+msgstr "Dette nettstedet bruker informasjonskapsler for annonsering via Google AdSense."
+
+#: app/templates/base.html:69
+#, python-format
+msgid ""
+"By clicking <strong class=\"text-white\">Accept</strong> you consent to "
+"our\n"
+"      <a href=\"%(country_prefix)s/privacy\" class=\"underline hover"
+":text-white transition-colors\">Privacy Policy</a>."
+msgstr ""
+"Ved å klikke <strong class=\"text-white\">Godta</strong> samtykker du til "
+"vår\n"
+"      <a href=\"%(country_prefix)s/privacy\" class=\"underline hover"
+":text-white transition-colors\">Personvernpolicy</a>."
+
+#: app/templates/base.html:76
+msgid "Decline"
+msgstr "Avslå"
+
+#: app/templates/base.html:81
+msgid "Accept"
+msgstr "Godta"
+
+#: app/templates/base.html:193 app/templates/blog_index.html:9
+#: app/templates/blog_post.html:39
+msgid "Blog"
+msgstr "Blogg"
+
+#: app/templates/base.html:194
+msgid "Map"
+msgstr "Kart"
+
+#: app/templates/base.html:195
+msgid "About"
+msgstr "Om oss"
+
+#: app/templates/base.html:222
+msgid "Data:"
+msgstr "Data:"
+
+#: app/templates/base.html:224 app/templates/privacy.html:7
+msgid "Privacy Policy"
+msgstr "Personvernpolicy"
+
+#: app/templates/blog_index.html:10
+msgid "Analysis, explainers, and updates on Cyprus water data."
+msgstr "Analyser, forklaringer og oppdateringer om Kypros' vanndata."
+
+#: app/templates/blog_index.html:22
+msgid "Read more →"
+msgstr "Les mer →"
+
+#: app/templates/blog_index.html:29
+msgid "No articles yet. Check back soon."
+msgstr "Ingen artikler ennå. Kom tilbake snart."
+
+#: app/templates/blog_index.html:35
+msgid "Monthly Water Reports"
+msgstr "Månedlige vannrapporter"
+
+#: app/templates/blog_index.html:36
+msgid ""
+"Auto-generated snapshots of dam levels for each month, compiled from "
+"official data."
+msgstr ""
+"Automatisk genererte øyeblikksbilder av demningsnivåer for hver måned, "
+"sammenstilt fra offisielle data."
+
+#: app/templates/blog_post.html:37 app/templates/learn_how_dams_work.html:10
+#: app/templates/learn_water_crisis_history.html:10
+msgid "Home"
+msgstr "Hjem"
+
+#: app/templates/blog_post.html:47
+msgid "By"
+msgstr "Av"
+
+#: app/templates/blog_post.html:68
+msgid "Writing about Cyprus water infrastructure, dam levels, and drought trends."
+msgstr "Skriver om vanninfrastruktur på Kypros, demningsnivåer og tørketrender."
+
+#: app/templates/blog_post.html:69
+msgid "Data sourced from the Water Development Department of Cyprus."
+msgstr "Data hentet fra Kypros' vannutviklingsdepartement."
+
+#: app/templates/blog_post.html:70
+msgid "Learn more about Nero"
+msgstr "Lær mer om Nero"
+
+#: app/templates/blog_post.html:87
+msgid "← All articles"
+msgstr "← Alle artikler"
+
+#: app/templates/dam_detail.html:29 app/templates/dam_detail.html:62
+msgid "← All Dams"
+msgstr "← Alle demninger"
+
+#: app/templates/dam_detail.html:83
+#, python-format
+msgid "About %(name)s Dam"
+msgstr "Om %(name)s-demningen"
+
+#: app/templates/dam_detail.html:91
+msgid "Historical Capacity"
+msgstr "Historisk kapasitet"
+
+#: app/templates/dam_detail.html:94 app/templates/dashboard.html:134
+msgid "Trend"
+msgstr "Trend"
+
+#: app/templates/dam_detail.html:96 app/templates/dashboard.html:136
+msgid "Year on Year"
+msgstr "År for år"
+
+#: app/templates/dam_detail.html:115 app/templates/dashboard.html:155
+msgid "Day"
+msgstr "Dag"
+
+#: app/templates/dam_detail.html:117 app/templates/dashboard.html:157
+msgid "Month"
+msgstr "Måned"
+
+#: app/templates/dam_detail.html:119 app/templates/dashboard.html:159
+msgid "Year"
+msgstr "År"
+
+#: app/templates/dam_detail.html:121 app/templates/dashboard.html:161
+msgid "Sparse data — using monthly view"
+msgstr "Sparsomt med data — bruker månedlig visning"
+
+#: app/templates/dam_detail.html:137 app/templates/dashboard.html:176
+#: app/templates/map.html:21
+msgid "Critical"
+msgstr "Kritisk"
+
+#: app/templates/dam_detail.html:137 app/templates/dashboard.html:179
+#: app/templates/map.html:22
+msgid "Warning"
+msgstr "Advarsel"
+
+#: app/templates/dam_detail.html:137 app/templates/dashboard.html:182
+#: app/templates/map.html:23
+msgid "Healthy"
+msgstr "Normal"
+
+#: app/templates/dam_detail.html:143
+msgid "of capacity remaining"
+msgstr "av kapasiteten gjenstår"
+
+#: app/templates/dam_detail.html:156 app/templates/dashboard.html:102
+msgid "Stored"
+msgstr "Lagret"
+
+#: app/templates/dam_detail.html:161
+msgid "Capacity"
+msgstr "Kapasitet"
+
+#: app/templates/dam_detail.html:169
+msgid "Recent Inflow"
+msgstr "Nylig tilsig"
+
+#: app/templates/dam_detail.html:180
+msgid "Height"
+msgstr "Høyde"
+
+#: app/templates/dam_detail.html:186
+msgid "Built"
+msgstr "Bygd"
+
+#: app/templates/dam_detail.html:192
+msgid "River"
+msgstr "Elv"
+
+#: app/templates/dam_detail.html:198
+msgid "Type"
+msgstr "Type"
+
+#: app/templates/dam_detail.html:203
+msgid "Coordinates"
+msgstr "Koordinater"
+
+#: app/templates/dam_detail.html:210
+msgid "Data date"
+msgstr "Dato for data"
+
+#: app/templates/dam_detail.html:217
+msgid "Wikipedia →"
+msgstr "Wikipedia →"
+
+#: app/templates/dam_detail.html:228
+msgid "Related Dams"
+msgstr "Relaterte demninger"
+
+#: app/templates/dam_detail.html:244
+msgid "Learn More"
+msgstr "Les mer"
+
+#: app/templates/dam_detail.html:246 app/templates/dashboard.html:333
+#: app/templates/learn_how_dams_work.html:12
+msgid "How Dams Work"
+msgstr "Hvordan demninger fungerer"
+
+#: app/templates/dam_detail.html:248 app/templates/dashboard.html:334
+#: app/templates/learn_water_crisis_history.html:12
+msgid "Water Crisis History"
+msgstr "Vannkrisehistorie"
+
+#: app/templates/dam_detail.html:250 app/templates/dashboard.html:276
+#: app/templates/dashboard.html:335
+msgid "Latest Analysis"
+msgstr "Siste analyse"
+
+#: app/templates/dam_detail.html:252
+msgid "All Dams on Map"
+msgstr "Alle demninger på kartet"
+
+#: app/templates/dashboard.html:81
+msgid "Live System Status"
+msgstr "Live systemstatus"
+
+#: app/templates/dashboard.html:83
+msgid "Cyprus dam levels — live data & analysis"
+msgstr "Demningsnivåer på Kypros — live data og analyse"
+
+#: app/templates/dashboard.html:87
+msgid "of total capacity remaining"
+msgstr "av total kapasitet gjenstår"
+
+#: app/templates/dashboard.html:109
+msgid "Total Capacity"
+msgstr "Total kapasitet"
+
+#: app/templates/dashboard.html:116
+msgid "Last Updated"
+msgstr "Sist oppdatert"
+
+#: app/templates/dashboard.html:118
+msgid "Syncing..."
+msgstr "Synkroniserer..."
+
+#: app/templates/dashboard.html:131
+msgid "System Capacity"
+msgstr "Systemkapasitet"
+
+#: app/templates/dashboard.html:173
+#, python-format
+msgid "All %(count)s Dams"
+msgstr "Alle %(count)s demninger"
+
+#: app/templates/dashboard.html:229
+msgid "Stored:"
+msgstr "Lagret:"
+
+#: app/templates/dashboard.html:230
+msgid "Capacity:"
+msgstr "Kapasitet:"
+
+#: app/templates/dashboard.html:237
+msgid "Data syncing… Check back shortly."
+msgstr "Synkroniserer data… Kom tilbake om litt."
+
+#: app/templates/dashboard.html:249
+msgid "Understanding Athens' Water Supply"
+msgstr "Forstå Aten vannforsyning"
+
+#: app/templates/dashboard.html:255 app/templates/dashboard.html:297
+msgid "How to Read This Dashboard"
+msgstr "Slik leser du dette dashbordet"
+
+#: app/templates/dashboard.html:261 app/templates/dashboard.html:309
+msgid "What the Numbers Mean"
+msgstr "Hva tallene betyr"
+
+#: app/templates/dashboard.html:267 app/templates/dashboard.html:320
+msgid "Why Monitoring Matters"
+msgstr "Hvorfor overvåking er viktig"
+
+#: app/templates/dashboard.html:274
+msgid "Athens Water System"
+msgstr "Atens vannsystem"
+
+#: app/templates/dashboard.html:275
+msgid "Mornos Reservoir"
+msgstr "Mornos reservoar"
+
+#: app/templates/dashboard.html:277 app/templates/dashboard.html:336
+msgid "Interactive Map"
+msgstr "Interaktivt kart"
+
+#: app/templates/dashboard.html:281
+msgid ""
+"Data sourced from EYDAP (Hellenic Water and Sewerage Company) public "
+"records."
+msgstr ""
+"Data hentet fra EYDAP (Hellenic Water and Sewerage Company) offentlige "
+"registre."
+
+#: app/templates/dashboard.html:287
+msgid "Understanding Cyprus Dam Levels"
+msgstr "Forstå demningsnivåene på Kypros"
+
+#: app/templates/dashboard.html:340
+msgid ""
+"Data sourced from the <a href=\"https://cyprus-water.appspot.com\" "
+"target=\"_blank\" rel=\"noopener\" class=\"text-blue-600 "
+"hover:underline\">Water Development Department of Cyprus</a>\n"
+"            under <a "
+"href=\"https://creativecommons.org/licenses/by/2.0/\" target=\"_blank\" "
+"rel=\"noopener\" class=\"text-blue-600 hover:underline\">CC BY 2.0</a>."
+msgstr ""
+"Data hentet fra <a href=\"https://cyprus-water.appspot.com\" "
+"target=\"_blank\" rel=\"noopener\" class=\"text-blue-600 "
+"hover:underline\">Kypros' vannutviklingsdepartement</a>\n"
+"            under <a "
+"href=\"https://creativecommons.org/licenses/by/2.0/\" target=\"_blank\" "
+"rel=\"noopener\" class=\"text-blue-600 hover:underline\">CC BY 2.0</a>."
+
+#: app/templates/dashboard.html:353
+msgid "Last synced:"
+msgstr "Sist synkronisert:"
+
+#: app/templates/dashboard.html:353
+msgid "never"
+msgstr "aldri"
+
+#: app/templates/learn_how_dams_work.html:16
+msgid "How Dams Work: A Guide to Cyprus Water Infrastructure"
+msgstr "Hvordan demninger fungerer: En guide til Kypros' vanninfrastruktur"
+
+#: app/templates/learn_how_dams_work.html:17
+msgid ""
+"Everything you need to know about how Cyprus stores, manages, and "
+"distributes its most precious resource."
+msgstr ""
+"Alt du trenger å vite om hvordan Kypros lagrer, forvalter og "
+"distribuerer sin mest dyrebare ressurs."
+
+#: app/templates/learn_how_dams_work.html:29
+msgid "Types of dams in Cyprus"
+msgstr "Typer demninger på Kypros"
+
+#: app/templates/learn_how_dams_work.html:46
+msgid "How water is stored and measured"
+msgstr "Hvordan vann lagres og måles"
+
+#: app/templates/learn_how_dams_work.html:68
+msgid "The Southern Conveyor"
+msgstr "Den sørlige vannledningen"
+
+#: app/templates/learn_how_dams_work.html:84
+msgid "Desalination: the backup supply"
+msgstr "Avsalting: reserveforsyningen"
+
+#: app/templates/learn_how_dams_work.html:100
+msgid "How water is distributed"
+msgstr "Hvordan vann distribueres"
+
+#: app/templates/learn_how_dams_work.html:121
+msgid "Wastewater reuse"
+msgstr "Gjenbruk av avløpsvann"
+
+#: app/templates/learn_how_dams_work.html:131
+msgid "Explore the data"
+msgstr "Utforsk dataene"
+
+#: app/templates/learn_how_dams_work.html:143
+msgid "History of Water Crises in Cyprus →"
+msgstr "Vannkrisehistorie på Kypros →"
+
+#: app/templates/learn_how_dams_work.html:145 app/templates/map.html:15
+msgid "← Dashboard"
+msgstr "← Oversikt"
+
+#: app/templates/learn_water_crisis_history.html:16
+msgid "A History of Water Crises in Cyprus"
+msgstr "En vannkrisehistorie på Kypros"
+
+#: app/templates/learn_water_crisis_history.html:17
+msgid ""
+"From independence to the present: how Cyprus has faced, survived, and "
+"adapted to recurring drought."
+msgstr ""
+"Fra uavhengigheten til i dag: hvordan Kypros har møtt, overlevd og "
+"tilpasset seg tilbakevendende tørke."
+
+#: app/templates/learn_water_crisis_history.html:30
+msgid "The construction era (1960s–1990s)"
+msgstr "Byggeepoken (1960-tallet–1990-tallet)"
+
+#: app/templates/learn_water_crisis_history.html:54
+msgid "The 1990s drought"
+msgstr "Tørken på 1990-tallet"
+
+#: app/templates/learn_water_crisis_history.html:69
+msgid "The 2008 crisis: water by tanker"
+msgstr "Krisen i 2008: vann med tankskip"
+
+#: app/templates/learn_water_crisis_history.html:94
+msgid "The desalination revolution"
+msgstr "Avsaltingsrevolusjonen"
+
+#: app/templates/learn_water_crisis_history.html:109
+msgid "Recent droughts and the new normal"
+msgstr "Nylige tørkeperioder og den nye normalen"
+
+#: app/templates/learn_water_crisis_history.html:129
+msgid "What comes next"
+msgstr "Hva kommer videre"
+
+#: app/templates/learn_water_crisis_history.html:149
+msgid "Track the data"
+msgstr "Følg dataene"
+
+#: app/templates/learn_water_crisis_history.html:160
+msgid "← How Dams Work"
+msgstr "← Hvordan demninger fungerer"
+
+#: app/templates/learn_water_crisis_history.html:162
+msgid "Dashboard"
+msgstr "Oversikt"
+
+#: app/templates/map.html:20
+msgid "Fill Level"
+msgstr "Fyllingsgrad"
+
+#: app/templates/map.html:24
+msgid "View details"
+msgstr "Se detaljer"
+
+#: app/templates/privacy.html:8
+msgid "Last updated:"
+msgstr "Sist oppdatert:"
+
+#: app/templates/privacy.html:13
+msgid "1. Introduction"
+msgstr "1. Innledning"
+
+#: app/templates/privacy.html:28
+msgid "2. Data We Collect"
+msgstr "2. Data vi samler inn"
+
+#: app/templates/privacy.html:46
+msgid "3. Cookies & Advertising"
+msgstr "3. Informasjonskapsler og annonsering"
+
+#: app/templates/privacy.html:76
+msgid "4. Third-Party Services"
+msgstr "4. Tredjepartstjenester"
+
+#: app/templates/privacy.html:114
+msgid "5. Your Rights (GDPR — Articles 15–21)"
+msgstr "5. Dine rettigheter (GDPR — artikkel 15–21)"
+
+#: app/templates/privacy.html:160
+msgid "6. How to Withdraw Consent"
+msgstr "6. Slik trekker du tilbake samtykket"
+
+#: app/templates/privacy.html:179
+msgid "7. Data Retention"
+msgstr "7. Dataoppbevaring"
+
+#: app/templates/privacy.html:194
+msgid "8. Contact"
+msgstr "8. Kontakt"

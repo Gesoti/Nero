@@ -16,6 +16,7 @@ COUNTRY_LOCALE_MAP: dict[str, str] = {
     "at": "de",
     "it": "it",
     "fi": "fi",
+    "no": "nb",
 }
 
 # Canonical per-country SQLite database paths (relative to repo root)
@@ -28,6 +29,7 @@ COUNTRY_DB_PATHS: dict[str, str] = {
     "at": "data/at/water.db",
     "it": "data/it/water.db",
     "fi": "data/fi/water.db",
+    "no": "data/no/water.db",
 }
 
 # Human-readable country labels for navigation UI
@@ -40,6 +42,7 @@ COUNTRY_LABELS: dict[str, str] = {
     "at": "Austria",
     "it": "Italy",
     "fi": "Finland",
+    "no": "Norway",
 }
 
 # (lat, lng) map centre for the Leaflet map on /map
@@ -52,4 +55,5 @@ COUNTRY_MAP_CENTRES: dict[str, tuple[float, float]] = {
     "at": (47.5, 14.0),
     "it": (37.5, 14.0),
     "fi": (64.0, 26.0),
+    "no": (65.0, 15.0),
 }
