@@ -42,6 +42,9 @@ logger = logging.getLogger(__name__)
 _LATEST_WEEK_PATH = (
     "/magasinstatistikk/api/Magasinstatistikk/HentOffentligDataSisteUke"
 )
+_HISTORICAL_PATH = (
+    "/magasinstatistikk/api/Magasinstatistikk/HentOffentligData"
+)
 
 # Conversion factor: 1 TWh ≈ 850 hm³ for Norwegian hydropower reservoirs.
 # This is a well-established industry approximation used by NVE publications.
@@ -283,9 +286,82 @@ class NorwayProvider:
         return DateStatistics(date=target_date, dam_statistics=dam_statistics)
 
     async def fetch_timeseries(self) -> list[PercentageSnapshot]:
-        # NVE historical endpoint (HentOffentligData) exists but is not consumed
-        # in MVP — incremental sync builds the timeseries weekly via the scheduler.
-        return []
+        """Fetch 30 years of weekly historical data from NVE's bulk endpoint.
+
+        HentOffentligData returns ~1,000+ records covering 1995-present in a
+        single unauthenticated GET. Each record represents one week × one zone.
+        We group by date, build a PercentageSnapshot per date, and sort ascending
+        so the caller can feed the list directly into the timeseries DB writer.
+        """
+        try:
+            response = await self._client.get(_HISTORICAL_PATH)
+        except httpx.RequestError as exc:
+            logger.warning("NVE historical request failed: %s", exc)
+            return []
+
+        if response.status_code != 200:
+            logger.warning("NVE historical endpoint returned HTTP %d", response.status_code)
+            return []
+
+        try:
+            data: list[dict[str, Any]] = response.json()
+        except Exception as exc:
+            logger.warning("Failed to parse NVE historical JSON: %s", exc)
+            return []
+
+        # Group EL-zone records by date string; discard national (NO) aggregates
+        by_date: dict[str, dict[int, float]] = {}
+        for record in data:
+            if record.get("omrType") != "EL":
+                continue
+            dato_id = record.get("dato_Id")
+            omrnr = record.get("omrnr")
+            fyllingsgrad = record.get("fyllingsgrad")
+            if dato_id is None or omrnr is None or fyllingsgrad is None:
+                continue
+            try:
+                by_date.setdefault(str(dato_id), {})[int(omrnr)] = float(fyllingsgrad)
+            except (TypeError, ValueError) as exc:
+                logger.warning("Unexpected NVE historical record values: %s", exc)
+
+        snapshots: list[PercentageSnapshot] = []
+        for dato_id in sorted(by_date):
+            try:
+                snapshot_date = date.fromisoformat(dato_id)
+            except ValueError:
+                logger.warning("Skipping unparseable NVE date: %s", dato_id)
+                continue
+
+            zone_map = by_date[dato_id]
+            dam_percentages: list[DamPercentage] = []
+            total_volume_mcm = 0.0
+
+            for dam in _NORWAY_DAMS:
+                omrnr = next(
+                    (k for k, v in _OMRNR_TO_NAME.items() if v == dam.name_en), None
+                )
+                pct = zone_map.get(omrnr, 0.0) if omrnr is not None else 0.0
+                pct = max(0.0, min(1.0, pct))
+                dam_percentages.append(
+                    DamPercentage(dam_name_en=dam.name_en, percentage=pct)
+                )
+                total_volume_mcm += pct * dam.capacity_mcm
+
+            total_pct = (
+                total_volume_mcm / _TOTAL_CAPACITY_MCM
+                if _TOTAL_CAPACITY_MCM > 0
+                else 0.0
+            )
+            snapshots.append(
+                PercentageSnapshot(
+                    date=snapshot_date,
+                    dam_percentages=dam_percentages,
+                    total_percentage=total_pct,
+                    total_capacity_mcm=_TOTAL_CAPACITY_MCM,
+                )
+            )
+
+        return snapshots
 
     async def fetch_monthly_inflows(self) -> list[MonthlyInflow]:
         return []

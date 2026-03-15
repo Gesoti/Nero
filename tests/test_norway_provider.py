@@ -42,6 +42,24 @@ _MOCK_NVE_JSON = json.dumps([
 ])
 
 
+# Mock JSON for fetch_timeseries tests: 2 dates × (5 EL zones + 1 national total).
+# Mirrors the HentOffentligData bulk historical endpoint response structure.
+_MOCK_HISTORICAL_JSON = json.dumps([
+    {"dato_Id": "2025-01-06", "omrType": "EL", "omrnr": 1, "fyllingsgrad": 0.65, "kapasitet_TWh": 11.2, "fylling_TWh": 7.28},
+    {"dato_Id": "2025-01-06", "omrType": "EL", "omrnr": 2, "fyllingsgrad": 0.72, "kapasitet_TWh": 33.5, "fylling_TWh": 24.12},
+    {"dato_Id": "2025-01-06", "omrType": "EL", "omrnr": 3, "fyllingsgrad": 0.58, "kapasitet_TWh": 10.1, "fylling_TWh": 5.86},
+    {"dato_Id": "2025-01-06", "omrType": "EL", "omrnr": 4, "fyllingsgrad": 0.80, "kapasitet_TWh": 18.3, "fylling_TWh": 14.64},
+    {"dato_Id": "2025-01-06", "omrType": "EL", "omrnr": 5, "fyllingsgrad": 0.60, "kapasitet_TWh": 14.8, "fylling_TWh": 8.88},
+    {"dato_Id": "2025-01-06", "omrType": "NO", "omrnr": 0, "fyllingsgrad": 0.67, "kapasitet_TWh": 87.9, "fylling_TWh": 58.9},
+    {"dato_Id": "2025-01-13", "omrType": "EL", "omrnr": 1, "fyllingsgrad": 0.63, "kapasitet_TWh": 11.2, "fylling_TWh": 7.06},
+    {"dato_Id": "2025-01-13", "omrType": "EL", "omrnr": 2, "fyllingsgrad": 0.70, "kapasitet_TWh": 33.5, "fylling_TWh": 23.45},
+    {"dato_Id": "2025-01-13", "omrType": "EL", "omrnr": 3, "fyllingsgrad": 0.56, "kapasitet_TWh": 10.1, "fylling_TWh": 5.66},
+    {"dato_Id": "2025-01-13", "omrType": "EL", "omrnr": 4, "fyllingsgrad": 0.78, "kapasitet_TWh": 18.3, "fylling_TWh": 14.27},
+    {"dato_Id": "2025-01-13", "omrType": "EL", "omrnr": 5, "fyllingsgrad": 0.58, "kapasitet_TWh": 14.8, "fylling_TWh": 8.58},
+    {"dato_Id": "2025-01-13", "omrType": "NO", "omrnr": 0, "fyllingsgrad": 0.65, "kapasitet_TWh": 87.9, "fylling_TWh": 57.1},
+])
+
+
 @pytest.fixture
 def norway_provider() -> NorwayProvider:
     client = httpx.AsyncClient(base_url="https://biapi.nve.no")
@@ -289,8 +307,98 @@ async def test_fetch_date_statistics_storage_mcm_positive() -> None:
 # ── Stub method tests ────────────────────────────────────────────────────────
 
 @pytest.mark.asyncio
-async def test_fetch_timeseries_returns_empty(norway_provider: NorwayProvider) -> None:
-    result = await norway_provider.fetch_timeseries()
+async def test_fetch_timeseries_returns_historical_snapshots() -> None:
+    """HentOffentligData response with 2 dates returns 2 snapshots each with 5 entries."""
+    mock_response = httpx.Response(
+        200,
+        text=_MOCK_HISTORICAL_JSON,
+        headers={"content-type": "application/json"},
+        request=httpx.Request("GET", "https://biapi.nve.no"),
+    )
+    client = AsyncMock(spec=httpx.AsyncClient)
+    client.get = AsyncMock(return_value=mock_response)
+    client.is_closed = False
+
+    provider = NorwayProvider(client=client)
+    result = await provider.fetch_timeseries()
+
+    assert len(result) == 2
+    for snapshot in result:
+        assert isinstance(snapshot, PercentageSnapshot)
+        assert len(snapshot.dam_percentages) == 5
+
+
+@pytest.mark.asyncio
+async def test_fetch_timeseries_filters_to_el_zones_only() -> None:
+    """Records with omrType != 'EL' (e.g. 'NO', 'VASS') must be excluded from each snapshot."""
+    mock_response = httpx.Response(
+        200,
+        text=_MOCK_HISTORICAL_JSON,
+        headers={"content-type": "application/json"},
+        request=httpx.Request("GET", "https://biapi.nve.no"),
+    )
+    client = AsyncMock(spec=httpx.AsyncClient)
+    client.get = AsyncMock(return_value=mock_response)
+    client.is_closed = False
+
+    provider = NorwayProvider(client=client)
+    result = await provider.fetch_timeseries()
+
+    # Mock data has 6 records per date (5 EL + 1 NO); only 5 EL zones should appear
+    for snapshot in result:
+        dam_names = {dp.dam_name_en for dp in snapshot.dam_percentages}
+        expected_names = {"NO1-East", "NO2-Southwest", "NO3-Central", "NO4-North", "NO5-West"}
+        assert dam_names == expected_names
+
+
+@pytest.mark.asyncio
+async def test_fetch_timeseries_sorted_by_date() -> None:
+    """Snapshots must be returned in ascending date order."""
+    # Provide data in reverse chronological order to verify sorting
+    reversed_json = json.dumps([
+        {"dato_Id": "2025-01-13", "omrType": "EL", "omrnr": 1, "fyllingsgrad": 0.63, "kapasitet_TWh": 11.2, "fylling_TWh": 7.06},
+        {"dato_Id": "2025-01-13", "omrType": "EL", "omrnr": 2, "fyllingsgrad": 0.70, "kapasitet_TWh": 33.5, "fylling_TWh": 23.45},
+        {"dato_Id": "2025-01-13", "omrType": "EL", "omrnr": 3, "fyllingsgrad": 0.56, "kapasitet_TWh": 10.1, "fylling_TWh": 5.66},
+        {"dato_Id": "2025-01-13", "omrType": "EL", "omrnr": 4, "fyllingsgrad": 0.78, "kapasitet_TWh": 18.3, "fylling_TWh": 14.27},
+        {"dato_Id": "2025-01-13", "omrType": "EL", "omrnr": 5, "fyllingsgrad": 0.58, "kapasitet_TWh": 14.8, "fylling_TWh": 8.58},
+        {"dato_Id": "2025-01-06", "omrType": "EL", "omrnr": 1, "fyllingsgrad": 0.65, "kapasitet_TWh": 11.2, "fylling_TWh": 7.28},
+        {"dato_Id": "2025-01-06", "omrType": "EL", "omrnr": 2, "fyllingsgrad": 0.72, "kapasitet_TWh": 33.5, "fylling_TWh": 24.12},
+        {"dato_Id": "2025-01-06", "omrType": "EL", "omrnr": 3, "fyllingsgrad": 0.58, "kapasitet_TWh": 10.1, "fylling_TWh": 5.86},
+        {"dato_Id": "2025-01-06", "omrType": "EL", "omrnr": 4, "fyllingsgrad": 0.80, "kapasitet_TWh": 18.3, "fylling_TWh": 14.64},
+        {"dato_Id": "2025-01-06", "omrType": "EL", "omrnr": 5, "fyllingsgrad": 0.60, "kapasitet_TWh": 14.8, "fylling_TWh": 8.88},
+    ])
+    mock_response = httpx.Response(
+        200,
+        text=reversed_json,
+        headers={"content-type": "application/json"},
+        request=httpx.Request("GET", "https://biapi.nve.no"),
+    )
+    client = AsyncMock(spec=httpx.AsyncClient)
+    client.get = AsyncMock(return_value=mock_response)
+    client.is_closed = False
+
+    provider = NorwayProvider(client=client)
+    result = await provider.fetch_timeseries()
+
+    assert len(result) == 2
+    assert result[0].date == date(2025, 1, 6)
+    assert result[1].date == date(2025, 1, 13)
+
+
+@pytest.mark.asyncio
+async def test_fetch_timeseries_graceful_on_error() -> None:
+    """On HTTP 500, fetch_timeseries returns [] without raising."""
+    mock_response = httpx.Response(
+        500,
+        request=httpx.Request("GET", "https://biapi.nve.no"),
+    )
+    client = AsyncMock(spec=httpx.AsyncClient)
+    client.get = AsyncMock(return_value=mock_response)
+    client.is_closed = False
+
+    provider = NorwayProvider(client=client)
+    result = await provider.fetch_timeseries()
+
     assert result == []
 
 
