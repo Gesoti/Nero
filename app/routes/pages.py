@@ -23,6 +23,7 @@ from app.blog import load_all_posts, load_post
 from app.config import settings
 from app.country_config import COUNTRY_LABELS, COUNTRY_LOCALE_MAP, COUNTRY_MAP_CENTRES
 from app.at_dam_descriptions import get_at_dam_description
+from app.ch_dam_descriptions import get_ch_dam_description
 from app.cz_dam_descriptions import get_cz_dam_description
 from app.dam_descriptions import get_dam_description
 from app.es_dam_descriptions import get_es_dam_description
@@ -81,6 +82,8 @@ def _get_dam_description_for_country(country: str, name_en: str) -> str:
         return get_fi_dam_description(name_en)
     if country == "no":
         return get_no_dam_description(name_en)
+    if country == "ch":
+        return get_ch_dam_description(name_en)
     return get_dam_description(name_en)
 
 
@@ -152,16 +155,15 @@ def _render_ctx(request: Request, extra: dict) -> dict:
         for code, label in LANGUAGE_LABELS.items()
     ]
 
-    # Build country navigation data for the nav bar — preserves current page path
+    # Build country navigation data — preserves current page path
     # so switching countries on /map stays on /map, not redirecting to /
     enabled = settings.get_enabled_countries()
     current_path = request.url.path
-    # Strip country prefix to get the page-relative path (e.g., /gr/map → /map)
     page_path = current_path
     if country_prefix and current_path.startswith(country_prefix):
         page_path = current_path[len(country_prefix):] or "/"
 
-    country_nav_with_path = [
+    country_nav = [
         {
             "code": cc,
             "label": COUNTRY_LABELS.get(cc, cc.upper()),
@@ -175,7 +177,7 @@ def _render_ctx(request: Request, extra: dict) -> dict:
         "country_prefix": country_prefix,
         "country": country,
         "country_label": COUNTRY_LABELS.get(country, country.upper()),
-        "country_nav": country_nav_with_path,
+        "country_nav": country_nav,
         "current_lang": lang,
         "current_lang_label": LANGUAGE_LABELS.get(lang, "English"),
         "current_lang_flag": LANGUAGE_FLAGS.get(lang, lang),

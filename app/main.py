@@ -28,6 +28,7 @@ from app.providers.finland import FinlandProvider
 from app.providers.greece import GreeceProvider
 from app.providers.norway import NorwayProvider
 from app.providers.italy import ItalyProvider
+from app.providers.switzerland import SwitzerlandProvider
 from app.providers.portugal import PortugalProvider
 from app.providers.spain import SpainProvider
 from app.routes.pages import router as page_router
@@ -125,6 +126,13 @@ def _build_provider_registry() -> dict[str, tuple[DataProvider, str]]:
                 timeout=_timeout,
             )
             registry[cc] = (NorwayProvider(client=client), db_path)
+        elif cc == "ch":
+            client = httpx.AsyncClient(
+                base_url="https://uvek-gis.admin.ch",
+                headers={"User-Agent": "NeroWaterDashboard/1.0"},
+                timeout=_timeout,
+            )
+            registry[cc] = (SwitzerlandProvider(client=client), db_path)
         else:
             logger.warning("No provider implemented for country '%s' — skipping", cc)
 

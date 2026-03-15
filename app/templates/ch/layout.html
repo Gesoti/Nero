@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{# Switzerland country layout — uses German (de).
+   lang="de" is set on the <html> element; og:locale uses de_CH.
+   Footer attribution points to BFE/SFOE (Swiss Federal Office of Energy). #}
+
+{% block html_lang %}de{% endblock %}
+{% block og_locale %}de_CH{% endblock %}
+
+{% block footer_data_source %}Data: <a href="https://www.bfe.admin.ch" target="_blank" rel="noopener" class="hover:text-slate-600 underline underline-offset-2">BFE</a> (Swiss Federal Office of Energy / Bundesamt für Energie){% endblock %}
