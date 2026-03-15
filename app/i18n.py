@@ -28,6 +28,14 @@ LANGUAGE_LABELS: dict[str, str] = {
     "pt": "Português",
 }
 
+# Flag country codes for flag-icons CSS (language → ISO 3166-1 alpha-2)
+LANGUAGE_FLAGS: dict[str, str] = {
+    "en": "gb",
+    "el": "gr",
+    "es": "es",
+    "pt": "pt",
+}
+
 
 def install_i18n(env: Environment) -> None:
     """Add the i18n extension and install passthrough translations."""

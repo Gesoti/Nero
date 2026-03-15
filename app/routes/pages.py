@@ -29,7 +29,7 @@ from app.es_dam_descriptions import get_es_dam_description
 from app.it_dam_descriptions import get_it_dam_description
 from app.pt_dam_descriptions import get_pt_dam_description
 from app.gr_dam_descriptions import get_gr_dam_description
-from app.i18n import install_i18n, get_translations, SUPPORTED_LOCALES, LANGUAGE_LABELS
+from app.i18n import install_i18n, get_translations, SUPPORTED_LOCALES, LANGUAGE_FLAGS, LANGUAGE_LABELS
 
 from app.db import (
     get_all_dams_with_current_stats,
@@ -142,7 +142,7 @@ def _render_ctx(request: Request, extra: dict) -> dict:
 
     # Build language navigation data for the dropdown
     available_langs = [
-        {"code": code, "label": label}
+        {"code": code, "label": label, "flag": LANGUAGE_FLAGS.get(code, code)}
         for code, label in LANGUAGE_LABELS.items()
     ]
 
@@ -160,6 +160,7 @@ def _render_ctx(request: Request, extra: dict) -> dict:
         "country_nav": country_nav,
         "current_lang": lang,
         "current_lang_label": LANGUAGE_LABELS.get(lang, "English"),
+        "current_lang_flag": LANGUAGE_FLAGS.get(lang, lang),
         "available_langs": available_langs,
         # hreflang_alternates is a list of {lang, href} dicts for cross-country links.
         # Empty for single-country deployments; populated when multiple countries enabled.

@@ -208,6 +208,7 @@
                 <button id="lang-toggle"
                         class="text-sm text-slate-500 hover:text-slate-700 transition-colors flex items-center gap-1"
                         aria-expanded="false" aria-haspopup="true">
+                    <span class="fi fi-{{ current_lang_flag }} rounded-sm" aria-hidden="true"></span>
                     {{ current_lang_label }}
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </button>
@@ -215,7 +216,10 @@
                      class="hidden absolute right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg py-1 min-w-[140px] z-50">
                     {% for lang in available_langs %}
                     <a href="{{ country_prefix }}/set-lang?lang={{ lang.code }}&next={{ request.url.path }}"
-                       class="block px-4 py-2 text-sm {% if lang.code == current_lang %}text-blue-600 font-medium bg-blue-50{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-800{% endif %} transition-colors">{{ lang.label }}</a>
+                       class="flex items-center gap-2 px-4 py-2 text-sm {% if lang.code == current_lang %}text-blue-600 font-medium bg-blue-50{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-800{% endif %} transition-colors">
+                        <span class="fi fi-{{ lang.flag }} rounded-sm" aria-hidden="true"></span>
+                        {{ lang.label }}
+                    </a>
                     {% endfor %}
                 </div>
             </div>
