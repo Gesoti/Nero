@@ -99,10 +99,10 @@ def test_country_locale_map_cy_is_en() -> None:
     assert COUNTRY_LOCALE_MAP["cy"] == "en"
 
 
-def test_country_locale_map_gr_is_en() -> None:
+def test_country_locale_map_gr_is_el() -> None:
     from app.country_config import COUNTRY_LOCALE_MAP
 
-    assert COUNTRY_LOCALE_MAP["gr"] == "en"
+    assert COUNTRY_LOCALE_MAP["gr"] == "el"
 
 
 # ── Middleware unit: scope["state"] injection ─────────────────────────────────
@@ -144,7 +144,7 @@ async def test_middleware_sets_country_gr_for_gr_prefix() -> None:
 
     assert received_scope["path"] == "/dams"
     assert received_scope["state"]["country"] == "gr"
-    assert received_scope["state"]["locale"] == "en"
+    assert received_scope["state"]["locale"] == "el"
     assert received_scope["state"]["country_prefix"] == "/gr"
 
 

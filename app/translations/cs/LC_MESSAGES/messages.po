@@ -1,0 +1,601 @@
+# Czech translations for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-03-14 21:48+0200\n"
+"PO-Revision-Date: 2026-03-15 08:56+0200\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: cs\n"
+"Language-Team: cs <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: app/templates/404.html:8
+msgid "Page Not Found"
+msgstr "Stránka nenalezena"
+
+#: app/templates/404.html:10
+msgid "The page you're looking for doesn't exist, or the dam name is incorrect."
+msgstr "Hledaná stránka neexistuje nebo je název přehrady nesprávný."
+
+#: app/templates/404.html:15 app/templates/about.html:141
+#: app/templates/blog_index.html:52 app/templates/privacy.html:213
+msgid "← Back to Dashboard"
+msgstr "← Zpět na přehled"
+
+#: app/templates/about.html:8
+msgid "About Nero"
+msgstr "O projektu Nero"
+
+#: app/templates/about.html:9
+msgid "An open-source dashboard monitoring water reservoir levels in real time."
+msgstr "Open-source přehled monitorující hladiny vodních nádrží v reálném čase."
+
+#: app/templates/about.html:14
+msgid "Our Mission"
+msgstr "Naše mise"
+
+#: app/templates/about.html:33
+msgid "Countries We Monitor"
+msgstr "Sledované země"
+
+#: app/templates/about.html:36
+msgid "Cyprus"
+msgstr "Kypr"
+
+#: app/templates/about.html:45
+msgid "Greece"
+msgstr "Řecko"
+
+#: app/templates/about.html:55
+msgid "Methodology"
+msgstr "Metodologie"
+
+#: app/templates/about.html:69
+msgid "Severity Thresholds"
+msgstr "Prahové hodnoty závažnosti"
+
+#: app/templates/about.html:77
+#, python-format
+msgid ""
+"<strong class=\"text-red-700\">Critical</strong> — below 20% capacity. "
+"Evaporation\n"
+"                    losses accelerate, water quality degrades, and dams "
+"may approach dead storage. Agricultural\n"
+"                    allocations are typically cut and municipal rationing"
+" may be introduced."
+msgstr ""
+"<strong class=\"text-red-700\">Kritický</strong> — pod 20 % kapacity. "
+"Ztráty\n"
+"                    výparem se zrychlují, kvalita vody se zhoršuje a přehrady "
+"se mohou blížit mrtvému objemu. Zemědělské\n"
+"                    přídělky jsou zpravidla omezeny a může být zavedeno přídělovací hospodaření s vodou."
+
+#: app/templates/about.html:83
+#, python-format
+msgid ""
+"<strong class=\"text-amber-700\">Warning</strong> — 20 to 40% capacity. "
+"Reserves are\n"
+"                    reduced and conservation measures are advised. "
+"Desalination output may increase to compensate."
+msgstr ""
+"<strong class=\"text-amber-700\">Varování</strong> — 20 až 40 % kapacity. "
+"Zásoby jsou\n"
+"                    sníženy a doporučují se úsporná opatření. "
+"Výroba odsolené vody může být navýšena jako kompenzace."
+
+#: app/templates/about.html:88
+#, python-format
+msgid ""
+"<strong class=\"text-emerald-700\">Healthy</strong> — above 40% capacity."
+" Normal\n"
+"                    operational levels with full allocations and "
+"sufficient reserves."
+msgstr ""
+"<strong class=\"text-emerald-700\">V pořádku</strong> — nad 40 % kapacity."
+" Normální\n"
+"                    provozní hladiny s plnými příděly a "
+"dostatečnými zásobami."
+
+#: app/templates/about.html:95
+msgid "Frequently Asked Questions"
+msgstr "Často kladené otázky"
+
+#: app/templates/about.html:98
+msgid "How often is the data updated?"
+msgstr "Jak často jsou data aktualizována?"
+
+#: app/templates/about.html:103
+#, python-format
+msgid "Why do some dams show 0% or very low levels?"
+msgstr "Proč některé přehrady ukazují 0 % nebo velmi nízké hladiny?"
+
+#: app/templates/about.html:109
+msgid "What is MCM?"
+msgstr "Co je MCM?"
+
+#: app/templates/about.html:115
+msgid "Is this site affiliated with any government?"
+msgstr "Je tento web spojen s nějakou vládou?"
+
+#: app/templates/about.html:120
+msgid "Can I use this data for research or journalism?"
+msgstr "Mohu tato data využít pro výzkum nebo žurnalistiku?"
+
+#: app/templates/about.html:129
+msgid "About the Project"
+msgstr "O projektu"
+
+#: app/templates/base.html:68
+msgid "This site uses cookies for advertising via Google AdSense."
+msgstr "Tento web používá soubory cookie pro reklamu prostřednictvím Google AdSense."
+
+#: app/templates/base.html:69
+#, python-format
+msgid ""
+"By clicking <strong class=\"text-white\">Accept</strong> you consent to "
+"our\n"
+"      <a href=\"%(country_prefix)s/privacy\" class=\"underline hover"
+":text-white transition-colors\">Privacy Policy</a>."
+msgstr ""
+"Kliknutím na <strong class=\"text-white\">Přijmout</strong> souhlasíte s "
+"naší\n"
+"      <a href=\"%(country_prefix)s/privacy\" class=\"underline hover"
+":text-white transition-colors\">Zásadami ochrany osobních údajů</a>."
+
+#: app/templates/base.html:76
+msgid "Decline"
+msgstr "Odmítnout"
+
+#: app/templates/base.html:81
+msgid "Accept"
+msgstr "Přijmout"
+
+#: app/templates/base.html:193 app/templates/blog_index.html:9
+#: app/templates/blog_post.html:39
+msgid "Blog"
+msgstr "Blog"
+
+#: app/templates/base.html:194
+msgid "Map"
+msgstr "Mapa"
+
+#: app/templates/base.html:195
+msgid "About"
+msgstr "O projektu"
+
+#: app/templates/base.html:222
+msgid "Data:"
+msgstr "Data:"
+
+#: app/templates/base.html:224 app/templates/privacy.html:7
+msgid "Privacy Policy"
+msgstr "Zásady ochrany osobních údajů"
+
+#: app/templates/blog_index.html:10
+msgid "Analysis, explainers, and updates on Cyprus water data."
+msgstr "Analýzy, vysvětlení a aktualizace dat o vodě na Kypru."
+
+#: app/templates/blog_index.html:22
+msgid "Read more →"
+msgstr "Číst více →"
+
+#: app/templates/blog_index.html:29
+msgid "No articles yet. Check back soon."
+msgstr "Zatím žádné články. Brzy se vraťte."
+
+#: app/templates/blog_index.html:35
+msgid "Monthly Water Reports"
+msgstr "Měsíční zprávy o vodě"
+
+#: app/templates/blog_index.html:36
+msgid ""
+"Auto-generated snapshots of dam levels for each month, compiled from "
+"official data."
+msgstr ""
+"Automaticky generované snímky hladin přehrad za každý měsíc, sestavené "
+"z oficiálních dat."
+
+#: app/templates/blog_post.html:37 app/templates/learn_how_dams_work.html:10
+#: app/templates/learn_water_crisis_history.html:10
+msgid "Home"
+msgstr "Domů"
+
+#: app/templates/blog_post.html:47
+msgid "By"
+msgstr "Autor:"
+
+#: app/templates/blog_post.html:68
+msgid "Writing about Cyprus water infrastructure, dam levels, and drought trends."
+msgstr "Píšeme o vodní infrastruktuře Kypru, hladinách přehrad a trendech sucha."
+
+#: app/templates/blog_post.html:69
+msgid "Data sourced from the Water Development Department of Cyprus."
+msgstr "Data pocházejí z Odboru rozvoje vodního hospodářství Kypru."
+
+#: app/templates/blog_post.html:70
+msgid "Learn more about Nero"
+msgstr "Více o projektu Nero"
+
+#: app/templates/blog_post.html:87
+msgid "← All articles"
+msgstr "← Všechny články"
+
+#: app/templates/dam_detail.html:29 app/templates/dam_detail.html:62
+msgid "← All Dams"
+msgstr "← Všechny přehrady"
+
+#: app/templates/dam_detail.html:83
+#, python-format
+msgid "About %(name)s Dam"
+msgstr "O přehradě %(name)s"
+
+#: app/templates/dam_detail.html:91
+msgid "Historical Capacity"
+msgstr "Historická kapacita"
+
+#: app/templates/dam_detail.html:94 app/templates/dashboard.html:134
+msgid "Trend"
+msgstr "Trend"
+
+#: app/templates/dam_detail.html:96 app/templates/dashboard.html:136
+msgid "Year on Year"
+msgstr "Meziročně"
+
+#: app/templates/dam_detail.html:115 app/templates/dashboard.html:155
+msgid "Day"
+msgstr "Den"
+
+#: app/templates/dam_detail.html:117 app/templates/dashboard.html:157
+msgid "Month"
+msgstr "Měsíc"
+
+#: app/templates/dam_detail.html:119 app/templates/dashboard.html:159
+msgid "Year"
+msgstr "Rok"
+
+#: app/templates/dam_detail.html:121 app/templates/dashboard.html:161
+msgid "Sparse data — using monthly view"
+msgstr "Řídká data — zobrazení po měsících"
+
+#: app/templates/dam_detail.html:137 app/templates/dashboard.html:176
+#: app/templates/map.html:21
+msgid "Critical"
+msgstr "Kritický"
+
+#: app/templates/dam_detail.html:137 app/templates/dashboard.html:179
+#: app/templates/map.html:22
+msgid "Warning"
+msgstr "Varování"
+
+#: app/templates/dam_detail.html:137 app/templates/dashboard.html:182
+#: app/templates/map.html:23
+msgid "Healthy"
+msgstr "V pořádku"
+
+#: app/templates/dam_detail.html:143
+msgid "of capacity remaining"
+msgstr "zbývající kapacity"
+
+#: app/templates/dam_detail.html:156 app/templates/dashboard.html:102
+msgid "Stored"
+msgstr "Uloženo"
+
+#: app/templates/dam_detail.html:161
+msgid "Capacity"
+msgstr "Kapacita"
+
+#: app/templates/dam_detail.html:169
+msgid "Recent Inflow"
+msgstr "Nedávný přítok"
+
+#: app/templates/dam_detail.html:180
+msgid "Height"
+msgstr "Výška"
+
+#: app/templates/dam_detail.html:186
+msgid "Built"
+msgstr "Postavena"
+
+#: app/templates/dam_detail.html:192
+msgid "River"
+msgstr "Řeka"
+
+#: app/templates/dam_detail.html:198
+msgid "Type"
+msgstr "Typ"
+
+#: app/templates/dam_detail.html:203
+msgid "Coordinates"
+msgstr "Souřadnice"
+
+#: app/templates/dam_detail.html:210
+msgid "Data date"
+msgstr "Datum dat"
+
+#: app/templates/dam_detail.html:217
+msgid "Wikipedia →"
+msgstr "Wikipedia →"
+
+#: app/templates/dam_detail.html:228
+msgid "Related Dams"
+msgstr "Související přehrady"
+
+#: app/templates/dam_detail.html:244
+msgid "Learn More"
+msgstr "Zjistit více"
+
+#: app/templates/dam_detail.html:246 app/templates/dashboard.html:333
+#: app/templates/learn_how_dams_work.html:12
+msgid "How Dams Work"
+msgstr "Jak fungují přehrady"
+
+#: app/templates/dam_detail.html:248 app/templates/dashboard.html:334
+#: app/templates/learn_water_crisis_history.html:12
+msgid "Water Crisis History"
+msgstr "Historie vodních krizí"
+
+#: app/templates/dam_detail.html:250 app/templates/dashboard.html:276
+#: app/templates/dashboard.html:335
+msgid "Latest Analysis"
+msgstr "Nejnovější analýza"
+
+#: app/templates/dam_detail.html:252
+msgid "All Dams on Map"
+msgstr "Všechny přehrady na mapě"
+
+#: app/templates/dashboard.html:81
+msgid "Live System Status"
+msgstr "Aktuální stav systému"
+
+#: app/templates/dashboard.html:83
+msgid "Cyprus dam levels — live data & analysis"
+msgstr "Hladiny přehrad na Kypru — živá data a analýzy"
+
+#: app/templates/dashboard.html:87
+msgid "of total capacity remaining"
+msgstr "celkové kapacity zbývá"
+
+#: app/templates/dashboard.html:109
+msgid "Total Capacity"
+msgstr "Celková kapacita"
+
+#: app/templates/dashboard.html:116
+msgid "Last Updated"
+msgstr "Poslední aktualizace"
+
+#: app/templates/dashboard.html:118
+msgid "Syncing..."
+msgstr "Synchronizace..."
+
+#: app/templates/dashboard.html:131
+msgid "System Capacity"
+msgstr "Kapacita systému"
+
+#: app/templates/dashboard.html:173
+#, python-format
+msgid "All %(count)s Dams"
+msgstr "Všech %(count)s přehrad"
+
+#: app/templates/dashboard.html:229
+msgid "Stored:"
+msgstr "Uloženo:"
+
+#: app/templates/dashboard.html:230
+msgid "Capacity:"
+msgstr "Kapacita:"
+
+#: app/templates/dashboard.html:237
+msgid "Data syncing… Check back shortly."
+msgstr "Synchronizace dat… Zkuste to brzy znovu."
+
+#: app/templates/dashboard.html:249
+msgid "Understanding Athens' Water Supply"
+msgstr "Zásobování Athén vodou"
+
+#: app/templates/dashboard.html:255 app/templates/dashboard.html:297
+msgid "How to Read This Dashboard"
+msgstr "Jak číst tento přehled"
+
+#: app/templates/dashboard.html:261 app/templates/dashboard.html:309
+msgid "What the Numbers Mean"
+msgstr "Co čísla znamenají"
+
+#: app/templates/dashboard.html:267 app/templates/dashboard.html:320
+msgid "Why Monitoring Matters"
+msgstr "Proč je monitoring důležitý"
+
+#: app/templates/dashboard.html:274
+msgid "Athens Water System"
+msgstr "Athénský vodní systém"
+
+#: app/templates/dashboard.html:275
+msgid "Mornos Reservoir"
+msgstr "Nádrž Mornos"
+
+#: app/templates/dashboard.html:277 app/templates/dashboard.html:336
+msgid "Interactive Map"
+msgstr "Interaktivní mapa"
+
+#: app/templates/dashboard.html:281
+msgid ""
+"Data sourced from EYDAP (Hellenic Water and Sewerage Company) public "
+"records."
+msgstr ""
+"Data pocházejí z veřejných záznamů EYDAP (Řecká společnost pro vodu a kanalizaci)."
+
+#: app/templates/dashboard.html:287
+msgid "Understanding Cyprus Dam Levels"
+msgstr "Hladiny kyperských přehrad"
+
+#: app/templates/dashboard.html:340
+msgid ""
+"Data sourced from the <a href=\"https://cyprus-water.appspot.com\" "
+"target=\"_blank\" rel=\"noopener\" class=\"text-blue-600 "
+"hover:underline\">Water Development Department of Cyprus</a>\n"
+"            under <a "
+"href=\"https://creativecommons.org/licenses/by/2.0/\" target=\"_blank\" "
+"rel=\"noopener\" class=\"text-blue-600 hover:underline\">CC BY 2.0</a>."
+msgstr ""
+"Data pocházejí z <a href=\"https://cyprus-water.appspot.com\" "
+"target=\"_blank\" rel=\"noopener\" class=\"text-blue-600 "
+"hover:underline\">Odboru rozvoje vodního hospodářství Kypru</a>\n"
+"            pod licencí <a "
+"href=\"https://creativecommons.org/licenses/by/2.0/\" target=\"_blank\" "
+"rel=\"noopener\" class=\"text-blue-600 hover:underline\">CC BY 2.0</a>."
+
+#: app/templates/dashboard.html:353
+msgid "Last synced:"
+msgstr "Poslední synchronizace:"
+
+#: app/templates/dashboard.html:353
+msgid "never"
+msgstr "nikdy"
+
+#: app/templates/learn_how_dams_work.html:16
+msgid "How Dams Work: A Guide to Cyprus Water Infrastructure"
+msgstr "Jak fungují přehrady: Průvodce vodní infrastrukturou Kypru"
+
+#: app/templates/learn_how_dams_work.html:17
+msgid ""
+"Everything you need to know about how Cyprus stores, manages, and "
+"distributes its most precious resource."
+msgstr ""
+"Vše, co potřebujete vědět o tom, jak Kypr uchovává, spravuje a "
+"distribuuje svůj nejcennější zdroj."
+
+#: app/templates/learn_how_dams_work.html:29
+msgid "Types of dams in Cyprus"
+msgstr "Typy přehrad na Kypru"
+
+#: app/templates/learn_how_dams_work.html:46
+msgid "How water is stored and measured"
+msgstr "Jak se voda uchovává a měří"
+
+#: app/templates/learn_how_dams_work.html:68
+msgid "The Southern Conveyor"
+msgstr "Jižní vodní kanál"
+
+#: app/templates/learn_how_dams_work.html:84
+msgid "Desalination: the backup supply"
+msgstr "Odsolování: záložní zdroj"
+
+#: app/templates/learn_how_dams_work.html:100
+msgid "How water is distributed"
+msgstr "Jak je voda distribuována"
+
+#: app/templates/learn_how_dams_work.html:121
+msgid "Wastewater reuse"
+msgstr "Opětovné využití odpadních vod"
+
+#: app/templates/learn_how_dams_work.html:131
+msgid "Explore the data"
+msgstr "Prozkoumat data"
+
+#: app/templates/learn_how_dams_work.html:143
+msgid "History of Water Crises in Cyprus →"
+msgstr "Historie vodních krizí na Kypru →"
+
+#: app/templates/learn_how_dams_work.html:145 app/templates/map.html:15
+msgid "← Dashboard"
+msgstr "← Přehled"
+
+#: app/templates/learn_water_crisis_history.html:16
+msgid "A History of Water Crises in Cyprus"
+msgstr "Historie vodních krizí na Kypru"
+
+#: app/templates/learn_water_crisis_history.html:17
+msgid ""
+"From independence to the present: how Cyprus has faced, survived, and "
+"adapted to recurring drought."
+msgstr ""
+"Od nezávislosti do současnosti: jak Kypr čelil opakujícímu se suchu, "
+"přežil ho a přizpůsobil se mu."
+
+#: app/templates/learn_water_crisis_history.html:30
+msgid "The construction era (1960s–1990s)"
+msgstr "Éra výstavby (60.–90. léta)"
+
+#: app/templates/learn_water_crisis_history.html:54
+msgid "The 1990s drought"
+msgstr "Sucho v 90. letech"
+
+#: app/templates/learn_water_crisis_history.html:69
+msgid "The 2008 crisis: water by tanker"
+msgstr "Krize roku 2008: voda v cisternách"
+
+#: app/templates/learn_water_crisis_history.html:94
+msgid "The desalination revolution"
+msgstr "Revoluce odsolování"
+
+#: app/templates/learn_water_crisis_history.html:109
+msgid "Recent droughts and the new normal"
+msgstr "Nedávná sucha a nová normalita"
+
+#: app/templates/learn_water_crisis_history.html:129
+msgid "What comes next"
+msgstr "Co přijde dál"
+
+#: app/templates/learn_water_crisis_history.html:149
+msgid "Track the data"
+msgstr "Sledovat data"
+
+#: app/templates/learn_water_crisis_history.html:160
+msgid "← How Dams Work"
+msgstr "← Jak fungují přehrady"
+
+#: app/templates/learn_water_crisis_history.html:162
+msgid "Dashboard"
+msgstr "Přehled"
+
+#: app/templates/map.html:20
+msgid "Fill Level"
+msgstr "Úroveň naplnění"
+
+#: app/templates/map.html:24
+msgid "View details"
+msgstr "Zobrazit detaily"
+
+#: app/templates/privacy.html:8
+msgid "Last updated:"
+msgstr "Poslední aktualizace:"
+
+#: app/templates/privacy.html:13
+msgid "1. Introduction"
+msgstr "1. Úvod"
+
+#: app/templates/privacy.html:28
+msgid "2. Data We Collect"
+msgstr "2. Údaje, které shromažďujeme"
+
+#: app/templates/privacy.html:46
+msgid "3. Cookies & Advertising"
+msgstr "3. Cookies a reklama"
+
+#: app/templates/privacy.html:76
+msgid "4. Third-Party Services"
+msgstr "4. Služby třetích stran"
+
+#: app/templates/privacy.html:114
+msgid "5. Your Rights (GDPR — Articles 15–21)"
+msgstr "5. Vaše práva (GDPR — články 15–21)"
+
+#: app/templates/privacy.html:160
+msgid "6. How to Withdraw Consent"
+msgstr "6. Jak odvolat souhlas"
+
+#: app/templates/privacy.html:179
+msgid "7. Data Retention"
+msgstr "7. Uchovávání dat"
+
+#: app/templates/privacy.html:194
+msgid "8. Contact"
+msgstr "8. Kontakt"

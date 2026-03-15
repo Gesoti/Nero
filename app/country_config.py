@@ -9,13 +9,13 @@ from __future__ import annotations
 # BCP-47 locale tag used for Babel i18n and HTML lang attribute
 COUNTRY_LOCALE_MAP: dict[str, str] = {
     "cy": "en",
-    "gr": "en",
-    "es": "en",
-    "pt": "en",
-    "cz": "en",
-    "at": "en",
-    "it": "en",
-    "fi": "en",
+    "gr": "el",
+    "es": "es",
+    "pt": "pt",
+    "cz": "cs",
+    "at": "de",
+    "it": "it",
+    "fi": "fi",
 }
 
 # Canonical per-country SQLite database paths (relative to repo root)
