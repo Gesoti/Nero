@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{# Germany country layout — uses German (de).
+   lang="de" is set on the <html> element; og:locale uses de_DE.
+   Footer attribution points to Talsperrenleitzentrale Ruhr and LTV Sachsen. #}
+
+{% block html_lang %}de{% endblock %}
+{% block og_locale %}de_DE{% endblock %}
+
+{% block footer_data_source %}Data: <a href="https://www.talsperrenleitzentrale-ruhr.de" target="_blank" rel="noopener" class="hover:text-slate-600 underline underline-offset-2">Talsperrenleitzentrale</a> Ruhr &amp; <a href="https://www.ltv.sachsen.de" target="_blank" rel="noopener" class="hover:text-slate-600 underline underline-offset-2">LTV</a> Sachsen{% endblock %}

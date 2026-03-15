@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{# Poland country layout — uses Polish (pl).
+   lang="pl" is set on the <html> element; og:locale uses pl_PL.
+   Footer attribution points to IMGW (Institute of Meteorology and Water Management). #}
+
+{% block html_lang %}pl{% endblock %}
+{% block og_locale %}pl_PL{% endblock %}
+
+{% block footer_data_source %}Data: <a href="https://www.imgw.pl" target="_blank" rel="noopener" class="hover:text-slate-600 underline underline-offset-2">IMGW</a> (Institute of Meteorology and Water Management){% endblock %}

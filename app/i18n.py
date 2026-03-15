@@ -18,7 +18,7 @@ from jinja2 import Environment
 
 _TRANSLATIONS_DIR = Path(__file__).parent / "translations"
 
-SUPPORTED_LOCALES: frozenset[str] = frozenset({"en", "el", "es", "pt", "cs", "de", "it", "fi", "nb", "bg"})
+SUPPORTED_LOCALES: frozenset[str] = frozenset({"en", "el", "es", "pt", "cs", "de", "it", "fi", "nb", "bg", "pl"})
 
 # Labels for the language dropdown (native names)
 LANGUAGE_LABELS: dict[str, str] = {
@@ -32,6 +32,7 @@ LANGUAGE_LABELS: dict[str, str] = {
     "fi": "Suomi",
     "nb": "Norsk",
     "bg": "Български",
+    "pl": "Polski",
 }
 
 # Flag country codes for flag-icons CSS (language → ISO 3166-1 alpha-2)
@@ -46,6 +47,7 @@ LANGUAGE_FLAGS: dict[str, str] = {
     "fi": "fi",
     "nb": "no",
     "bg": "bg",
+    "pl": "pl",
 }
 
 
