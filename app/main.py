@@ -21,8 +21,11 @@ from app.i18n import install_i18n
 from app.db import init_database, is_database_empty
 from app.middleware.country import CountryPrefixMiddleware
 from app.providers.base import DataProvider
+from app.providers.austria import AustriaProvider
 from app.providers.cyprus import CyprusProvider
+from app.providers.czech import CzechProvider
 from app.providers.greece import GreeceProvider
+from app.providers.italy import ItalyProvider
 from app.providers.portugal import PortugalProvider
 from app.providers.spain import SpainProvider
 from app.routes.pages import router as page_router
@@ -85,6 +88,27 @@ def _build_provider_registry() -> dict[str, tuple[DataProvider, str]]:
                 timeout=_timeout,
             )
             registry[cc] = (PortugalProvider(client=client), db_path)
+        elif cc == "cz":
+            client = httpx.AsyncClient(
+                base_url="https://hydro.chmi.cz",
+                headers={"User-Agent": "NeroWaterDashboard/1.0"},
+                timeout=_timeout,
+            )
+            registry[cc] = (CzechProvider(client=client), db_path)
+        elif cc == "at":
+            client = httpx.AsyncClient(
+                base_url="https://ehyd.gv.at",
+                headers={"User-Agent": "NeroWaterDashboard/1.0"},
+                timeout=_timeout,
+            )
+            registry[cc] = (AustriaProvider(client=client), db_path)
+        elif cc == "it":
+            client = httpx.AsyncClient(
+                base_url="https://raw.githubusercontent.com",
+                headers={"User-Agent": "NeroWaterDashboard/1.0"},
+                timeout=_timeout,
+            )
+            registry[cc] = (ItalyProvider(client=client), db_path)
         else:
             logger.warning("No provider implemented for country '%s' — skipping", cc)
 

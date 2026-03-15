@@ -12,7 +12,7 @@ RUN uv sync --frozen --no-dev
 COPY app/ app/
 COPY main.py .
 
-ENV WL_ENABLED_COUNTRIES=cy,gr,es,pt \
+ENV WL_ENABLED_COUNTRIES=cy,gr,es,pt,cz,at,it \
     WL_HOST=0.0.0.0 \
     WL_PORT=8000
 
