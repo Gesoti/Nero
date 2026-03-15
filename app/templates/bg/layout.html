@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{# Bulgaria country layout — uses Bulgarian (bg).
+   lang="bg" is set on the <html> element; og:locale uses bg_BG.
+   Footer attribution points to MOEW Bulgaria (Ministry of Environment and Water). #}
+
+{% block html_lang %}bg{% endblock %}
+{% block og_locale %}bg_BG{% endblock %}
+
+{% block footer_data_source %}Data: <a href="https://www.moew.government.bg" target="_blank" rel="noopener" class="hover:text-slate-600 underline underline-offset-2">MOEW Bulgaria</a> (Ministry of Environment and Water){% endblock %}

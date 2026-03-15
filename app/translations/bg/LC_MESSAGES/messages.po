@@ -1,0 +1,587 @@
+# Bulgarian translations for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-03-14 21:48+0200\n"
+"PO-Revision-Date: 2026-03-15 23:14+0200\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: bg\n"
+"Language-Team: bg <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: app/templates/404.html:8
+msgid "Page Not Found"
+msgstr "Страницата не е намерена"
+
+#: app/templates/404.html:10
+msgid "The page you're looking for doesn't exist, or the dam name is incorrect."
+msgstr "Страницата, която търсите, не съществува или името на язовира е грешно."
+
+#: app/templates/404.html:15 app/templates/about.html:141
+#: app/templates/blog_index.html:52 app/templates/privacy.html:213
+msgid "← Back to Dashboard"
+msgstr "← Обратно към таблото"
+
+#: app/templates/about.html:8
+msgid "About Nero"
+msgstr "За Nero"
+
+#: app/templates/about.html:9
+msgid "An open-source dashboard monitoring water reservoir levels in real time."
+msgstr "Табло с отворен код за наблюдение на нивата на водните язовири в реално време."
+
+#: app/templates/about.html:14
+msgid "Our Mission"
+msgstr "Нашата мисия"
+
+#: app/templates/about.html:33
+msgid "Countries We Monitor"
+msgstr "Страни, които наблюдаваме"
+
+#: app/templates/about.html:36
+msgid "Cyprus"
+msgstr "Кипър"
+
+#: app/templates/about.html:45
+msgid "Greece"
+msgstr "Гърция"
+
+#: app/templates/about.html:55
+msgid "Methodology"
+msgstr "Методология"
+
+#: app/templates/about.html:69
+msgid "Severity Thresholds"
+msgstr "Прагове на сериозност"
+
+#: app/templates/about.html:77
+#, python-format
+msgid ""
+"<strong class=\"text-red-700\">Critical</strong> — below 20% capacity. "
+"Evaporation\n"
+"                    losses accelerate, water quality degrades, and dams "
+"may approach dead storage. Agricultural\n"
+"                    allocations are typically cut and municipal rationing"
+" may be introduced."
+msgstr ""
+
+#: app/templates/about.html:83
+#, python-format
+msgid ""
+"<strong class=\"text-amber-700\">Warning</strong> — 20 to 40% capacity. "
+"Reserves are\n"
+"                    reduced and conservation measures are advised. "
+"Desalination output may increase to compensate."
+msgstr ""
+
+#: app/templates/about.html:88
+#, python-format
+msgid ""
+"<strong class=\"text-emerald-700\">Healthy</strong> — above 40% capacity."
+" Normal\n"
+"                    operational levels with full allocations and "
+"sufficient reserves."
+msgstr ""
+
+#: app/templates/about.html:95
+msgid "Frequently Asked Questions"
+msgstr "Често задавани въпроси"
+
+#: app/templates/about.html:98
+msgid "How often is the data updated?"
+msgstr "Колко често се актуализират данните?"
+
+#: app/templates/about.html:103
+#, python-format
+msgid "Why do some dams show 0% or very low levels?"
+msgstr ""
+
+#: app/templates/about.html:109
+msgid "What is MCM?"
+msgstr "Какво е MCM?"
+
+#: app/templates/about.html:115
+msgid "Is this site affiliated with any government?"
+msgstr "Свързан ли е този сайт с някое правителство?"
+
+#: app/templates/about.html:120
+msgid "Can I use this data for research or journalism?"
+msgstr "Мога ли да използвам тези данни за изследвания или журналистика?"
+
+#: app/templates/about.html:129
+msgid "About the Project"
+msgstr "За проекта"
+
+#: app/templates/base.html:68
+msgid "This site uses cookies for advertising via Google AdSense."
+msgstr "Този сайт използва бисквитки за реклама чрез Google AdSense."
+
+#: app/templates/base.html:69
+#, python-format
+msgid ""
+"By clicking <strong class=\"text-white\">Accept</strong> you consent to "
+"our\n"
+"      <a href=\"%(country_prefix)s/privacy\" class=\"underline hover"
+":text-white transition-colors\">Privacy Policy</a>."
+msgstr ""
+"С кликване върху <strong class=\"text-white\">Приемам</strong> се съгласявате с\n"
+"      <a href=\"%(country_prefix)s/privacy\" class=\"underline hover"
+":text-white transition-colors\">Политиката за поверителност</a>."
+
+#: app/templates/base.html:76
+msgid "Decline"
+msgstr "Отказвам"
+
+#: app/templates/base.html:81
+msgid "Accept"
+msgstr "Приемам"
+
+#: app/templates/base.html:193 app/templates/blog_index.html:9
+#: app/templates/blog_post.html:39
+msgid "Blog"
+msgstr "Блог"
+
+#: app/templates/base.html:194
+msgid "Map"
+msgstr "Карта"
+
+#: app/templates/base.html:195
+msgid "About"
+msgstr "За нас"
+
+#: app/templates/base.html:222
+msgid "Data:"
+msgstr "Данни:"
+
+#: app/templates/base.html:224 app/templates/privacy.html:7
+msgid "Privacy Policy"
+msgstr "Политика за поверителност"
+
+#: app/templates/blog_index.html:10
+msgid "Analysis, explainers, and updates on Cyprus water data."
+msgstr "Анализи, обяснения и новини за водните данни на Кипър."
+
+#: app/templates/blog_index.html:22
+msgid "Read more →"
+msgstr "Прочетете повече →"
+
+#: app/templates/blog_index.html:29
+msgid "No articles yet. Check back soon."
+msgstr "Все още няма статии. Проверете отново скоро."
+
+#: app/templates/blog_index.html:35
+msgid "Monthly Water Reports"
+msgstr "Месечни водни доклади"
+
+#: app/templates/blog_index.html:36
+msgid ""
+"Auto-generated snapshots of dam levels for each month, compiled from "
+"official data."
+msgstr ""
+"Автоматично генерирани снимки на нивата на язовирите за всеки месец, "
+"съставени от официални данни."
+
+#: app/templates/blog_post.html:37 app/templates/learn_how_dams_work.html:10
+#: app/templates/learn_water_crisis_history.html:10
+msgid "Home"
+msgstr "Начало"
+
+#: app/templates/blog_post.html:47
+msgid "By"
+msgstr "От"
+
+#: app/templates/blog_post.html:68
+msgid "Writing about Cyprus water infrastructure, dam levels, and drought trends."
+msgstr "Пишем за водната инфраструктура на Кипър, нивата на язовирите и тенденциите в сушата."
+
+#: app/templates/blog_post.html:69
+msgid "Data sourced from the Water Development Department of Cyprus."
+msgstr "Данните са предоставени от Департамента за водно развитие на Кипър."
+
+#: app/templates/blog_post.html:70
+msgid "Learn more about Nero"
+msgstr "Научете повече за Nero"
+
+#: app/templates/blog_post.html:87
+msgid "← All articles"
+msgstr "← Всички статии"
+
+#: app/templates/dam_detail.html:29 app/templates/dam_detail.html:62
+msgid "← All Dams"
+msgstr "← Всички язовири"
+
+#: app/templates/dam_detail.html:83
+#, python-format
+msgid "About %(name)s Dam"
+msgstr "За язовир %(name)s"
+
+#: app/templates/dam_detail.html:91
+msgid "Historical Capacity"
+msgstr "Исторически капацитет"
+
+#: app/templates/dam_detail.html:94 app/templates/dashboard.html:134
+msgid "Trend"
+msgstr "Тенденция"
+
+#: app/templates/dam_detail.html:96 app/templates/dashboard.html:136
+msgid "Year on Year"
+msgstr "Година спрямо година"
+
+#: app/templates/dam_detail.html:115 app/templates/dashboard.html:155
+msgid "Day"
+msgstr "Ден"
+
+#: app/templates/dam_detail.html:117 app/templates/dashboard.html:157
+msgid "Month"
+msgstr "Месец"
+
+#: app/templates/dam_detail.html:119 app/templates/dashboard.html:159
+msgid "Year"
+msgstr "Година"
+
+#: app/templates/dam_detail.html:121 app/templates/dashboard.html:161
+msgid "Sparse data — using monthly view"
+msgstr "Оскъдни данни — използва се месечен изглед"
+
+#: app/templates/dam_detail.html:137 app/templates/dashboard.html:176
+#: app/templates/map.html:21
+msgid "Critical"
+msgstr "Критично"
+
+#: app/templates/dam_detail.html:137 app/templates/dashboard.html:179
+#: app/templates/map.html:22
+msgid "Warning"
+msgstr "Предупреждение"
+
+#: app/templates/dam_detail.html:137 app/templates/dashboard.html:182
+#: app/templates/map.html:23
+msgid "Healthy"
+msgstr "Нормално"
+
+#: app/templates/dam_detail.html:143
+msgid "of capacity remaining"
+msgstr "от оставащия капацитет"
+
+#: app/templates/dam_detail.html:156 app/templates/dashboard.html:102
+msgid "Stored"
+msgstr "Съхранено"
+
+#: app/templates/dam_detail.html:161
+msgid "Capacity"
+msgstr "Капацитет"
+
+#: app/templates/dam_detail.html:169
+msgid "Recent Inflow"
+msgstr "Скорошен приток"
+
+#: app/templates/dam_detail.html:180
+msgid "Height"
+msgstr "Височина"
+
+#: app/templates/dam_detail.html:186
+msgid "Built"
+msgstr "Построен"
+
+#: app/templates/dam_detail.html:192
+msgid "River"
+msgstr "Река"
+
+#: app/templates/dam_detail.html:198
+msgid "Type"
+msgstr "Тип"
+
+#: app/templates/dam_detail.html:203
+msgid "Coordinates"
+msgstr "Координати"
+
+#: app/templates/dam_detail.html:210
+msgid "Data date"
+msgstr "Дата на данните"
+
+#: app/templates/dam_detail.html:217
+msgid "Wikipedia →"
+msgstr "Wikipedia →"
+
+#: app/templates/dam_detail.html:228
+msgid "Related Dams"
+msgstr "Свързани язовири"
+
+#: app/templates/dam_detail.html:244
+msgid "Learn More"
+msgstr "Научете повече"
+
+#: app/templates/dam_detail.html:246 app/templates/dashboard.html:333
+#: app/templates/learn_how_dams_work.html:12
+msgid "How Dams Work"
+msgstr "Как работят язовирите"
+
+#: app/templates/dam_detail.html:248 app/templates/dashboard.html:334
+#: app/templates/learn_water_crisis_history.html:12
+msgid "Water Crisis History"
+msgstr "История на водните кризи"
+
+#: app/templates/dam_detail.html:250 app/templates/dashboard.html:276
+#: app/templates/dashboard.html:335
+msgid "Latest Analysis"
+msgstr "Последен анализ"
+
+#: app/templates/dam_detail.html:252
+msgid "All Dams on Map"
+msgstr "Всички язовири на картата"
+
+#: app/templates/dashboard.html:81
+msgid "Live System Status"
+msgstr "Текущо състояние на системата"
+
+#: app/templates/dashboard.html:83
+msgid "Cyprus dam levels — live data & analysis"
+msgstr "Нива на язовирите в Кипър — данни на живо и анализ"
+
+#: app/templates/dashboard.html:87
+msgid "of total capacity remaining"
+msgstr "от общия оставащ капацитет"
+
+#: app/templates/dashboard.html:109
+msgid "Total Capacity"
+msgstr "Общ капацитет"
+
+#: app/templates/dashboard.html:116
+msgid "Last Updated"
+msgstr "Последна актуализация"
+
+#: app/templates/dashboard.html:118
+msgid "Syncing..."
+msgstr "Синхронизиране..."
+
+#: app/templates/dashboard.html:131
+msgid "System Capacity"
+msgstr "Капацитет на системата"
+
+#: app/templates/dashboard.html:173
+#, python-format
+msgid "All %(count)s Dams"
+msgstr "Всички %(count)s язовира"
+
+#: app/templates/dashboard.html:229
+msgid "Stored:"
+msgstr "Съхранено:"
+
+#: app/templates/dashboard.html:230
+msgid "Capacity:"
+msgstr "Капацитет:"
+
+#: app/templates/dashboard.html:237
+msgid "Data syncing… Check back shortly."
+msgstr "Данните се синхронизират… Проверете отново след малко."
+
+#: app/templates/dashboard.html:249
+msgid "Understanding Athens' Water Supply"
+msgstr "Разбиране на водоснабдяването на Атина"
+
+#: app/templates/dashboard.html:255 app/templates/dashboard.html:297
+msgid "How to Read This Dashboard"
+msgstr "Как да четете това табло"
+
+#: app/templates/dashboard.html:261 app/templates/dashboard.html:309
+msgid "What the Numbers Mean"
+msgstr "Какво означават числата"
+
+#: app/templates/dashboard.html:267 app/templates/dashboard.html:320
+msgid "Why Monitoring Matters"
+msgstr "Защо мониторингът е важен"
+
+#: app/templates/dashboard.html:274
+msgid "Athens Water System"
+msgstr "Водна система на Атина"
+
+#: app/templates/dashboard.html:275
+msgid "Mornos Reservoir"
+msgstr "Язовир Морнос"
+
+#: app/templates/dashboard.html:277 app/templates/dashboard.html:336
+msgid "Interactive Map"
+msgstr "Интерактивна карта"
+
+#: app/templates/dashboard.html:281
+msgid ""
+"Data sourced from EYDAP (Hellenic Water and Sewerage Company) public "
+"records."
+msgstr ""
+"Данните са от публичните регистри на EYDAP (Гръцка компания за водоснабдяване и канализация)."
+
+#: app/templates/dashboard.html:287
+msgid "Understanding Cyprus Dam Levels"
+msgstr "Разбиране на нивата на язовирите в Кипър"
+
+#: app/templates/dashboard.html:340
+msgid ""
+"Data sourced from the <a href=\"https://cyprus-water.appspot.com\" "
+"target=\"_blank\" rel=\"noopener\" class=\"text-blue-600 "
+"hover:underline\">Water Development Department of Cyprus</a>\n"
+"            under <a "
+"href=\"https://creativecommons.org/licenses/by/2.0/\" target=\"_blank\" "
+"rel=\"noopener\" class=\"text-blue-600 hover:underline\">CC BY 2.0</a>."
+msgstr ""
+"Данните са предоставени от <a href=\"https://cyprus-water.appspot.com\" "
+"target=\"_blank\" rel=\"noopener\" class=\"text-blue-600 "
+"hover:underline\">Департамента за водно развитие на Кипър</a>\n"
+"            под лиценз <a "
+"href=\"https://creativecommons.org/licenses/by/2.0/\" target=\"_blank\" "
+"rel=\"noopener\" class=\"text-blue-600 hover:underline\">CC BY 2.0</a>."
+
+#: app/templates/dashboard.html:353
+msgid "Last synced:"
+msgstr "Последна синхронизация:"
+
+#: app/templates/dashboard.html:353
+msgid "never"
+msgstr "никога"
+
+#: app/templates/learn_how_dams_work.html:16
+msgid "How Dams Work: A Guide to Cyprus Water Infrastructure"
+msgstr "Как работят язовирите: Ръководство за водната инфраструктура на Кипър"
+
+#: app/templates/learn_how_dams_work.html:17
+msgid ""
+"Everything you need to know about how Cyprus stores, manages, and "
+"distributes its most precious resource."
+msgstr ""
+"Всичко, което трябва да знаете за това как Кипър съхранява, управлява и "
+"разпределя своя най-ценен ресурс."
+
+#: app/templates/learn_how_dams_work.html:29
+msgid "Types of dams in Cyprus"
+msgstr "Видове язовири в Кипър"
+
+#: app/templates/learn_how_dams_work.html:46
+msgid "How water is stored and measured"
+msgstr "Как водата се съхранява и измерва"
+
+#: app/templates/learn_how_dams_work.html:68
+msgid "The Southern Conveyor"
+msgstr "Южният водопровод"
+
+#: app/templates/learn_how_dams_work.html:84
+msgid "Desalination: the backup supply"
+msgstr "Обезсоляване: резервното водоснабдяване"
+
+#: app/templates/learn_how_dams_work.html:100
+msgid "How water is distributed"
+msgstr "Как водата се разпределя"
+
+#: app/templates/learn_how_dams_work.html:121
+msgid "Wastewater reuse"
+msgstr "Повторна употреба на отпадъчни води"
+
+#: app/templates/learn_how_dams_work.html:131
+msgid "Explore the data"
+msgstr "Разгледайте данните"
+
+#: app/templates/learn_how_dams_work.html:143
+msgid "History of Water Crises in Cyprus →"
+msgstr "История на водните кризи в Кипър →"
+
+#: app/templates/learn_how_dams_work.html:145 app/templates/map.html:15
+msgid "← Dashboard"
+msgstr "← Табло"
+
+#: app/templates/learn_water_crisis_history.html:16
+msgid "A History of Water Crises in Cyprus"
+msgstr "История на водните кризи в Кипър"
+
+#: app/templates/learn_water_crisis_history.html:17
+msgid ""
+"From independence to the present: how Cyprus has faced, survived, and "
+"adapted to recurring drought."
+msgstr ""
+"От независимостта до днес: как Кипър се е изправял, оцелявал и "
+"адаптирал към повтарящата се суша."
+
+#: app/templates/learn_water_crisis_history.html:30
+msgid "The construction era (1960s–1990s)"
+msgstr "Ерата на строителството (1960-те–1990-те)"
+
+#: app/templates/learn_water_crisis_history.html:54
+msgid "The 1990s drought"
+msgstr "Сушата от 1990-те"
+
+#: app/templates/learn_water_crisis_history.html:69
+msgid "The 2008 crisis: water by tanker"
+msgstr "Кризата от 2008 г.: вода с танкери"
+
+#: app/templates/learn_water_crisis_history.html:94
+msgid "The desalination revolution"
+msgstr "Революцията на обезсоляването"
+
+#: app/templates/learn_water_crisis_history.html:109
+msgid "Recent droughts and the new normal"
+msgstr "Скорошни суши и новата норма"
+
+#: app/templates/learn_water_crisis_history.html:129
+msgid "What comes next"
+msgstr "Какво следва"
+
+#: app/templates/learn_water_crisis_history.html:149
+msgid "Track the data"
+msgstr "Проследете данните"
+
+#: app/templates/learn_water_crisis_history.html:160
+msgid "← How Dams Work"
+msgstr "← Как работят язовирите"
+
+#: app/templates/learn_water_crisis_history.html:162
+msgid "Dashboard"
+msgstr "Табло"
+
+#: app/templates/map.html:20
+msgid "Fill Level"
+msgstr "Ниво на пълнене"
+
+#: app/templates/map.html:24
+msgid "View details"
+msgstr "Виж подробности"
+
+#: app/templates/privacy.html:8
+msgid "Last updated:"
+msgstr "Последна актуализация:"
+
+#: app/templates/privacy.html:13
+msgid "1. Introduction"
+msgstr "1. Въведение"
+
+#: app/templates/privacy.html:28
+msgid "2. Data We Collect"
+msgstr "2. Данни, които събираме"
+
+#: app/templates/privacy.html:46
+msgid "3. Cookies & Advertising"
+msgstr "3. Бисквитки и реклама"
+
+#: app/templates/privacy.html:76
+msgid "4. Third-Party Services"
+msgstr "4. Услуги на трети страни"
+
+#: app/templates/privacy.html:114
+msgid "5. Your Rights (GDPR — Articles 15–21)"
+msgstr "5. Вашите права (GDPR — Членове 15–21)"
+
+#: app/templates/privacy.html:160
+msgid "6. How to Withdraw Consent"
+msgstr "6. Как да оттеглите съгласието си"
+
+#: app/templates/privacy.html:179
+msgid "7. Data Retention"
+msgstr "7. Съхранение на данни"
+
+#: app/templates/privacy.html:194
+msgid "8. Contact"
+msgstr "8. Контакт"

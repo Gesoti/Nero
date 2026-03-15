@@ -22,13 +22,14 @@ from app.db import init_database, is_database_empty
 from app.middleware.country import CountryPrefixMiddleware
 from app.providers.base import DataProvider
 from app.providers.austria import AustriaProvider
+from app.providers.bulgaria import BulgariaProvider
 from app.providers.cyprus import CyprusProvider
 from app.providers.czech import CzechProvider
 from app.providers.finland import FinlandProvider
 from app.providers.greece import GreeceProvider
 from app.providers.norway import NorwayProvider
-from app.providers.italy import ItalyProvider
 from app.providers.switzerland import SwitzerlandProvider
+from app.providers.italy import ItalyProvider
 from app.providers.portugal import PortugalProvider
 from app.providers.spain import SpainProvider
 from app.routes.pages import router as page_router
@@ -133,6 +134,13 @@ def _build_provider_registry() -> dict[str, tuple[DataProvider, str]]:
                 timeout=_timeout,
             )
             registry[cc] = (SwitzerlandProvider(client=client), db_path)
+        elif cc == "bg":
+            client = httpx.AsyncClient(
+                base_url="https://www.moew.government.bg",
+                headers={"User-Agent": "NeroWaterDashboard/1.0"},
+                timeout=_timeout,
+            )
+            registry[cc] = (BulgariaProvider(client=client), db_path)
         else:
             logger.warning("No provider implemented for country '%s' — skipping", cc)
 

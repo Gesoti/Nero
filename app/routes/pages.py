@@ -23,6 +23,7 @@ from app.blog import load_all_posts, load_post
 from app.config import settings
 from app.country_config import COUNTRY_LABELS, COUNTRY_LOCALE_MAP, COUNTRY_MAP_CENTRES
 from app.at_dam_descriptions import get_at_dam_description
+from app.bg_dam_descriptions import get_bg_dam_description
 from app.ch_dam_descriptions import get_ch_dam_description
 from app.cz_dam_descriptions import get_cz_dam_description
 from app.dam_descriptions import get_dam_description
@@ -82,6 +83,8 @@ def _get_dam_description_for_country(country: str, name_en: str) -> str:
         return get_fi_dam_description(name_en)
     if country == "no":
         return get_no_dam_description(name_en)
+    if country == "bg":
+        return get_bg_dam_description(name_en)
     if country == "ch":
         return get_ch_dam_description(name_en)
     return get_dam_description(name_en)
@@ -156,7 +159,6 @@ def _render_ctx(request: Request, extra: dict) -> dict:
     ]
 
     # Build country navigation data — preserves current page path
-    # so switching countries on /map stays on /map, not redirecting to /
     enabled = settings.get_enabled_countries()
     current_path = request.url.path
     page_path = current_path
@@ -274,7 +276,7 @@ async def map_view(request: Request):
     ]
     # Zoom level 8 suits the compact extent of Cyprus; Greece's reservoirs
     # are more spread out so zoom 7 fits better.
-    map_zoom: dict[str, int] = {"cy": 9, "gr": 7, "es": 6, "pt": 7, "cz": 7, "at": 7, "it": 8, "fi": 5}
+    map_zoom: dict[str, int] = {"cy": 9, "gr": 7, "es": 6, "pt": 7, "cz": 7, "at": 7, "it": 8, "fi": 5, "no": 5, "ch": 8, "bg": 7}
     centre = COUNTRY_MAP_CENTRES.get(country, COUNTRY_MAP_CENTRES["cy"])
     return templates.TemplateResponse(
         request,
@@ -586,6 +588,12 @@ async def sitemap_xml():
         elif country == "fi":
             from app.providers.finland import _FINLAND_DAMS as _fi_dams
             for dam_info in _fi_dams:
+                xml_parts.append(
+                    url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
+                )
+        elif country == "bg":
+            from app.providers.bulgaria import _BULGARIA_DAMS as _bg_dams
+            for dam_info in _bg_dams:
                 xml_parts.append(
                     url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
                 )
