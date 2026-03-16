@@ -17,7 +17,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from app.config import settings
-from app.i18n import install_i18n
+from app.country_config import COUNTRY_LABELS
+from app.i18n import install_i18n, LANGUAGE_LABELS, LANGUAGE_FLAGS, SUPPORTED_LOCALES
 from app.db import init_database, is_database_empty
 from app.middleware.country import CountryPrefixMiddleware
 from app.providers.base import DataProvider
@@ -232,9 +233,28 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 @app.exception_handler(404)
 async def not_found(request: Request, exc: Exception) -> HTMLResponse:
     country: str = getattr(request.state, "country", settings.country)
+    country_prefix: str = getattr(request.state, "country_prefix", "")
+    lang = request.cookies.get("wl_lang", "en")
+    if lang not in SUPPORTED_LOCALES:
+        lang = "en"
     return _templates.TemplateResponse(
         request,
         "404.html",
-        {"layout_template": f"{country}/layout.html"},
+        {
+            "layout_template": f"{country}/layout.html",
+            "country": country,
+            "country_prefix": country_prefix,
+            "country_label": COUNTRY_LABELS.get(country, country.upper()),
+            "current_lang": lang,
+            "current_lang_label": LANGUAGE_LABELS.get(lang, "English"),
+            "current_lang_flag": LANGUAGE_FLAGS.get(lang, lang),
+            "available_langs": [
+                {"code": c, "label": l, "flag": LANGUAGE_FLAGS.get(c, c)}
+                for c, l in LANGUAGE_LABELS.items()
+            ],
+            # Simplified lists for 404 — no dam navigation needed
+            "country_nav": [],
+            "hreflang_alternates": [],
+        },
         status_code=404,
     )

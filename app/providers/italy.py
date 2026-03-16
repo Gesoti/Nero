@@ -172,6 +172,11 @@ _TOTAL_CAPACITY_MCM: float = sum(d.capacity_mcm for d in _ITALY_DAMS)
 
 # Raw CSV URL from the OpenData Sicilia GitHub repository.
 # Using the "latest" file which holds the most recent observation for each dam.
+# SUPPLY-CHAIN RISK: These URLs resolve against `refs/heads/main`, meaning any
+# upstream commit silently changes the data we fetch. To eliminate this risk,
+# pin both URLs to a specific commit SHA:
+#   /opendatasicilia/emergenza-idrica-sicilia/<SHA>/risorse/...
+# Until pinned, treat upstream content as untrusted and validate parsed values.
 _CSV_URL = (
     "https://raw.githubusercontent.com/opendatasicilia/emergenza-idrica-sicilia"
     "/refs/heads/main/risorse/sicilia_dighe_volumi_giornalieri_latest.csv"
@@ -180,6 +185,7 @@ _CSV_URL = (
 # Historical monthly CSV — December 2016 to present, 29 dams, volumes in hm³.
 # We filter to only the 13 dams we track.  Names in this CSV may differ slightly
 # from _UPSTREAM_NAME_MAP — this map normalises them to our name_en keys.
+# SUPPLY-CHAIN RISK: Same as _CSV_URL above — pin to a commit SHA when stable.
 _HISTORICAL_CSV_URL = (
     "https://raw.githubusercontent.com/opendatasicilia/emergenza-idrica-sicilia"
     "/refs/heads/main/risorse/sicilia_dighe_volumi.csv"
