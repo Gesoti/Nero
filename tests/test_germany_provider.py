@@ -1,18 +1,21 @@
 """
 Tests for the Germany data provider.
 Data sources: Talsperrenleitzentrale Ruhr (9 dams), Sachsen LTV (48 dams).
-MVP stub: downloads Ruhr page to verify connectivity, returns 0.0 for all dams.
+Ruhr dams are parsed from HTML; Saxony and other dams remain 0.0 until their
+parsers are implemented.
 """
 from __future__ import annotations
 
 import pytest
 import httpx
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 from datetime import date
 
 from app.providers.germany import (
     GermanyProvider,
     _GERMANY_DAMS,
+    _parse_ruhr_page,
+    _RUHR_URL,
 )
 from app.providers.base import (
     DataProvider,
@@ -20,6 +23,53 @@ from app.providers.base import (
     DateStatistics,
     PercentageSnapshot,
 )
+
+# ── Minimal Ruhr portal HTML fixture ─────────────────────────────────────────
+# Mirrors the actual structure of https://www.talsperrenleitzentrale-ruhr.de/online-daten/talsperren
+# Container: <div id="dam-coordinates">; dam cards use `title` attribute for name;
+# volume is in text node: "Stauinhalt: 162.01 Mio.m³"
+
+_RUHR_HTML_FIXTURE = """
+<html><body>
+<div id="dam-coordinates" class="hidden">
+    <div data-lon="7.887853" data-lat="51.111176"
+         title="Biggetalsperre" id="dam-popover-bigge">
+        Stauh&ouml;he: 306.07 m. &uuml;. NHN<br/>
+        <small>16.03.2026 um 06:00 Uhr</small><br/>
+        Stauinhalt: 162.01 Mio.m&#179;<br/>
+        <small>16.03.2026 um 06:00 Uhr</small><br/>
+    </div>
+    <div data-lon="7.409321" data-lat="51.241241"
+         title="Ennepetalsperre" id="dam-popover-ennepe">
+        Stauh&ouml;he: 305.7 m. &uuml;. NHN<br/>
+        <small>16.03.2026 um 06:15 Uhr</small><br/>
+        Stauinhalt: 10.92 Mio.m&#179;<br/>
+        <small>16.03.2026 um 06:15 Uhr</small><br/>
+    </div>
+    <div data-lon="8.059335" data-lat="51.489704"
+         title="M&#246;hnetalsperre" id="dam-popover-moehne">
+        Stauh&ouml;he: 211.01 m. &uuml;. NHN<br/>
+        <small>16.03.2026 um 06:15 Uhr</small><br/>
+        Stauinhalt: 109.93 Mio.m&#179;<br/>
+        <small>16.03.2026 um 06:00 Uhr</small><br/>
+    </div>
+    <div data-lon="7.968285" data-lat="51.350979"
+         title="Sorpetalsperre" id="dam-popover-sorpe">
+        Stauh&ouml;he: 280.26 m. &uuml;. NHN<br/>
+        <small>16.03.2026 um 06:15 Uhr</small><br/>
+        Stauinhalt: 61.785 Mio.m&#179;<br/>
+        <small>16.03.2026 um 06:15 Uhr</small><br/>
+    </div>
+    <div data-lon="7.685332" data-lat="51.193043"
+         title="Versetalsperre" id="dam-popover-verse">
+        Stauh&ouml;he: 384.56 m. &uuml;. NHN<br/>
+        <small>16.03.2026 um 06:00 Uhr</small><br/>
+        Stauinhalt: 24.231 Mio.m&#179;<br/>
+        <small>16.03.2026 um 06:00 Uhr</small><br/>
+    </div>
+</div>
+</body></html>
+"""
 
 
 @pytest.fixture
@@ -104,11 +154,17 @@ async def test_fetch_percentages_returns_snapshot(germany_provider: GermanyProvi
 
 
 @pytest.mark.asyncio
-async def test_fetch_percentages_all_zero(germany_provider: GermanyProvider) -> None:
-    """Stub returns 0.0 for all percentages (parsing TBD)."""
+async def test_fetch_percentages_non_ruhr_dams_are_zero(germany_provider: GermanyProvider) -> None:
+    """Non-Ruhr dams (Saxony, Harz etc.) remain 0.0 — no parser implemented yet."""
     result = await germany_provider.fetch_percentages(date(2026, 3, 16))
+    non_ruhr = {"Bleiloch", "Edersee", "Hohenwarte", "Rappbode",
+                "Grosse-Dhuenn", "Eibenstock", "Poehl", "Kriebstein",
+                "Leibis-Lichte", "Agger", "Oker"}
     for dp in result.dam_percentages:
-        assert dp.percentage == 0.0, f"{dp.dam_name_en} has non-zero percentage in stub"
+        if dp.dam_name_en in non_ruhr:
+            assert dp.percentage == 0.0, (
+                f"{dp.dam_name_en} should be 0.0 (no parser)"
+            )
 
 
 @pytest.mark.asyncio
@@ -131,6 +187,144 @@ async def test_fetch_percentages_graceful_on_network_error() -> None:
 
     assert isinstance(result, PercentageSnapshot)
     assert len(result.dam_percentages) == 15
+    assert all(dp.percentage == 0.0 for dp in result.dam_percentages)
+
+
+# ── _parse_ruhr_page unit tests ───────────────────────────────────────────────
+
+def test_parse_ruhr_page_returns_dict() -> None:
+    """_parse_ruhr_page must return a dict mapping name_en → percentage (0-1)."""
+    result = _parse_ruhr_page(_RUHR_HTML_FIXTURE)
+    assert isinstance(result, dict)
+
+
+def test_parse_ruhr_page_extracts_bigge_volume() -> None:
+    """Biggetalsperre: 162.01 MCM / 171.7 MCM capacity ≈ 0.9436."""
+    result = _parse_ruhr_page(_RUHR_HTML_FIXTURE)
+    assert "Bigge" in result
+    expected = 162.01 / 171.7
+    assert abs(result["Bigge"] - expected) < 1e-4, (
+        f"Bigge percentage {result['Bigge']:.4f} != expected {expected:.4f}"
+    )
+
+
+def test_parse_ruhr_page_extracts_mohne_volume() -> None:
+    """Möhnetalsperre: 109.93 MCM / 134.5 MCM ≈ 0.8175."""
+    result = _parse_ruhr_page(_RUHR_HTML_FIXTURE)
+    assert "Mohne" in result
+    expected = 109.93 / 134.5
+    assert abs(result["Mohne"] - expected) < 1e-4
+
+
+def test_parse_ruhr_page_extracts_sorpe_volume() -> None:
+    """Sorpetalsperre: 61.785 MCM / 70.4 MCM ≈ 0.8777."""
+    result = _parse_ruhr_page(_RUHR_HTML_FIXTURE)
+    assert "Sorpe" in result
+    expected = 61.785 / 70.4
+    assert abs(result["Sorpe"] - expected) < 1e-4
+
+
+def test_parse_ruhr_page_extracts_verse_volume() -> None:
+    """Versetalsperre: 24.231 MCM / 32.8 MCM ≈ 0.7387."""
+    result = _parse_ruhr_page(_RUHR_HTML_FIXTURE)
+    assert "Verse" in result
+    expected = 24.231 / 32.8
+    assert abs(result["Verse"] - expected) < 1e-4
+
+
+def test_parse_ruhr_page_ignores_unknown_dam_names() -> None:
+    """Ennepetalsperre is not in _GERMANY_DAMS — must not appear in result."""
+    result = _parse_ruhr_page(_RUHR_HTML_FIXTURE)
+    assert "Ennepe" not in result
+
+
+def test_parse_ruhr_page_clamps_percentage_to_one() -> None:
+    """Percentage must not exceed 1.0 even if live volume exceeds capacity (sensor error)."""
+    html = """
+    <div id="dam-coordinates">
+      <div title="Biggetalsperre" id="dam-popover-bigge">
+        Stauinhalt: 999.99 Mio.m³<br/>
+      </div>
+    </div>
+    """
+    result = _parse_ruhr_page(html)
+    assert result.get("Bigge", 1.0) <= 1.0
+
+
+def test_parse_ruhr_page_returns_empty_on_malformed_html() -> None:
+    """Malformed / empty HTML must return empty dict, not raise."""
+    result = _parse_ruhr_page("<html><body>no dam data here</body></html>")
+    assert result == {}
+
+
+def test_parse_ruhr_page_handles_missing_volume_gracefully() -> None:
+    """A card without a Stauinhalt line must be skipped, not crash."""
+    html = """
+    <div id="dam-coordinates">
+      <div title="Biggetalsperre" id="dam-popover-bigge">
+        Stauh&ouml;he: 306.07 m. &uuml;. NHN<br/>
+      </div>
+    </div>
+    """
+    result = _parse_ruhr_page(html)
+    # Bigge card has no volume — should be absent from result, not raise
+    assert "Bigge" not in result
+
+
+# ── fetch_percentages with mocked HTTP ───────────────────────────────────────
+
+@pytest.mark.asyncio
+async def test_fetch_percentages_returns_nonzero_for_ruhr_dams() -> None:
+    """With a valid Ruhr HTML response, Bigge/Mohne/Sorpe/Verse must be > 0."""
+    mock_response = MagicMock()
+    mock_response.text = _RUHR_HTML_FIXTURE
+    mock_response.raise_for_status = MagicMock()
+
+    client = AsyncMock(spec=httpx.AsyncClient)
+    client.get = AsyncMock(return_value=mock_response)
+    client.is_closed = False
+
+    provider = GermanyProvider(client=client)
+    result = await provider.fetch_percentages(date(2026, 3, 16))
+
+    ruhr_dams = {"Bigge", "Mohne", "Sorpe", "Verse"}
+    found = {dp.dam_name_en: dp.percentage for dp in result.dam_percentages}
+    for name in ruhr_dams:
+        assert found[name] > 0.0, f"{name} should have non-zero percentage from Ruhr parse"
+
+
+@pytest.mark.asyncio
+async def test_fetch_percentages_ruhr_dams_capped_at_one() -> None:
+    """Ruhr dam percentages must never exceed 1.0."""
+    mock_response = MagicMock()
+    mock_response.text = _RUHR_HTML_FIXTURE
+    mock_response.raise_for_status = MagicMock()
+
+    client = AsyncMock(spec=httpx.AsyncClient)
+    client.get = AsyncMock(return_value=mock_response)
+    client.is_closed = False
+
+    provider = GermanyProvider(client=client)
+    result = await provider.fetch_percentages(date(2026, 3, 16))
+    for dp in result.dam_percentages:
+        assert dp.percentage <= 1.0, f"{dp.dam_name_en} percentage {dp.percentage} > 1.0"
+
+
+@pytest.mark.asyncio
+async def test_fetch_percentages_graceful_on_http_error() -> None:
+    """HTTP error (4xx/5xx) must not raise — fall back to zero-fill."""
+    mock_response = MagicMock()
+    mock_response.raise_for_status = MagicMock(side_effect=httpx.HTTPStatusError(
+        "503", request=MagicMock(), response=MagicMock()
+    ))
+
+    client = AsyncMock(spec=httpx.AsyncClient)
+    client.get = AsyncMock(return_value=mock_response)
+    client.is_closed = False
+
+    provider = GermanyProvider(client=client)
+    result = await provider.fetch_percentages(date(2026, 3, 16))
+    assert isinstance(result, PercentageSnapshot)
     assert all(dp.percentage == 0.0 for dp in result.dam_percentages)
 
 

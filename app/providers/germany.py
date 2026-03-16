@@ -1,24 +1,23 @@
 """
-Germany data provider — MVP stub.
+Germany data provider.
 
-Upstream sources (parsing deferred to future sprint):
-  - Talsperrenleitzentrale Ruhr: https://www.talsperrenleitzentrale-ruhr.de
-    9 dams in the Ruhr catchment, published via HTML pages.
-  - Sachsen LTV: https://www.ltv.sachsen.de
-    48 dams in Saxony, published via HTML pages.
+Upstream sources:
+  - Talsperrenleitzentrale Ruhr: https://www.talsperrenleitzentrale-ruhr.de/online-daten/talsperren
+    9 dams in the Ruhr catchment. Live HTML updated ~15-min to hourly.
+    Parsed via BeautifulSoup: `<div id="dam-coordinates">` contains one `<div
+    title="<DamName>" id="dam-popover-<id>">` per dam; volume is in the text
+    node as "Stauinhalt: 162.01 Mio.m³".
+  - Sachsen LTV: https://www.ltv.sachsen.de — deferred (parser not yet implemented).
   - Others: Thuringia (TLUG), Harz (Harzwasserwerke), Wupperverband — deferred.
-
-This stub loads the Talsperrenleitzentrale Ruhr landing page to verify network
-connectivity and logs the response size. All fill percentages default to 0.0
-until the HTML parser is implemented. The scheduler retries at the next sync
-interval, so 0.0 is safe and expected here.
 """
 from __future__ import annotations
 
 import logging
+import re
 from datetime import date
 
 import httpx
+from bs4 import BeautifulSoup
 
 from app.providers.base import (
     DamInfo,
@@ -163,20 +162,92 @@ _GERMANY_DAMS: list[DamInfo] = [
 
 _TOTAL_CAPACITY_MCM: float = sum(d.capacity_mcm for d in _GERMANY_DAMS)
 
-# Talsperrenleitzentrale Ruhr landing page path — fetched to verify connectivity.
-# Full parsing of water level data is deferred to a future sprint.
-_RUHR_PROBE_PATH = "/"
+# Path on the Ruhr portal that contains all 9 dam cards in a single HTML page.
+_RUHR_URL = "/online-daten/talsperren"
+
+# Maps portal `title` attribute values → our name_en keys.
+# Only covers Ruhr dams that are present in _GERMANY_DAMS.
+# Ennepe, Furwigge, Henne, Lister, Ahausen are Ruhr dams not in our top-15 list.
+_RUHR_NAME_MAP: dict[str, str] = {
+    "Biggetalsperre": "Bigge",
+    "Möhnetalsperre": "Mohne",
+    "Sorpetalsperre": "Sorpe",
+    "Versetalsperre": "Verse",
+}
+
+# Build a lookup of name_en → capacity_mcm for fast percentage computation.
+_CAPACITY_BY_NAME: dict[str, float] = {d.name_en: d.capacity_mcm for d in _GERMANY_DAMS}
+
+# Matches the Stauinhalt line, e.g. "Stauinhalt: 162.01 Mio.m³"
+# Volume uses dot as decimal separator (standard, not German comma).
+_VOLUME_RE = re.compile(r"Stauinhalt\s*:\s*([\d.]+)\s*Mio", re.IGNORECASE)
 
 
-def _zero_fill_snapshot(target_date: date) -> PercentageSnapshot:
-    """Return an all-zeros snapshot for all 15 dams. Used until parsing is implemented."""
+def _parse_ruhr_page(html: str) -> dict[str, float]:
+    """Parse the Ruhr portal HTML and return {name_en: fill_percentage (0-1)}.
+
+    Structure: <div id="dam-coordinates"> contains one <div title="DamName"
+    id="dam-popover-*"> per dam. The dam's current storage volume appears in
+    the text node as "Stauinhalt: 162.01 Mio.m³". Percentage is computed as
+    volume / capacity_mcm, clamped to [0, 1].
+
+    Unknown dam names (not in _RUHR_NAME_MAP) are silently skipped.
+    Cards without a parseable volume are logged as warnings and skipped.
+    """
+    soup = BeautifulSoup(html, "html.parser")
+    container = soup.find(id="dam-coordinates")
+    if container is None:
+        return {}
+
+    result: dict[str, float] = {}
+    for card in container.find_all("div", id=re.compile(r"^dam-popover-")):
+        portal_name: str = card.get("title", "").strip()
+        name_en = _RUHR_NAME_MAP.get(portal_name)
+        if name_en is None:
+            # Ruhr dam not in our top-15 list — expected for Ennepe etc.
+            continue
+
+        card_text = card.get_text(separator=" ")
+        match = _VOLUME_RE.search(card_text)
+        if match is None:
+            logger.warning(
+                "Ruhr portal: no Stauinhalt found in card for %s", portal_name
+            )
+            continue
+
+        try:
+            volume_mcm = float(match.group(1))
+        except ValueError:
+            logger.warning(
+                "Ruhr portal: could not parse volume '%s' for %s",
+                match.group(1), portal_name,
+            )
+            continue
+
+        capacity = _CAPACITY_BY_NAME[name_en]
+        percentage = min(volume_mcm / capacity, 1.0)
+        result[name_en] = percentage
+
+    return result
+
+
+def _build_snapshot(target_date: date, parsed: dict[str, float]) -> PercentageSnapshot:
+    """Merge parsed Ruhr percentages with zero-fill defaults for non-Ruhr dams."""
+    dam_percentages = [
+        DamPercentage(
+            dam_name_en=d.name_en,
+            percentage=parsed.get(d.name_en, 0.0),
+        )
+        for d in _GERMANY_DAMS
+    ]
+    total_volume = sum(
+        parsed.get(d.name_en, 0.0) * d.capacity_mcm for d in _GERMANY_DAMS
+    )
+    total_percentage = total_volume / _TOTAL_CAPACITY_MCM if _TOTAL_CAPACITY_MCM else 0.0
     return PercentageSnapshot(
         date=target_date,
-        dam_percentages=[
-            DamPercentage(dam_name_en=d.name_en, percentage=0.0)
-            for d in _GERMANY_DAMS
-        ],
-        total_percentage=0.0,
+        dam_percentages=dam_percentages,
+        total_percentage=total_percentage,
         total_capacity_mcm=_TOTAL_CAPACITY_MCM,
     )
 
@@ -193,13 +264,12 @@ def _zero_fill_date_statistics(target_date: date) -> DateStatistics:
 
 
 class GermanyProvider:
-    """DataProvider stub for German reservoir data.
+    """DataProvider for German reservoir data.
 
-    Probes the Talsperrenleitzentrale Ruhr website to verify upstream
-    connectivity and logs the response size. All fill percentages are returned
-    as 0.0 until the HTML parser is implemented in a future sprint.
-    On any connectivity error, the stub falls back to zero-fill defaults
-    without raising — the scheduler retries at the next sync interval.
+    Live fill percentages are fetched from the Talsperrenleitzentrale Ruhr
+    portal (Bigge, Mohne, Sorpe, Verse). Non-Ruhr dams remain 0.0 until their
+    parsers are added. All errors fall back gracefully to zero-fill so the
+    scheduler always produces a valid snapshot.
     """
 
     def __init__(self, client: httpx.AsyncClient) -> None:
@@ -208,22 +278,25 @@ class GermanyProvider:
     async def fetch_dams(self) -> list[DamInfo]:
         return list(_GERMANY_DAMS)
 
-    async def _probe_upstream(self) -> None:
-        """Fetch the Ruhr dam index page and log its size for monitoring."""
-        try:
-            response = await self._client.get(_RUHR_PROBE_PATH)
-            logger.info(
-                "Talsperrenleitzentrale Ruhr probe: HTTP %d, %d bytes",
-                response.status_code,
-                len(response.content),
-            )
-        except httpx.RequestError as exc:
-            logger.warning("Talsperrenleitzentrale Ruhr probe failed: %s", exc)
-
     async def fetch_percentages(self, target_date: date) -> PercentageSnapshot:
-        # Probe upstream to log connectivity; actual parsing deferred to future sprint.
-        await self._probe_upstream()
-        return _zero_fill_snapshot(target_date)
+        """Fetch and parse the Ruhr portal page; return percentages for all 15 dams.
+
+        Ruhr dams covered: Bigge, Mohne, Sorpe, Verse.
+        Non-Ruhr dams (Saxony, Harz etc.) remain 0.0 until their parsers are added.
+        Any network or parse error causes a graceful fallback to all-zeros.
+        """
+        try:
+            response = await self._client.get(_RUHR_URL)
+            response.raise_for_status()
+            parsed = _parse_ruhr_page(response.text)
+        except (httpx.RequestError, httpx.HTTPStatusError) as exc:
+            logger.warning("Talsperrenleitzentrale Ruhr fetch failed: %s", exc)
+            parsed = {}
+        except Exception as exc:  # noqa: BLE001 — broad catch is intentional; parse errors must not crash sync
+            logger.error("Unexpected error parsing Ruhr page: %s", exc)
+            parsed = {}
+
+        return _build_snapshot(target_date, parsed)
 
     async def fetch_date_statistics(self, target_date: date) -> DateStatistics:
         return _zero_fill_date_statistics(target_date)
