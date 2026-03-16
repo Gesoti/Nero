@@ -139,6 +139,13 @@ async def test_no_sitemap_includes_no_routes(no_client: httpx.AsyncClient) -> No
     assert "/no/" in resp.text
 
 
+async def test_no_sitemap_includes_no1_east_dam(no_client: httpx.AsyncClient) -> None:
+    """Sitemap must include /no/dam/NO1-East from static provider metadata."""
+    resp = await no_client.get("/sitemap.xml")
+    assert resp.status_code == 200
+    assert "/no/dam/NO1-East" in resp.text
+
+
 # ── Footer attribution ────────────────────────────────────────────────────────
 
 async def test_no_footer_has_nve_attribution(no_client: httpx.AsyncClient) -> None:

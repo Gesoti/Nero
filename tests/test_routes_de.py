@@ -139,6 +139,13 @@ async def test_de_sitemap_includes_de_routes(de_client: httpx.AsyncClient) -> No
     assert "/de/" in resp.text
 
 
+async def test_de_sitemap_includes_bleiloch_dam(de_client: httpx.AsyncClient) -> None:
+    """Sitemap must include /de/dam/Bleiloch from static provider metadata."""
+    resp = await de_client.get("/sitemap.xml")
+    assert resp.status_code == 200
+    assert "/de/dam/Bleiloch" in resp.text
+
+
 # ── Footer attribution ────────────────────────────────────────────────────────
 
 async def test_de_footer_has_ruhr_attribution(de_client: httpx.AsyncClient) -> None:

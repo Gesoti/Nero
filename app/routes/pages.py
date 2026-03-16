@@ -597,6 +597,36 @@ async def sitemap_xml():
                 xml_parts.append(
                     url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
                 )
+        elif country == "no":
+            from app.providers.norway import _NORWAY_DAMS as _no_dams
+            for dam_info in _no_dams:
+                xml_parts.append(
+                    url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
+                )
+        elif country == "ch":
+            from app.providers.switzerland import _SWITZERLAND_DAMS as _ch_dams
+            for dam_info in _ch_dams:
+                xml_parts.append(
+                    url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
+                )
+        elif country == "bg":
+            from app.providers.bulgaria import _BULGARIA_DAMS as _bg_dams
+            for dam_info in _bg_dams:
+                xml_parts.append(
+                    url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
+                )
+        elif country == "de":
+            from app.providers.germany import _GERMANY_DAMS as _de_dams
+            for dam_info in _de_dams:
+                xml_parts.append(
+                    url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
+                )
+        elif country == "pl":
+            from app.providers.poland import _POLAND_DAMS as _pl_dams
+            for dam_info in _pl_dams:
+                xml_parts.append(
+                    url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
+                )
         else:
             country_db = COUNTRY_DB_PATHS.get(country, "")
             if country_db:

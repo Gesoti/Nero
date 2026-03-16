@@ -148,3 +148,10 @@ async def test_cy_routes_still_work_with_ch_enabled(ch_client: httpx.AsyncClient
 async def test_ch_sitemap_includes_ch_routes(ch_client: httpx.AsyncClient) -> None:
     resp = await ch_client.get("/sitemap.xml")
     assert "/ch/" in resp.text
+
+
+async def test_ch_sitemap_includes_wallis_dam(ch_client: httpx.AsyncClient) -> None:
+    """Sitemap must include /ch/dam/Wallis from static provider metadata."""
+    resp = await ch_client.get("/sitemap.xml")
+    assert resp.status_code == 200
+    assert "/ch/dam/Wallis" in resp.text

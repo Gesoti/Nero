@@ -136,6 +136,13 @@ async def test_bg_sitemap_includes_bg_routes(bg_client: httpx.AsyncClient) -> No
     assert "/bg/" in resp.text
 
 
+async def test_bg_sitemap_includes_iskar_dam(bg_client: httpx.AsyncClient) -> None:
+    """Sitemap must include /bg/dam/Iskar from static provider metadata."""
+    resp = await bg_client.get("/sitemap.xml")
+    assert resp.status_code == 200
+    assert "/bg/dam/Iskar" in resp.text
+
+
 # ── Country nav includes Bulgaria ─────────────────────────────────────────────
 
 async def test_bg_nav_includes_bulgaria(bg_client: httpx.AsyncClient) -> None:

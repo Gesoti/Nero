@@ -139,6 +139,13 @@ async def test_pl_sitemap_includes_pl_routes(pl_client: httpx.AsyncClient) -> No
     assert "/pl/" in resp.text
 
 
+async def test_pl_sitemap_includes_solina_dam(pl_client: httpx.AsyncClient) -> None:
+    """Sitemap must include /pl/dam/Solina from static provider metadata."""
+    resp = await pl_client.get("/sitemap.xml")
+    assert resp.status_code == 200
+    assert "/pl/dam/Solina" in resp.text
+
+
 # ── Footer attribution ────────────────────────────────────────────────────────
 
 async def test_pl_footer_has_imgw_attribution(pl_client: httpx.AsyncClient) -> None:
