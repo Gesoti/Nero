@@ -117,7 +117,7 @@ def _build_provider_registry() -> dict[str, tuple[DataProvider, str]]:
             registry[cc] = (ItalyProvider(client=client), db_path)
         elif cc == "fi":
             client = httpx.AsyncClient(
-                base_url="http://rajapinnat.ymparisto.fi",
+                base_url="https://rajapinnat.ymparisto.fi",
                 headers={"User-Agent": "NeroWaterDashboard/1.0"},
                 timeout=_timeout,
             )

@@ -1,6 +1,6 @@
 {% extends layout_template %}
 
-{% block title %}Nero — Cyprus Dam Levels{% endblock %}
+{% block title %}Nero — {{ country_label }} Dam Levels{% endblock %}
 
 {% block jsonld %}
 <script type="application/ld+json" nonce="{{ request.state.csp_nonce }}">
@@ -10,23 +10,18 @@
     "@type": "WebSite",
     "name": "Nero",
     "url": "https://nero.cy",
-    "description": "Live dashboard tracking water levels across all 17 major dams in Cyprus."
+    "description": "Live dashboard tracking water reservoir levels across 13 European countries."
   },
   {
     "@context": "https://schema.org",
     "@type": "Dataset",
-    "name": "Cyprus Dam Water Levels",
-    "description": "Daily water storage levels for all 17 major dams in Cyprus, updated every 6 hours.",
-    "url": "https://nero.cy",
-    "license": "https://creativecommons.org/licenses/by/2.0/",
-    "creator": {
-      "@type": "Organization",
-      "name": "Water Development Department, Cyprus"
-    },
+    "name": {{ (country_label + " Water Reservoir Levels") | tojson }},
+    "description": {{ ("Water storage levels for major reservoirs in " + country_label + ", updated regularly.") | tojson }},
+    "url": "https://nero.cy{{ country_prefix }}/",
     "temporalCoverage": "2009/..",
     "spatialCoverage": {
       "@type": "Place",
-      "name": "Cyprus"
+      "name": {{ country_label | tojson }}
     }
   }
 ]

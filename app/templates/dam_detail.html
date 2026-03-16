@@ -10,8 +10,8 @@
 {
   "@context": "https://schema.org",
   "@type": "Place",
-  "name": "{{ dam.name_en }} Dam",
-  "description": "{{ meta_description }}",
+  "name": {{ (dam.name_en + " Dam") | tojson }},
+  "description": {{ meta_description | tojson }},
   "geo": {
     "@type": "GeoCoordinates",
     "latitude": {{ dam.lat }},
@@ -19,14 +19,14 @@
   },
   "containedInPlace": {
     "@type": "Country",
-    "name": "Cyprus"
+    "name": {{ country_label | tojson }}
   }
 }
 </script>
 {% endblock %}
 
 {% block nav_right %}
-<a href="/" class="text-sm text-slate-500 hover:text-slate-700 transition-colors">{{ _("← All Dams") }}</a>
+<a href="{{ country_prefix }}/" class="text-sm text-slate-500 hover:text-slate-700 transition-colors">{{ _("← All Dams") }}</a>
 {% endblock %}
 
 {% block content %}
@@ -59,7 +59,7 @@
 
     <!-- Breadcrumb -->
     <nav class="mb-6 text-sm text-slate-500">
-        <a href="/" class="hover:text-slate-700 transition-colors">{{ _("← All Dams") }}</a>
+        <a href="{{ country_prefix }}/" class="hover:text-slate-700 transition-colors">{{ _("← All Dams") }}</a>
         <span class="mx-2">/</span>
         <span class="text-slate-800 font-medium">{{ dam.name_en }}</span>
     </nav>
