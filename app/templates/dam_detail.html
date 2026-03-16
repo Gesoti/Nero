@@ -122,7 +122,7 @@
                     </div>
                 </div>
                 <div style="height: 350px; position: relative;">
-                    <canvas id="damChart"></canvas>
+                    <canvas id="damChart" role="img" aria-label="{{ _('Historical capacity trend chart for') }} {{ dam.name_en }}"></canvas>
                 </div>
             </div>
         </div>
@@ -263,6 +263,18 @@
        data-ad-format="auto"
        data-full-width-responsive="true"></ins>
 </div>
+{% endblock %}
+
+{% block chart_scripts %}
+<script nonce="{{ request.state.csp_nonce }}"
+        src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"
+        integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ"
+        crossorigin="anonymous" defer></script>
+<script nonce="{{ request.state.csp_nonce }}"
+        src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"
+        integrity="sha384-cVMg8E3QFwTvGCDuK+ET4PD341jF3W8nO1auiXfuZNQkzbUUiBGLsIQUE+b1mxws"
+        crossorigin="anonymous" defer></script>
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/charts.js?v=3" defer></script>
 {% endblock %}
 
 {% block scripts %}

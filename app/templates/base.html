@@ -43,15 +43,7 @@
           href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css"
           integrity="sha384-aQuvIWWIbpu/mSqULLDiUveyYiPoJzPKAWjUmGJ+Elm+N/LJhzfZqsutsfw870JS"
           crossorigin="anonymous" />
-    <script nonce="{{ request.state.csp_nonce }}"
-            src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"
-            integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ"
-            crossorigin="anonymous" defer></script>
-    <script nonce="{{ request.state.csp_nonce }}"
-            src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"
-            integrity="sha384-cVMg8E3QFwTvGCDuK+ET4PD341jF3W8nO1auiXfuZNQkzbUUiBGLsIQUE+b1mxws"
-            crossorigin="anonymous" defer></script>
-    <script nonce="{{ request.state.csp_nonce }}" src="/static/js/charts.js?v=3" defer></script>
+    {% block chart_scripts %}{% endblock %}
 
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -159,6 +151,13 @@
       document.addEventListener('click', function () {
         dropdown.classList.add('hidden');
         toggle.setAttribute('aria-expanded', 'false');
+      });
+      // Close dropdown when user presses Escape (keyboard accessibility)
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          dropdown.classList.add('hidden');
+          toggle.setAttribute('aria-expanded', 'false');
+        }
       });
     });
   }
