@@ -70,11 +70,13 @@ def test_sync_does_not_import_api_client() -> None:
 
 
 def test_enabled_countries_config_default() -> None:
-    """Settings must have an enabled_countries field defaulting to 'cy'."""
+    """Settings must have an enabled_countries field that includes all 13 countries."""
     from app.config import Settings
 
     s = Settings()
-    assert s.get_enabled_countries() == ["cy"]
+    countries = s.get_enabled_countries()
+    assert "cy" in countries
+    assert len(countries) == 13
 
 
 def test_enabled_countries_config_parse_csv() -> None:

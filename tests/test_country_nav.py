@@ -64,11 +64,11 @@ class TestCountryNavigation:
         assert resp.status_code == 200
         assert 'data-active="gr"' in resp.text
 
-    async def test_single_country_no_nav(self, seeded_async_client):
-        """When only one country is enabled, no country nav should appear."""
+    async def test_multi_country_shows_nav(self, seeded_async_client):
+        """When multiple countries are enabled, country nav should appear."""
         resp = await seeded_async_client.get("/")
         assert resp.status_code == 200
-        assert 'id="country-nav"' not in resp.text
+        assert 'id="country-nav"' in resp.text
 
     async def test_country_labels_in_template(self, gr_enabled_seeded_client):
         """Template context must include country labels for nav rendering."""

@@ -7,7 +7,10 @@
       integrity="sha384-b8ANgTJvdlAnWM5YGMpKn7Kodm+1k7NYNG9zdjTCcZcKatzYHwZ0RLdWarbJJVzU"
       crossorigin="anonymous" />
 <style>
-    #map { height: calc(100vh - 3.5rem - 4rem); min-height: 400px; }
+    #map { height: calc(100vh - 3.5rem - 4rem); min-height: 400px; z-index: 0; }
+    /* Ensure navbar dropdowns appear above the Leaflet map layers (z-index 400+) */
+    .leaflet-pane { z-index: 1 !important; }
+    .leaflet-control { z-index: 2 !important; }
 </style>
 {% endblock %}
 

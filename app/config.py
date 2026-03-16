@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     base_url: str = "https://nero.cy"
     country: str = "cy"
     locale: str = "en"
-    enabled_countries: str = "cy"
+    enabled_countries: str = "cy,gr,es,pt,cz,at,it,fi,no,ch,bg,de,pl"
 
     model_config = {"env_prefix": "WL_", "env_file": ".env"}
 

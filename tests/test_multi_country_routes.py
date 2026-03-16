@@ -77,11 +77,11 @@ async def test_cy_health_returns_200(async_client: httpx.AsyncClient) -> None:
 
 
 async def test_cy_dashboard_uses_cy_layout(seeded_async_client: httpx.AsyncClient) -> None:
-    """Cyprus dashboard must use cy/layout.html (lang=en, no el_GR)."""
+    """Cyprus dashboard must use cy/layout.html (lang=en on <html>)."""
     resp = await seeded_async_client.get("/")
     assert resp.status_code == 200
-    # Default lang is "en" from cy/layout.html (which inherits base.html default)
-    assert 'lang="el"' not in resp.text
+    # The <html> tag must have lang="en" for Cyprus, not "el"
+    assert '<html lang="en"' in resp.text
 
 
 # ── GR routes resolve correctly ───────────────────────────────────────────────
