@@ -9,12 +9,10 @@ Data source status (researched 2026-03-15):
 - VERBUND: Operates most dams but keeps fill data private (electricity trading).
 - PegelAlarm: River water levels only, not reservoir storage.
 - data.gv.at: Metadata only (locations, water rights), no fill levels.
-- ENTSO-E Transparency Platform: ONLY viable source. Provides aggregate weekly
-  Austrian hydro storage in MWh (Article 16.1.D). Requires free API token
-  (register at transparency.entsoe.eu, ~3 business days). Country-level aggregate
-  only — all dams would show the same fill percentage.
+- ENTSO-E: Electricity market data (MWh), not water — poor fit for a water dashboard.
 
-Current fallback: Returns 0.0 percentages until ENTSO-E token is configured.
+No viable per-dam data source exists for Austria. Returns 0.0 for all dams.
+Monitor data.gv.at for future Open Government Data releases.
 """
 from __future__ import annotations
 
