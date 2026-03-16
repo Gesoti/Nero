@@ -42,7 +42,7 @@ LANGUAGE_FLAGS: dict[str, str] = {
     "es": "es",
     "pt": "pt",
     "cs": "cz",
-    "de": "at",
+    "de": "de",
     "it": "it",
     "fi": "fi",
     "nb": "no",

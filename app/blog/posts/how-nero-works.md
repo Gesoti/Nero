@@ -58,6 +58,6 @@ Nero exists because the Water Development Department chose to publish its data o
 
 Open data is the foundation of civic technology. When governments publish data in machine-readable formats under permissive licences, developers and journalists can build tools that make that data genuinely useful to the public. Nero is one example; there should be more.
 
-If you are interested in the technical details, the Nero codebase follows test-driven development with over 130 automated tests. You can explore the dashboard at [nero.cy](/) or visit individual dam pages like [Kouris](/dam/Kouris) and [Asprokremmos](/dam/Asprokremmos) to see the data in action.
+If you are interested in the technical details, the Nero codebase follows test-driven development with over 850 automated tests across 13 European countries. You can explore the dashboard at [nero.cy](/) or visit individual dam pages like [Kouris](/dam/Kouris) and [Asprokremmos](/dam/Asprokremmos) to see the data in action.
 
 *Data sourced from the Water Development Department of Cyprus. Updated every 6 hours.*
