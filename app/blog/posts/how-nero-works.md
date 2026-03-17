@@ -1,8 +1,8 @@
 ---
-title: "How Nero Works: Building a Real-Time Water Dashboard"
+title: "How Nero Works: Building a Water Monitoring Dashboard"
 slug: "how-nero-works"
 date: "2026-03-05"
-description: "A behind-the-scenes look at how Nero collects, stores, and displays live dam level data for Cyprus. From API ingestion to interactive charts."
+description: "A behind-the-scenes look at how Nero collects, stores, and displays dam level data for Cyprus. From API ingestion to interactive charts."
 author: "Nero Team"
 ---
 

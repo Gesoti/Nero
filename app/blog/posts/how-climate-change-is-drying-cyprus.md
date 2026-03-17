@@ -49,7 +49,7 @@ Other adaptation measures include:
 
 ## What the dam data shows
 
-The real-time data on the [Nero dashboard](/) provides a window into these long-term trends. Use the year-on-year comparison feature to overlay recent years against earlier periods and see the shift for yourself. The [system capacity chart](/) on the dashboard shows the combined fill level across all 17 dams over time — the downward trend in peak winter levels is visible to the naked eye.
+The latest data on the [Nero dashboard](/) provides a window into these long-term trends. Use the year-on-year comparison feature to overlay recent years against earlier periods and see the shift for yourself. The [system capacity chart](/) on the dashboard shows the combined fill level across all 17 dams over time — the downward trend in peak winter levels is visible to the naked eye.
 
 Individual dam pages — such as [Kouris](/dam/Kouris), the island's largest reservoir — show how specific catchments are responding to the changing climate. Western catchments like [Evretou](/dam/Evretou) and [Kannaviou](/dam/Kannaviou) tend to fare better than eastern ones like [Dipotamos](/dam/Dipotamos) and [Lefkara](/dam/Lefkara), but the overall direction is the same everywhere.
 

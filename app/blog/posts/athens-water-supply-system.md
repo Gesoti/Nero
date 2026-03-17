@@ -45,7 +45,7 @@ The Hellenic Water and Sewerage Company (EYDAP) operates this entire system. EYD
 - Operating desalination plants that supplement the system
 - Maintaining the aging aqueduct infrastructure
 
-EYDAP publishes daily data on reservoir levels, which is publicly available online. This transparency allows researchers, journalists, and concerned citizens to track the city's water reserves in real time.
+EYDAP publishes daily data on reservoir levels, which is publicly available online. This transparency allows researchers, journalists, and concerned citizens to track the city's water reserves over time.
 
 ## System Capacity and Normal Demand
 

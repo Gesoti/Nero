@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Nero{% endblock %}</title>
 
-    {% set default_description = "Live dashboard tracking water levels across all 17 major dams in Cyprus. Real-time capacity data, historical trends, and year-on-year comparisons." %}
+    {% set default_description = "Dashboard tracking water levels across all 17 major dams in Cyprus. Latest capacity data, historical trends, and year-on-year comparisons. Updated every six hours." %}
     <meta name="description" content="{% block meta_description %}{{ default_description }}{% endblock %}" />
     <meta name="robots" content="{% block robots_content %}max-image-preview:large{% endblock %}" />
     <link rel="canonical" href="{{ canonical_url }}" />
@@ -300,7 +300,7 @@
         <span class="mx-2 text-slate-300">·</span>
         <a href="{{ country_prefix }}/privacy" class="hover:text-slate-600 underline underline-offset-2">{{ _("Privacy Policy") }}</a>
         {% block footer_extra %}{% endblock %}
-        <p class="mt-2 text-xs text-slate-300">Data is provided for informational purposes only. Nero does not guarantee the accuracy or timeliness of data from third-party sources.</p>
+        <p class="mt-2 text-xs text-slate-400">Data is provided for informational purposes only. Nero does not guarantee the accuracy or timeliness of data from third-party sources. Update frequency varies by country. See <a href="{{ country_prefix }}/about#faq" class="underline underline-offset-2 hover:text-slate-600">About</a> for details.</p>
     </div>
 </footer>
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-14 22:16+0200\n"
+"POT-Creation-Date: 2026-03-17 13:04+0200\n"
 "PO-Revision-Date: 2026-03-14 22:16+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -26,15 +26,155 @@ msgstr "Página No Encontrada"
 msgid "The page you're looking for doesn't exist, or the dam name is incorrect."
 msgstr "La página que buscas no existe o el nombre de la presa es incorrecto."
 
-#: app/templates/404.html:15 app/templates/blog_index.html:52
+#: app/templates/404.html:15 app/templates/about.html:238
+#: app/templates/blog_index.html:52 app/templates/privacy.html:282
 msgid "← Back to Dashboard"
 msgstr "← Volver al Panel"
 
-#: app/templates/base.html:68
+#: app/templates/about.html:8
+#, fuzzy
+msgid "About Nero"
+msgstr "Acerca de"
+
+#: app/templates/about.html:9
+msgid "An open-source dashboard monitoring water reservoir levels across Europe."
+msgstr ""
+
+#: app/templates/about.html:14
+msgid "Our Mission"
+msgstr ""
+
+#: app/templates/about.html:33
+msgid "Countries We Monitor"
+msgstr ""
+
+#: app/templates/about.html:36
+msgid "Cyprus"
+msgstr ""
+
+#: app/templates/about.html:45
+msgid "Greece"
+msgstr ""
+
+#: app/templates/about.html:52
+msgid "Spain"
+msgstr ""
+
+#: app/templates/about.html:60
+msgid "Portugal"
+msgstr ""
+
+#: app/templates/about.html:68
+msgid "Czech Republic"
+msgstr ""
+
+#: app/templates/about.html:76
+msgid "Austria"
+msgstr ""
+
+#: app/templates/about.html:83
+msgid "Italy (Sicily)"
+msgstr ""
+
+#: app/templates/about.html:91
+msgid "Finland"
+msgstr ""
+
+#: app/templates/about.html:99
+msgid "Norway"
+msgstr ""
+
+#: app/templates/about.html:107
+msgid "Switzerland"
+msgstr ""
+
+#: app/templates/about.html:115
+msgid "Bulgaria"
+msgstr ""
+
+#: app/templates/about.html:122
+msgid "Germany"
+msgstr ""
+
+#: app/templates/about.html:129
+msgid "Poland"
+msgstr ""
+
+#: app/templates/about.html:139
+msgid "Methodology"
+msgstr ""
+
+#: app/templates/about.html:155
+msgid "Severity Thresholds"
+msgstr ""
+
+#: app/templates/about.html:163
+#, python-format
+msgid ""
+"<strong class=\"text-red-700\">Critical</strong> — below 20% capacity. "
+"Evaporation\n"
+"                    losses accelerate, water quality degrades, and dams "
+"may approach dead storage. Agricultural\n"
+"                    allocations are typically cut and municipal rationing"
+" may be introduced."
+msgstr ""
+
+#: app/templates/about.html:169
+#, python-format
+msgid ""
+"<strong class=\"text-amber-700\">Warning</strong> — 20 to 40% capacity. "
+"Reserves are\n"
+"                    reduced and conservation measures are advised. "
+"Desalination output may increase to compensate."
+msgstr ""
+
+#: app/templates/about.html:174
+#, python-format
+msgid ""
+"<strong class=\"text-emerald-700\">Healthy</strong> — above 40% capacity."
+" Normal\n"
+"                    operational levels with full allocations and "
+"sufficient reserves."
+msgstr ""
+
+#: app/templates/about.html:181
+msgid "Frequently Asked Questions"
+msgstr ""
+
+#: app/templates/about.html:184
+msgid "How often is the data updated?"
+msgstr ""
+
+#: app/templates/about.html:191
+msgid "How accurate is the data?"
+msgstr ""
+
+#: app/templates/about.html:200
+#, python-format
+msgid "Why do some dams show 0% or very low levels?"
+msgstr ""
+
+#: app/templates/about.html:206
+msgid "What is MCM?"
+msgstr ""
+
+#: app/templates/about.html:212
+msgid "Is this site affiliated with any government?"
+msgstr ""
+
+#: app/templates/about.html:217
+msgid "Can I use this data for research or journalism?"
+msgstr ""
+
+#: app/templates/about.html:226
+msgid "About the Project"
+msgstr ""
+
+#: app/templates/base.html:64
 msgid "This site uses cookies for advertising via Google AdSense."
 msgstr "Este sitio utiliza cookies para publicidad a través de Google AdSense."
 
-#: app/templates/base.html:69
+#: app/templates/base.html:65
 #, python-format
 msgid ""
 "By clicking <strong class=\"text-white\">Accept</strong> you consent to "
@@ -42,43 +182,45 @@ msgid ""
 "      <a href=\"%(country_prefix)s/privacy\" class=\"underline hover"
 ":text-white transition-colors\">Privacy Policy</a>."
 msgstr ""
-"Al hacer clic en <strong class=\"text-white\">Aceptar</strong> consientes "
-"nuestra\n"
+"Al hacer clic en <strong class=\"text-white\">Aceptar</strong> consientes"
+" nuestra\n"
 "      <a href=\"%(country_prefix)s/privacy\" class=\"underline hover"
 ":text-white transition-colors\">Política de Privacidad</a>."
 
-#: app/templates/base.html:76
+#: app/templates/base.html:72
 msgid "Decline"
 msgstr "Rechazar"
 
-#: app/templates/base.html:81
+#: app/templates/base.html:77
 msgid "Accept"
 msgstr "Aceptar"
 
-#: app/templates/base.html:193 app/templates/blog_index.html:9
-#: app/templates/blog_post.html:39
+#: app/templates/base.html:229 app/templates/base.html:273
+#: app/templates/blog_index.html:9 app/templates/blog_post.html:39
 msgid "Blog"
 msgstr "Blog"
 
-#: app/templates/base.html:194
+#: app/templates/base.html:230 app/templates/base.html:274
 msgid "Map"
 msgstr "Mapa"
 
-#: app/templates/base.html:195
+#: app/templates/base.html:231 app/templates/base.html:275
 msgid "About"
 msgstr "Acerca de"
 
-#: app/templates/base.html:222
+#: app/templates/base.html:299
 msgid "Data:"
 msgstr "Datos:"
 
-#: app/templates/base.html:224
+#: app/templates/base.html:301 app/templates/privacy.html:7
 msgid "Privacy Policy"
 msgstr "Política de Privacidad"
 
 #: app/templates/blog_index.html:10
 msgid "Analysis, explainers, and updates on Cyprus water data."
-msgstr "Análisis, explicaciones y actualizaciones sobre los datos hídricos de Chipre."
+msgstr ""
+"Análisis, explicaciones y actualizaciones sobre los datos hídricos de "
+"Chipre."
 
 #: app/templates/blog_index.html:22
 msgid "Read more →"
@@ -97,10 +239,11 @@ msgid ""
 "Auto-generated snapshots of dam levels for each month, compiled from "
 "official data."
 msgstr ""
-"Instantáneas generadas automáticamente de los niveles de las presas para cada mes, "
-"compiladas a partir de datos oficiales."
+"Instantáneas generadas automáticamente de los niveles de las presas para "
+"cada mes, compiladas a partir de datos oficiales."
 
-#: app/templates/blog_post.html:37
+#: app/templates/blog_post.html:37 app/templates/learn_how_dams_work.html:10
+#: app/templates/learn_water_crisis_history.html:10
 msgid "Home"
 msgstr "Inicio"
 
@@ -110,7 +253,9 @@ msgstr "Por"
 
 #: app/templates/blog_post.html:68
 msgid "Writing about Cyprus water infrastructure, dam levels, and drought trends."
-msgstr "Escribimos sobre infraestructura hídrica, niveles de presas y tendencias de sequía."
+msgstr ""
+"Escribimos sobre infraestructura hídrica, niveles de presas y tendencias "
+"de sequía."
 
 #: app/templates/blog_post.html:69
 msgid "Data sourced from the Water Development Department of Cyprus."
@@ -128,35 +273,64 @@ msgstr "← Todos los artículos"
 msgid "← All Dams"
 msgstr "← Todas las Presas"
 
+#: app/templates/dam_detail.html:83
+#, python-format
+msgid "About %(name)s Dam"
+msgstr ""
+
 #: app/templates/dam_detail.html:91
 msgid "Historical Capacity"
 msgstr "Capacidad Histórica"
 
-#: app/templates/dam_detail.html:94 app/templates/dashboard.html:134
+#: app/templates/dam_detail.html:94 app/templates/dashboard.html:129
 msgid "Trend"
 msgstr "Tendencia"
 
-#: app/templates/dam_detail.html:96 app/templates/dashboard.html:136
+#: app/templates/dam_detail.html:96 app/templates/dashboard.html:131
 msgid "Year on Year"
 msgstr "Año a Año"
 
-#: app/templates/dam_detail.html:115 app/templates/dashboard.html:155
+#: app/templates/dam_detail.html:115 app/templates/dashboard.html:150
 msgid "Day"
 msgstr "Día"
 
-#: app/templates/dam_detail.html:117 app/templates/dashboard.html:157
+#: app/templates/dam_detail.html:117 app/templates/dashboard.html:152
 msgid "Month"
 msgstr "Mes"
 
-#: app/templates/dam_detail.html:119 app/templates/dashboard.html:159
+#: app/templates/dam_detail.html:119 app/templates/dashboard.html:154
 msgid "Year"
 msgstr "Año"
+
+#: app/templates/dam_detail.html:121 app/templates/dashboard.html:156
+msgid "Sparse data — using monthly view"
+msgstr ""
+
+#: app/templates/dam_detail.html:125
+#, fuzzy
+msgid "Historical capacity trend chart for"
+msgstr "Capacidad Histórica"
+
+#: app/templates/dam_detail.html:137 app/templates/dashboard.html:171
+#: app/templates/map.html:24
+msgid "Critical"
+msgstr "Crítico"
+
+#: app/templates/dam_detail.html:137 app/templates/dashboard.html:174
+#: app/templates/map.html:25
+msgid "Warning"
+msgstr "Alerta"
+
+#: app/templates/dam_detail.html:137 app/templates/dashboard.html:177
+#: app/templates/map.html:26
+msgid "Healthy"
+msgstr "Saludable"
 
 #: app/templates/dam_detail.html:143
 msgid "of capacity remaining"
 msgstr "de capacidad restante"
 
-#: app/templates/dam_detail.html:156 app/templates/dashboard.html:102
+#: app/templates/dam_detail.html:156 app/templates/dashboard.html:97
 msgid "Stored"
 msgstr "Almacenado"
 
@@ -192,6 +366,10 @@ msgstr "Coordenadas"
 msgid "Data date"
 msgstr "Fecha de datos"
 
+#: app/templates/dam_detail.html:217
+msgid "Wikipedia →"
+msgstr ""
+
 #: app/templates/dam_detail.html:228
 msgid "Related Dams"
 msgstr "Presas Relacionadas"
@@ -200,16 +378,18 @@ msgstr "Presas Relacionadas"
 msgid "Learn More"
 msgstr "Más Información"
 
-#: app/templates/dam_detail.html:246 app/templates/dashboard.html:333
+#: app/templates/dam_detail.html:246 app/templates/dashboard.html:328
+#: app/templates/learn_how_dams_work.html:12
 msgid "How Dams Work"
 msgstr "Cómo Funcionan las Presas"
 
-#: app/templates/dam_detail.html:248 app/templates/dashboard.html:334
+#: app/templates/dam_detail.html:248 app/templates/dashboard.html:329
+#: app/templates/learn_water_crisis_history.html:12
 msgid "Water Crisis History"
 msgstr "Historia de las Crisis Hídricas"
 
-#: app/templates/dam_detail.html:250 app/templates/dashboard.html:276
-#: app/templates/dashboard.html:335
+#: app/templates/dam_detail.html:250 app/templates/dashboard.html:271
+#: app/templates/dashboard.html:330 app/templates/dashboard.html:369
 msgid "Latest Analysis"
 msgstr "Último Análisis"
 
@@ -217,90 +397,259 @@ msgstr "Último Análisis"
 msgid "All Dams on Map"
 msgstr "Todas las Presas en el Mapa"
 
-#: app/templates/dashboard.html:81
-msgid "Live System Status"
+#: app/templates/dashboard.html:76
+#, fuzzy
+msgid "System Status"
 msgstr "Estado del Sistema en Vivo"
 
-#: app/templates/dashboard.html:83
-msgid "Cyprus dam levels — live data & analysis"
+#: app/templates/dashboard.html:78
+#, fuzzy
+msgid "dam levels — latest data & analysis"
 msgstr "Niveles de presas de Chipre — datos en vivo y análisis"
 
-#: app/templates/dashboard.html:87
+#: app/templates/dashboard.html:82
 msgid "of total capacity remaining"
 msgstr "de la capacidad total restante"
 
-#: app/templates/dashboard.html:109
+#: app/templates/dashboard.html:104
 msgid "Total Capacity"
 msgstr "Capacidad Total"
 
-#: app/templates/dashboard.html:116
+#: app/templates/dashboard.html:111
 msgid "Last Updated"
 msgstr "Última Actualización"
 
-#: app/templates/dashboard.html:118
+#: app/templates/dashboard.html:113
 msgid "Syncing..."
 msgstr "Sincronizando..."
 
-#: app/templates/dashboard.html:131
+#: app/templates/dashboard.html:126
 msgid "System Capacity"
 msgstr "Capacidad del Sistema"
 
-#: app/templates/dashboard.html:176
-msgid "Critical"
-msgstr "Crítico"
+#: app/templates/dashboard.html:160
+#, fuzzy
+msgid "System capacity trend chart"
+msgstr "Capacidad del Sistema"
 
-#: app/templates/dashboard.html:179
-msgid "Warning"
-msgstr "Alerta"
+#: app/templates/dashboard.html:168
+#, python-format
+msgid "All %(count)s Dams"
+msgstr ""
 
-#: app/templates/dashboard.html:182
-msgid "Healthy"
-msgstr "Saludable"
-
-#: app/templates/dashboard.html:229
+#: app/templates/dashboard.html:224
 msgid "Stored:"
 msgstr "Almacenado:"
 
-#: app/templates/dashboard.html:230
+#: app/templates/dashboard.html:225
 msgid "Capacity:"
 msgstr "Capacidad:"
 
-#: app/templates/dashboard.html:237
+#: app/templates/dashboard.html:232
 msgid "Data syncing… Check back shortly."
 msgstr "Sincronizando datos… Vuelve pronto."
 
-#: app/templates/dashboard.html:249
+#: app/templates/dashboard.html:244
 msgid "Understanding Athens' Water Supply"
 msgstr "Entendiendo el Suministro de Agua de Atenas"
 
-#: app/templates/dashboard.html:255 app/templates/dashboard.html:297
+#: app/templates/dashboard.html:250 app/templates/dashboard.html:292
+#: app/templates/dashboard.html:342
 msgid "How to Read This Dashboard"
 msgstr "Cómo Leer Este Panel"
 
-#: app/templates/dashboard.html:261 app/templates/dashboard.html:309
+#: app/templates/dashboard.html:256 app/templates/dashboard.html:304
+#: app/templates/dashboard.html:350
 msgid "What the Numbers Mean"
 msgstr "Qué Significan los Números"
 
-#: app/templates/dashboard.html:267 app/templates/dashboard.html:320
+#: app/templates/dashboard.html:262 app/templates/dashboard.html:315
 msgid "Why Monitoring Matters"
 msgstr "Por Qué Importa el Monitoreo"
 
-#: app/templates/dashboard.html:274
+#: app/templates/dashboard.html:269
 msgid "Athens Water System"
 msgstr "Sistema Hídrico de Atenas"
 
-#: app/templates/dashboard.html:275
+#: app/templates/dashboard.html:270
 msgid "Mornos Reservoir"
 msgstr "Embalse de Mornos"
 
-#: app/templates/dashboard.html:277 app/templates/dashboard.html:336
+#: app/templates/dashboard.html:272 app/templates/dashboard.html:331
+#: app/templates/dashboard.html:370
 msgid "Interactive Map"
 msgstr "Mapa Interactivo"
 
-#: app/templates/dashboard.html:287
+#: app/templates/dashboard.html:276
+msgid ""
+"Data sourced from EYDAP (Hellenic Water and Sewerage Company) public "
+"records."
+msgstr ""
+
+#: app/templates/dashboard.html:282
 msgid "Understanding Cyprus Dam Levels"
 msgstr "Entendiendo los Niveles de las Presas de Chipre"
 
-#: app/templates/map.html:15
+#: app/templates/dashboard.html:335
+msgid ""
+"Data sourced from the <a href=\"https://cyprus-water.appspot.com\" "
+"target=\"_blank\" rel=\"noopener\" class=\"text-blue-600 "
+"hover:underline\">Water Development Department of Cyprus</a>\n"
+"            under <a "
+"href=\"https://creativecommons.org/licenses/by/2.0/\" target=\"_blank\" "
+"rel=\"noopener\" class=\"text-blue-600 hover:underline\">CC BY 2.0</a>."
+msgstr ""
+
+#: app/templates/dashboard.html:359
+msgid "Severity Indicators"
+msgstr ""
+
+#: app/templates/dashboard.html:382
+msgid "Last synced:"
+msgstr ""
+
+#: app/templates/dashboard.html:382
+#, fuzzy
+msgid "never"
+msgstr "Río"
+
+#: app/templates/learn_how_dams_work.html:16
+msgid "How Dams Work: A Guide to Cyprus Water Infrastructure"
+msgstr ""
+
+#: app/templates/learn_how_dams_work.html:17
+msgid ""
+"Everything you need to know about how Cyprus stores, manages, and "
+"distributes its most precious resource."
+msgstr ""
+
+#: app/templates/learn_how_dams_work.html:29
+msgid "Types of dams in Cyprus"
+msgstr ""
+
+#: app/templates/learn_how_dams_work.html:46
+msgid "How water is stored and measured"
+msgstr ""
+
+#: app/templates/learn_how_dams_work.html:68
+msgid "The Southern Conveyor"
+msgstr ""
+
+#: app/templates/learn_how_dams_work.html:84
+msgid "Desalination: the backup supply"
+msgstr ""
+
+#: app/templates/learn_how_dams_work.html:100
+msgid "How water is distributed"
+msgstr ""
+
+#: app/templates/learn_how_dams_work.html:121
+#, fuzzy
+msgid "Wastewater reuse"
+msgstr "Sistema Hídrico de Atenas"
+
+#: app/templates/learn_how_dams_work.html:131
+msgid "Explore the data"
+msgstr ""
+
+#: app/templates/learn_how_dams_work.html:143
+msgid "History of Water Crises in Cyprus →"
+msgstr ""
+
+#: app/templates/learn_how_dams_work.html:145 app/templates/map.html:18
 msgid "← Dashboard"
 msgstr "← Panel"
+
+#: app/templates/learn_water_crisis_history.html:16
+msgid "A History of Water Crises in Cyprus"
+msgstr ""
+
+#: app/templates/learn_water_crisis_history.html:17
+msgid ""
+"From independence to the present: how Cyprus has faced, survived, and "
+"adapted to recurring drought."
+msgstr ""
+
+#: app/templates/learn_water_crisis_history.html:30
+msgid "The construction era (1960s–1990s)"
+msgstr ""
+
+#: app/templates/learn_water_crisis_history.html:54
+msgid "The 1990s drought"
+msgstr ""
+
+#: app/templates/learn_water_crisis_history.html:69
+msgid "The 2008 crisis: water by tanker"
+msgstr ""
+
+#: app/templates/learn_water_crisis_history.html:94
+msgid "The desalination revolution"
+msgstr ""
+
+#: app/templates/learn_water_crisis_history.html:109
+msgid "Recent droughts and the new normal"
+msgstr ""
+
+#: app/templates/learn_water_crisis_history.html:129
+msgid "What comes next"
+msgstr ""
+
+#: app/templates/learn_water_crisis_history.html:149
+msgid "Track the data"
+msgstr ""
+
+#: app/templates/learn_water_crisis_history.html:160
+#, fuzzy
+msgid "← How Dams Work"
+msgstr "Cómo Funcionan las Presas"
+
+#: app/templates/learn_water_crisis_history.html:162
+#, fuzzy
+msgid "Dashboard"
+msgstr "← Panel"
+
+#: app/templates/map.html:23
+msgid "Fill Level"
+msgstr ""
+
+#: app/templates/map.html:27
+msgid "View details"
+msgstr ""
+
+#: app/templates/privacy.html:8
+#, fuzzy
+msgid "Last updated:"
+msgstr "Última Actualización"
+
+#: app/templates/privacy.html:13
+msgid "1. Introduction"
+msgstr ""
+
+#: app/templates/privacy.html:28
+msgid "2. Data We Collect"
+msgstr ""
+
+#: app/templates/privacy.html:49
+msgid "3. Cookies & Advertising"
+msgstr ""
+
+#: app/templates/privacy.html:79
+msgid "4. Third-Party Services"
+msgstr ""
+
+#: app/templates/privacy.html:183
+msgid "5. Your Rights (GDPR — Articles 15–21)"
+msgstr ""
+
+#: app/templates/privacy.html:229
+msgid "6. How to Withdraw Consent"
+msgstr ""
+
+#: app/templates/privacy.html:248
+msgid "7. Data Retention"
+msgstr ""
+
+#: app/templates/privacy.html:263
+msgid "8. Contact"
+msgstr ""
+

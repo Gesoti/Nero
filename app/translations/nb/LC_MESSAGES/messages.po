@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-03-14 21:48+0200\n"
+"POT-Creation-Date: 2026-03-17 13:04+0200\n"
 "PO-Revision-Date: 2026-03-15 11:36+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: nb\n"
@@ -26,8 +26,8 @@ msgstr "Side ikke funnet"
 msgid "The page you're looking for doesn't exist, or the dam name is incorrect."
 msgstr "Siden du leter etter finnes ikke, eller demningsnavnet er feil."
 
-#: app/templates/404.html:15 app/templates/about.html:141
-#: app/templates/blog_index.html:52 app/templates/privacy.html:213
+#: app/templates/404.html:15 app/templates/about.html:238
+#: app/templates/blog_index.html:52 app/templates/privacy.html:282
 msgid "← Back to Dashboard"
 msgstr "← Tilbake til oversikten"
 
@@ -36,7 +36,8 @@ msgid "About Nero"
 msgstr "Om Nero"
 
 #: app/templates/about.html:9
-msgid "An open-source dashboard monitoring water reservoir levels in real time."
+#, fuzzy
+msgid "An open-source dashboard monitoring water reservoir levels across Europe."
 msgstr "Et åpen kildekode-dashbord som overvåker vannreservoarnivåer i sanntid."
 
 #: app/templates/about.html:14
@@ -55,15 +56,59 @@ msgstr "Kypros"
 msgid "Greece"
 msgstr "Hellas"
 
-#: app/templates/about.html:55
+#: app/templates/about.html:52
+msgid "Spain"
+msgstr ""
+
+#: app/templates/about.html:60
+msgid "Portugal"
+msgstr ""
+
+#: app/templates/about.html:68
+msgid "Czech Republic"
+msgstr ""
+
+#: app/templates/about.html:76
+msgid "Austria"
+msgstr ""
+
+#: app/templates/about.html:83
+msgid "Italy (Sicily)"
+msgstr ""
+
+#: app/templates/about.html:91
+msgid "Finland"
+msgstr ""
+
+#: app/templates/about.html:99
+msgid "Norway"
+msgstr ""
+
+#: app/templates/about.html:107
+msgid "Switzerland"
+msgstr ""
+
+#: app/templates/about.html:115
+msgid "Bulgaria"
+msgstr ""
+
+#: app/templates/about.html:122
+msgid "Germany"
+msgstr ""
+
+#: app/templates/about.html:129
+msgid "Poland"
+msgstr ""
+
+#: app/templates/about.html:139
 msgid "Methodology"
 msgstr "Metodikk"
 
-#: app/templates/about.html:69
+#: app/templates/about.html:155
 msgid "Severity Thresholds"
 msgstr "Alvorlighetsgrenser"
 
-#: app/templates/about.html:77
+#: app/templates/about.html:163
 #, python-format
 msgid ""
 "<strong class=\"text-red-700\">Critical</strong> — below 20% capacity. "
@@ -75,12 +120,12 @@ msgid ""
 msgstr ""
 "<strong class=\"text-red-700\">Kritisk</strong> — under 20 % kapasitet. "
 "Fordampnings-\n"
-"                    tap akselererer, vannkvaliteten forringes, og demninger "
-"kan nærme seg dødvolum. Jordbruks-\n"
-"                    tildelinger kuttes vanligvis og kommunal rasjonering"
-" kan bli innført."
+"                    tap akselererer, vannkvaliteten forringes, og "
+"demninger kan nærme seg dødvolum. Jordbruks-\n"
+"                    tildelinger kuttes vanligvis og kommunal rasjonering "
+"kan bli innført."
 
-#: app/templates/about.html:83
+#: app/templates/about.html:169
 #, python-format
 msgid ""
 "<strong class=\"text-amber-700\">Warning</strong> — 20 to 40% capacity. "
@@ -88,12 +133,12 @@ msgid ""
 "                    reduced and conservation measures are advised. "
 "Desalination output may increase to compensate."
 msgstr ""
-"<strong class=\"text-amber-700\">Advarsel</strong> — 20 til 40 % kapasitet. "
-"Reservene er\n"
+"<strong class=\"text-amber-700\">Advarsel</strong> — 20 til 40 % "
+"kapasitet. Reservene er\n"
 "                    redusert og bevaringstiltak anbefales. "
 "Avsaltingskapasiteten kan økes for å kompensere."
 
-#: app/templates/about.html:88
+#: app/templates/about.html:174
 #, python-format
 msgid ""
 "<strong class=\"text-emerald-700\">Healthy</strong> — above 40% capacity."
@@ -103,43 +148,50 @@ msgid ""
 msgstr ""
 "<strong class=\"text-emerald-700\">Normal</strong> — over 40 % kapasitet."
 " Normale\n"
-"                    driftsnivåer med fulle tildelinger og "
-"tilstrekkelige reserver."
+"                    driftsnivåer med fulle tildelinger og tilstrekkelige "
+"reserver."
 
-#: app/templates/about.html:95
+#: app/templates/about.html:181
 msgid "Frequently Asked Questions"
 msgstr "Ofte stilte spørsmål"
 
-#: app/templates/about.html:98
+#: app/templates/about.html:184
 msgid "How often is the data updated?"
 msgstr "Hvor ofte oppdateres dataene?"
 
-#: app/templates/about.html:103
+#: app/templates/about.html:191
+#, fuzzy
+msgid "How accurate is the data?"
+msgstr "Hvor ofte oppdateres dataene?"
+
+#: app/templates/about.html:200
 #, python-format
 msgid "Why do some dams show 0% or very low levels?"
 msgstr "Hvorfor viser noen demninger 0 % eller svært lave nivåer?"
 
-#: app/templates/about.html:109
+#: app/templates/about.html:206
 msgid "What is MCM?"
 msgstr "Hva er MCM?"
 
-#: app/templates/about.html:115
+#: app/templates/about.html:212
 msgid "Is this site affiliated with any government?"
 msgstr "Er dette nettstedet tilknyttet noen regjering?"
 
-#: app/templates/about.html:120
+#: app/templates/about.html:217
 msgid "Can I use this data for research or journalism?"
 msgstr "Kan jeg bruke disse dataene til forskning eller journalistikk?"
 
-#: app/templates/about.html:129
+#: app/templates/about.html:226
 msgid "About the Project"
 msgstr "Om prosjektet"
 
-#: app/templates/base.html:68
+#: app/templates/base.html:64
 msgid "This site uses cookies for advertising via Google AdSense."
-msgstr "Dette nettstedet bruker informasjonskapsler for annonsering via Google AdSense."
+msgstr ""
+"Dette nettstedet bruker informasjonskapsler for annonsering via Google "
+"AdSense."
 
-#: app/templates/base.html:69
+#: app/templates/base.html:65
 #, python-format
 msgid ""
 "By clicking <strong class=\"text-white\">Accept</strong> you consent to "
@@ -147,37 +199,37 @@ msgid ""
 "      <a href=\"%(country_prefix)s/privacy\" class=\"underline hover"
 ":text-white transition-colors\">Privacy Policy</a>."
 msgstr ""
-"Ved å klikke <strong class=\"text-white\">Godta</strong> samtykker du til "
-"vår\n"
+"Ved å klikke <strong class=\"text-white\">Godta</strong> samtykker du til"
+" vår\n"
 "      <a href=\"%(country_prefix)s/privacy\" class=\"underline hover"
 ":text-white transition-colors\">Personvernpolicy</a>."
 
-#: app/templates/base.html:76
+#: app/templates/base.html:72
 msgid "Decline"
 msgstr "Avslå"
 
-#: app/templates/base.html:81
+#: app/templates/base.html:77
 msgid "Accept"
 msgstr "Godta"
 
-#: app/templates/base.html:193 app/templates/blog_index.html:9
-#: app/templates/blog_post.html:39
+#: app/templates/base.html:229 app/templates/base.html:273
+#: app/templates/blog_index.html:9 app/templates/blog_post.html:39
 msgid "Blog"
 msgstr "Blogg"
 
-#: app/templates/base.html:194
+#: app/templates/base.html:230 app/templates/base.html:274
 msgid "Map"
 msgstr "Kart"
 
-#: app/templates/base.html:195
+#: app/templates/base.html:231 app/templates/base.html:275
 msgid "About"
 msgstr "Om oss"
 
-#: app/templates/base.html:222
+#: app/templates/base.html:299
 msgid "Data:"
 msgstr "Data:"
 
-#: app/templates/base.html:224 app/templates/privacy.html:7
+#: app/templates/base.html:301 app/templates/privacy.html:7
 msgid "Privacy Policy"
 msgstr "Personvernpolicy"
 
@@ -243,42 +295,47 @@ msgstr "Om %(name)s-demningen"
 msgid "Historical Capacity"
 msgstr "Historisk kapasitet"
 
-#: app/templates/dam_detail.html:94 app/templates/dashboard.html:134
+#: app/templates/dam_detail.html:94 app/templates/dashboard.html:129
 msgid "Trend"
 msgstr "Trend"
 
-#: app/templates/dam_detail.html:96 app/templates/dashboard.html:136
+#: app/templates/dam_detail.html:96 app/templates/dashboard.html:131
 msgid "Year on Year"
 msgstr "År for år"
 
-#: app/templates/dam_detail.html:115 app/templates/dashboard.html:155
+#: app/templates/dam_detail.html:115 app/templates/dashboard.html:150
 msgid "Day"
 msgstr "Dag"
 
-#: app/templates/dam_detail.html:117 app/templates/dashboard.html:157
+#: app/templates/dam_detail.html:117 app/templates/dashboard.html:152
 msgid "Month"
 msgstr "Måned"
 
-#: app/templates/dam_detail.html:119 app/templates/dashboard.html:159
+#: app/templates/dam_detail.html:119 app/templates/dashboard.html:154
 msgid "Year"
 msgstr "År"
 
-#: app/templates/dam_detail.html:121 app/templates/dashboard.html:161
+#: app/templates/dam_detail.html:121 app/templates/dashboard.html:156
 msgid "Sparse data — using monthly view"
 msgstr "Sparsomt med data — bruker månedlig visning"
 
-#: app/templates/dam_detail.html:137 app/templates/dashboard.html:176
-#: app/templates/map.html:21
+#: app/templates/dam_detail.html:125
+#, fuzzy
+msgid "Historical capacity trend chart for"
+msgstr "Historisk kapasitet"
+
+#: app/templates/dam_detail.html:137 app/templates/dashboard.html:171
+#: app/templates/map.html:24
 msgid "Critical"
 msgstr "Kritisk"
 
-#: app/templates/dam_detail.html:137 app/templates/dashboard.html:179
-#: app/templates/map.html:22
+#: app/templates/dam_detail.html:137 app/templates/dashboard.html:174
+#: app/templates/map.html:25
 msgid "Warning"
 msgstr "Advarsel"
 
-#: app/templates/dam_detail.html:137 app/templates/dashboard.html:182
-#: app/templates/map.html:23
+#: app/templates/dam_detail.html:137 app/templates/dashboard.html:177
+#: app/templates/map.html:26
 msgid "Healthy"
 msgstr "Normal"
 
@@ -286,7 +343,7 @@ msgstr "Normal"
 msgid "of capacity remaining"
 msgstr "av kapasiteten gjenstår"
 
-#: app/templates/dam_detail.html:156 app/templates/dashboard.html:102
+#: app/templates/dam_detail.html:156 app/templates/dashboard.html:97
 msgid "Stored"
 msgstr "Lagret"
 
@@ -334,18 +391,18 @@ msgstr "Relaterte demninger"
 msgid "Learn More"
 msgstr "Les mer"
 
-#: app/templates/dam_detail.html:246 app/templates/dashboard.html:333
+#: app/templates/dam_detail.html:246 app/templates/dashboard.html:328
 #: app/templates/learn_how_dams_work.html:12
 msgid "How Dams Work"
 msgstr "Hvordan demninger fungerer"
 
-#: app/templates/dam_detail.html:248 app/templates/dashboard.html:334
+#: app/templates/dam_detail.html:248 app/templates/dashboard.html:329
 #: app/templates/learn_water_crisis_history.html:12
 msgid "Water Crisis History"
 msgstr "Vannkrisehistorie"
 
-#: app/templates/dam_detail.html:250 app/templates/dashboard.html:276
-#: app/templates/dashboard.html:335
+#: app/templates/dam_detail.html:250 app/templates/dashboard.html:271
+#: app/templates/dashboard.html:330 app/templates/dashboard.html:369
 msgid "Latest Analysis"
 msgstr "Siste analyse"
 
@@ -353,80 +410,90 @@ msgstr "Siste analyse"
 msgid "All Dams on Map"
 msgstr "Alle demninger på kartet"
 
-#: app/templates/dashboard.html:81
-msgid "Live System Status"
+#: app/templates/dashboard.html:76
+#, fuzzy
+msgid "System Status"
 msgstr "Live systemstatus"
 
-#: app/templates/dashboard.html:83
-msgid "Cyprus dam levels — live data & analysis"
+#: app/templates/dashboard.html:78
+#, fuzzy
+msgid "dam levels — latest data & analysis"
 msgstr "Demningsnivåer på Kypros — live data og analyse"
 
-#: app/templates/dashboard.html:87
+#: app/templates/dashboard.html:82
 msgid "of total capacity remaining"
 msgstr "av total kapasitet gjenstår"
 
-#: app/templates/dashboard.html:109
+#: app/templates/dashboard.html:104
 msgid "Total Capacity"
 msgstr "Total kapasitet"
 
-#: app/templates/dashboard.html:116
+#: app/templates/dashboard.html:111
 msgid "Last Updated"
 msgstr "Sist oppdatert"
 
-#: app/templates/dashboard.html:118
+#: app/templates/dashboard.html:113
 msgid "Syncing..."
 msgstr "Synkroniserer..."
 
-#: app/templates/dashboard.html:131
+#: app/templates/dashboard.html:126
 msgid "System Capacity"
 msgstr "Systemkapasitet"
 
-#: app/templates/dashboard.html:173
+#: app/templates/dashboard.html:160
+#, fuzzy
+msgid "System capacity trend chart"
+msgstr "Systemkapasitet"
+
+#: app/templates/dashboard.html:168
 #, python-format
 msgid "All %(count)s Dams"
 msgstr "Alle %(count)s demninger"
 
-#: app/templates/dashboard.html:229
+#: app/templates/dashboard.html:224
 msgid "Stored:"
 msgstr "Lagret:"
 
-#: app/templates/dashboard.html:230
+#: app/templates/dashboard.html:225
 msgid "Capacity:"
 msgstr "Kapasitet:"
 
-#: app/templates/dashboard.html:237
+#: app/templates/dashboard.html:232
 msgid "Data syncing… Check back shortly."
 msgstr "Synkroniserer data… Kom tilbake om litt."
 
-#: app/templates/dashboard.html:249
+#: app/templates/dashboard.html:244
 msgid "Understanding Athens' Water Supply"
 msgstr "Forstå Aten vannforsyning"
 
-#: app/templates/dashboard.html:255 app/templates/dashboard.html:297
+#: app/templates/dashboard.html:250 app/templates/dashboard.html:292
+#: app/templates/dashboard.html:342
 msgid "How to Read This Dashboard"
 msgstr "Slik leser du dette dashbordet"
 
-#: app/templates/dashboard.html:261 app/templates/dashboard.html:309
+#: app/templates/dashboard.html:256 app/templates/dashboard.html:304
+#: app/templates/dashboard.html:350
 msgid "What the Numbers Mean"
 msgstr "Hva tallene betyr"
 
-#: app/templates/dashboard.html:267 app/templates/dashboard.html:320
+#: app/templates/dashboard.html:262 app/templates/dashboard.html:315
 msgid "Why Monitoring Matters"
 msgstr "Hvorfor overvåking er viktig"
 
-#: app/templates/dashboard.html:274
+#: app/templates/dashboard.html:269
 msgid "Athens Water System"
 msgstr "Atens vannsystem"
 
-#: app/templates/dashboard.html:275
+#: app/templates/dashboard.html:270
 msgid "Mornos Reservoir"
 msgstr "Mornos reservoar"
 
-#: app/templates/dashboard.html:277 app/templates/dashboard.html:336
+#: app/templates/dashboard.html:272 app/templates/dashboard.html:331
+#: app/templates/dashboard.html:370
 msgid "Interactive Map"
 msgstr "Interaktivt kart"
 
-#: app/templates/dashboard.html:281
+#: app/templates/dashboard.html:276
 msgid ""
 "Data sourced from EYDAP (Hellenic Water and Sewerage Company) public "
 "records."
@@ -434,11 +501,11 @@ msgstr ""
 "Data hentet fra EYDAP (Hellenic Water and Sewerage Company) offentlige "
 "registre."
 
-#: app/templates/dashboard.html:287
+#: app/templates/dashboard.html:282
 msgid "Understanding Cyprus Dam Levels"
 msgstr "Forstå demningsnivåene på Kypros"
 
-#: app/templates/dashboard.html:340
+#: app/templates/dashboard.html:335
 msgid ""
 "Data sourced from the <a href=\"https://cyprus-water.appspot.com\" "
 "target=\"_blank\" rel=\"noopener\" class=\"text-blue-600 "
@@ -454,11 +521,16 @@ msgstr ""
 "href=\"https://creativecommons.org/licenses/by/2.0/\" target=\"_blank\" "
 "rel=\"noopener\" class=\"text-blue-600 hover:underline\">CC BY 2.0</a>."
 
-#: app/templates/dashboard.html:353
+#: app/templates/dashboard.html:359
+#, fuzzy
+msgid "Severity Indicators"
+msgstr "Alvorlighetsgrenser"
+
+#: app/templates/dashboard.html:382
 msgid "Last synced:"
 msgstr "Sist synkronisert:"
 
-#: app/templates/dashboard.html:353
+#: app/templates/dashboard.html:382
 msgid "never"
 msgstr "aldri"
 
@@ -471,8 +543,8 @@ msgid ""
 "Everything you need to know about how Cyprus stores, manages, and "
 "distributes its most precious resource."
 msgstr ""
-"Alt du trenger å vite om hvordan Kypros lagrer, forvalter og "
-"distribuerer sin mest dyrebare ressurs."
+"Alt du trenger å vite om hvordan Kypros lagrer, forvalter og distribuerer"
+" sin mest dyrebare ressurs."
 
 #: app/templates/learn_how_dams_work.html:29
 msgid "Types of dams in Cyprus"
@@ -506,7 +578,7 @@ msgstr "Utforsk dataene"
 msgid "History of Water Crises in Cyprus →"
 msgstr "Vannkrisehistorie på Kypros →"
 
-#: app/templates/learn_how_dams_work.html:145 app/templates/map.html:15
+#: app/templates/learn_how_dams_work.html:145 app/templates/map.html:18
 msgid "← Dashboard"
 msgstr "← Oversikt"
 
@@ -558,11 +630,11 @@ msgstr "← Hvordan demninger fungerer"
 msgid "Dashboard"
 msgstr "Oversikt"
 
-#: app/templates/map.html:20
+#: app/templates/map.html:23
 msgid "Fill Level"
 msgstr "Fyllingsgrad"
 
-#: app/templates/map.html:24
+#: app/templates/map.html:27
 msgid "View details"
 msgstr "Se detaljer"
 
@@ -578,26 +650,27 @@ msgstr "1. Innledning"
 msgid "2. Data We Collect"
 msgstr "2. Data vi samler inn"
 
-#: app/templates/privacy.html:46
+#: app/templates/privacy.html:49
 msgid "3. Cookies & Advertising"
 msgstr "3. Informasjonskapsler og annonsering"
 
-#: app/templates/privacy.html:76
+#: app/templates/privacy.html:79
 msgid "4. Third-Party Services"
 msgstr "4. Tredjepartstjenester"
 
-#: app/templates/privacy.html:114
+#: app/templates/privacy.html:183
 msgid "5. Your Rights (GDPR — Articles 15–21)"
 msgstr "5. Dine rettigheter (GDPR — artikkel 15–21)"
 
-#: app/templates/privacy.html:160
+#: app/templates/privacy.html:229
 msgid "6. How to Withdraw Consent"
 msgstr "6. Slik trekker du tilbake samtykket"
 
-#: app/templates/privacy.html:179
+#: app/templates/privacy.html:248
 msgid "7. Data Retention"
 msgstr "7. Dataoppbevaring"
 
-#: app/templates/privacy.html:194
+#: app/templates/privacy.html:263
 msgid "8. Contact"
 msgstr "8. Kontakt"
+

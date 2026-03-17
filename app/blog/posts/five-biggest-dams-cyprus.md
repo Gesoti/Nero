@@ -54,6 +54,6 @@ Together, these five dams hold a combined capacity of approximately 225 MCM out 
 
 The smaller dams — Germasoyeia, Lefkara, Dipotamos, and the rest — serve important local functions, but their national significance is limited. A small dam like Kalopanagiotis (0.36 MCM) can fill to the brim after one good storm, but its contribution to national supply is negligible.
 
-For the latest data on all five, visit the [Nero dashboard](/) or explore each dam's dedicated page for historical trends, year-on-year comparisons, and real-time capacity readings.
+For the latest data on all five, visit the [Nero dashboard](/) or explore each dam's dedicated page for historical trends, year-on-year comparisons, and the latest capacity readings.
 
 *Data sourced from the Water Development Department of Cyprus. Updated every 6 hours.*

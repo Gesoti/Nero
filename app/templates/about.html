@@ -6,7 +6,7 @@
 {% block content %}
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <h1 class="text-3xl font-bold text-slate-900 mb-2">{{ _("About Nero") }}</h1>
-    <p class="text-slate-500 mb-8">{{ _("An open-source dashboard monitoring water reservoir levels in real time.") }}</p>
+    <p class="text-slate-500 mb-8">{{ _("An open-source dashboard monitoring water reservoir levels across Europe.") }}</p>
 
     <div class="space-y-6 text-slate-700">
 
@@ -23,7 +23,7 @@
             <p class="mt-3 leading-relaxed">
                 Water scarcity is a growing challenge across Europe. Countries from the Mediterranean to Scandinavia
                 are grappling with increasingly severe droughts, irregular precipitation, and pressure on freshwater
-                reserves. We believe that transparent, real-time access to water data is a
+                reserves. We believe that transparent, timely access to water data is a
                 prerequisite for informed public discourse and effective policy-making. Nero is our contribution
                 to that transparency.
             </p>
@@ -138,9 +138,11 @@
         <section class="bg-white rounded-2xl border border-slate-200 p-6">
             <h2 class="text-lg font-semibold text-slate-800 mb-3">{{ _("Methodology") }}</h2>
             <p class="leading-relaxed">
-                Nero fetches data from official government water agencies via their public APIs. The data is
-                refreshed automatically every six hours. On first launch, Nero performs an initial seed that
-                downloads available historical data. From then on, incremental syncs fetch only new readings.
+                Nero fetches data from official government water agencies via their public APIs. Nero checks
+                for new data every six hours automatically. However, the actual freshness depends on how
+                often each country's agency publishes updates — some update daily, others weekly or monthly.
+                On first launch, Nero performs an initial seed that downloads available historical data.
+                From then on, incremental syncs fetch only new readings.
             </p>
             <p class="mt-3 leading-relaxed">
                 All data is stored locally and served directly to users — there is no intermediary processing
@@ -180,8 +182,19 @@
             <div class="space-y-4 text-sm">
                 <div>
                     <h3 class="font-semibold text-slate-800 mb-1">{{ _("How often is the data updated?") }}</h3>
-                    <p class="text-slate-600 leading-relaxed">Every six hours, automatically. The sync runs in
-                    the background and fetches the latest readings from each country's water agency API.</p>
+                    <p class="text-slate-600 leading-relaxed">Nero checks for new data every six hours automatically.
+                    However, the actual freshness depends on each country's upstream data source — Cyprus and Greece
+                    update daily, Norway and Switzerland weekly, and some countries monthly. The "Last Updated"
+                    timestamp on each page shows when the displayed data was last refreshed.</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-slate-800 mb-1">{{ _("How accurate is the data?") }}</h3>
+                    <p class="text-slate-600 leading-relaxed">Nero displays data exactly as published by each
+                    country's national water agency — we do not alter or model the raw values. However, Nero
+                    is an independent project and does not guarantee the accuracy or timeliness of third-party
+                    data. If an upstream source is temporarily unavailable, the most recent available data
+                    continues to be displayed. Always refer to the official national portal for authoritative
+                    figures.</p>
                 </div>
                 <div>
                     <h3 class="font-semibold text-slate-800 mb-1">{{ _("Why do some dams show 0% or very low levels?") }}</h3>
