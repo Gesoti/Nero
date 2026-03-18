@@ -36,6 +36,7 @@ terraform/local/.terraform.lock.hcl
 # Claude Code
 .claude/
 .claire/
+CLAUDE.md
 
 # IDE
 .vscode/
