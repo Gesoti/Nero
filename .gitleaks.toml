@@ -1,0 +1,50 @@
+# Gitleaks configuration for Nero (public open-source repo)
+# Extends default rules with project-specific patterns
+
+title = "Nero gitleaks config"
+
+# Project-specific rules (in addition to built-in AWS/GCP/generic secret rules)
+
+[[rules]]
+id = "adsense-publisher-id"
+description = "Google AdSense Publisher ID"
+regex = '''ca-pub-\d{10,20}'''
+keywords = ["ca-pub-"]
+
+[[rules]]
+id = "aws-ecr-uri"
+description = "AWS ECR URI with real account ID"
+regex = '''\b\d{12}\.dkr\.ecr\.[a-z0-9-]+\.amazonaws\.com\b'''
+keywords = ["dkr.ecr"]
+
+  [rules.allowlist]
+  regexes = [
+    '''123456789012''',
+    '''REDACTED_AWS_ACCOUNT_ID''',
+    '''ACCOUNT_ID''',
+  ]
+
+[[rules]]
+id = "ec2-instance-id"
+description = "EC2 Instance ID"
+regex = '''\bi-[0-9a-f]{8,17}\b'''
+keywords = ["i-0"]
+
+[[rules]]
+id = "google-analytics-id"
+description = "Google Analytics Tracking ID"
+regex = '''(?:G|UA|GTM)-[A-Z0-9]{4,12}'''
+keywords = ["G-", "UA-", "GTM-"]
+
+  [rules.allowlist]
+  paths = [
+    '''sprints/''',
+  ]
+
+# Global allowlist — files that legitimately contain pattern-like strings
+[allowlist]
+paths = [
+  '''.gitleaks.toml''',
+  '''tests/''',
+  '''deploy/AWS_DEPLOY.md''',
+]
