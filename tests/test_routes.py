@@ -205,9 +205,9 @@ class TestAdsTxt:
         assert r.status_code == 200
         assert "text/plain" in r.headers["content-type"]
 
-    async def test_ads_txt_contains_google_entry(self, async_client):
+    async def test_ads_txt_empty_when_pub_id_not_configured(self, async_client):
         r = await async_client.get("/ads.txt")
-        assert "google.com, pub-3066658032903900, DIRECT, f08c47fec0942fa0" in r.text
+        assert r.text == ""
 
 
 class TestSitemapXml:

@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     country: str = "cy"
     locale: str = "en"
     enabled_countries: str = "cy,gr,es,pt,cz,at,it,fi,no,ch,bg,de,pl"
+    adsense_pub_id: str = ""
 
     model_config = {"env_prefix": "WL_", "env_file": ".env"}
 

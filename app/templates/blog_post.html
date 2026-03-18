@@ -73,15 +73,17 @@
         </div>
     </div>
 
+    {% if adsense_pub_id %}
     <!-- ── AdSense: Below Article ─────────────────────────────────────────── -->
     <div class="my-8">
       <ins class="adsbygoogle"
            style="display:block"
-           data-ad-client="YOUR_ADSENSE_PUB_ID"
+           data-ad-client="{{ adsense_pub_id }}"
            data-ad-slot="XXXXXXXXXX"
            data-ad-format="auto"
            data-full-width-responsive="true"></ins>
     </div>
+    {% endif %}
 
     <div class="mt-8 pt-6 border-t border-slate-200">
         <a href="{{ country_prefix }}/blog" class="text-sm text-blue-600 hover:underline">{{ _("← All articles") }}</a>

@@ -32,3 +32,22 @@ terraform/local/.terraform/
 terraform/local/terraform.tfstate
 terraform/local/terraform.tfstate.backup
 terraform/local/.terraform.lock.hcl
+
+# Claude Code
+.claude/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+
+# Internal docs (moved to private repo)
+outreach/
+sprints/
+research/

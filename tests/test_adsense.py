@@ -60,37 +60,41 @@ class TestCSPNonce:
 
 
 class TestAdSensePublisherID:
-    """Template must contain real publisher ID, not placeholder."""
+    """Publisher ID is driven by WL_ADSENSE_PUB_ID env var; absent means no ads."""
 
     @pytest.mark.asyncio
-    async def test_base_template_has_real_publisher_id(self, async_client):
+    async def test_base_template_no_publisher_id_when_unconfigured(self, async_client):
         r = await async_client.get("/")
-        assert "YOUR_ADSENSE_PUB_ID" in r.text, (
-            "Dashboard should contain real AdSense publisher ID"
-        )
         assert "ca-pub-XXXXXXXXXXXXXXXXXX" not in r.text, (
             "Dashboard should NOT contain placeholder publisher ID"
         )
 
     @pytest.mark.asyncio
-    async def test_dashboard_ad_units_have_real_publisher_id(self, async_client):
+    async def test_dashboard_no_ad_script_when_unconfigured(self, async_client):
         r = await async_client.get("/")
-        # Manual ad slots should reference the real client ID
         ad_slots = re.findall(r'data-ad-client="([^"]+)"', r.text)
-        for slot in ad_slots:
-            assert slot == "YOUR_ADSENSE_PUB_ID", (
-                f"Ad slot has wrong client ID: {slot}"
-            )
+        assert ad_slots == [], (
+            "No ad-client attrs expected when adsense_pub_id is not configured"
+        )
 
     @pytest.mark.asyncio
-    async def test_dam_detail_ad_unit_has_real_publisher_id(self, seeded_async_client):
+    async def test_dashboard_shows_publisher_id_when_configured(self, async_client, monkeypatch):
+        import app.routes.pages as pages_mod
+        from app.config import Settings
+        monkeypatch.setattr(pages_mod, "settings", Settings(adsense_pub_id="ca-pub-test123"))
+        r = await async_client.get("/")
+        assert "ca-pub-test123" in r.text, (
+            "Dashboard should render configured publisher ID"
+        )
+
+    @pytest.mark.asyncio
+    async def test_dam_detail_no_ad_unit_when_unconfigured(self, seeded_async_client):
         r = await seeded_async_client.get("/dam/Kouris")
         assert r.status_code == 200
         ad_slots = re.findall(r'data-ad-client="([^"]+)"', r.text)
-        for slot in ad_slots:
-            assert slot == "YOUR_ADSENSE_PUB_ID", (
-                f"Dam detail ad slot has wrong client ID: {slot}"
-            )
+        assert ad_slots == [], (
+            "No ad-client attrs expected on dam detail when adsense_pub_id is not configured"
+        )
 
 
 class TestCSPNonceOnTags:

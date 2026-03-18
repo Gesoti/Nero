@@ -182,6 +182,7 @@ def _render_ctx(request: Request, extra: dict) -> dict:
 
     ctx = {
         "layout_template": f"{country}/layout.html",
+        "base_url": settings.base_url.rstrip("/"),
         "country_prefix": country_prefix,
         "country": country,
         "country_label": COUNTRY_LABELS.get(country, country.upper()),
@@ -193,6 +194,7 @@ def _render_ctx(request: Request, extra: dict) -> dict:
         # hreflang_alternates is a list of {lang, href} dicts for cross-country links.
         # Empty for single-country deployments; populated when multiple countries enabled.
         "hreflang_alternates": _build_hreflang_alternates(country, request.url.path),
+        "adsense_pub_id": settings.adsense_pub_id,
     }
     ctx.update(extra)
     return ctx
@@ -481,7 +483,10 @@ async def learn_water_crisis_history(request: Request):
 
 @router.get("/ads.txt")
 async def ads_txt():
-    body = "google.com, pub-3066658032903900, DIRECT, f08c47fec0942fa0\n"
+    if not settings.adsense_pub_id:
+        return PlainTextResponse("")
+    pub_num = settings.adsense_pub_id.removeprefix("ca-")
+    body = f"google.com, {pub_num}, DIRECT, f08c47fec0942fa0\n"
     return PlainTextResponse(body)
 
 
