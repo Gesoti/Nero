@@ -1,0 +1,14 @@
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.24.0
+    hooks:
+      - id: gitleaks
+
+  - repo: local
+    hooks:
+      - id: csp-inline-handlers
+        name: Reject inline event handlers (CSP)
+        entry: scripts/check-csp-handlers.sh
+        language: script
+        pass_filenames: false
+        always_run: true
