@@ -12,7 +12,9 @@ from __future__ import annotations
 
 import json
 import logging
-
+import re
+from collections import defaultdict
+from datetime import date as date_type
 from urllib.parse import quote
 
 from fastapi import APIRouter, HTTPException, Request
@@ -21,7 +23,7 @@ from fastapi.templating import Jinja2Templates
 
 from app.blog import load_all_posts, load_post
 from app.config import settings
-from app.country_config import COUNTRY_LABELS, COUNTRY_LOCALE_MAP, COUNTRY_MAP_CENTRES
+from app.country_config import COUNTRY_DB_PATHS, COUNTRY_LABELS, COUNTRY_LOCALE_MAP, COUNTRY_MAP_CENTRES
 from app.at_dam_descriptions import get_at_dam_description
 from app.bg_dam_descriptions import get_bg_dam_description
 from app.ch_dam_descriptions import get_ch_dam_description
@@ -46,6 +48,38 @@ from app.db import (
     get_system_history,
     get_system_totals,
 )
+from app.providers.austria import _AUSTRIA_DAMS
+from app.providers.bulgaria import _BULGARIA_DAMS
+from app.providers.czech import _CZECH_DAMS
+from app.providers.finland import _FINLAND_DAMS
+from app.providers.germany import _GERMANY_DAMS
+from app.providers.greece import _GREECE_DAMS
+from app.providers.italy import _ITALY_DAMS
+from app.providers.norway import _NORWAY_DAMS
+from app.providers.poland import _POLAND_DAMS
+from app.providers.portugal import _PORTUGAL_DAMS
+from app.providers.spain import _SPAIN_DAMS
+from app.providers.switzerland import _SWITZERLAND_DAMS
+
+from app.providers.base import DamInfo
+
+# Static dam lists per country for sitemap generation (avoids DB queries).
+# Cyprus is excluded — its provider fetches dams from the API, so the sitemap
+# falls back to querying the database for CY dam names.
+_SITEMAP_DAM_LISTS: dict[str, list[DamInfo]] = {
+    "gr": _GREECE_DAMS,
+    "es": _SPAIN_DAMS,
+    "pt": _PORTUGAL_DAMS,
+    "cz": _CZECH_DAMS,
+    "at": _AUSTRIA_DAMS,
+    "it": _ITALY_DAMS,
+    "fi": _FINLAND_DAMS,
+    "no": _NORWAY_DAMS,
+    "ch": _SWITZERLAND_DAMS,
+    "bg": _BULGARIA_DAMS,
+    "de": _GERMANY_DAMS,
+    "pl": _POLAND_DAMS,
+}
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -503,9 +537,6 @@ async def robots_txt():
 
 @router.get("/sitemap.xml")
 async def sitemap_xml():
-    from datetime import date as date_type
-    from app.country_config import COUNTRY_DB_PATHS
-
     base = settings.base_url.rstrip("/")
     blog_posts = load_all_posts()
     today = date_type.today().isoformat()
@@ -513,6 +544,11 @@ async def sitemap_xml():
     # Use the default CY db for the last-sync date stamp
     last_sync = get_last_sync_time()
     data_date = last_sync[:10] if last_sync else today
+
+    # Pre-group blog posts by country to avoid N+1 scans
+    posts_by_country: dict[str, list[object]] = defaultdict(list)
+    for p in blog_posts:
+        posts_by_country[getattr(p, "country", None) or "cy"].append(p)
 
     def url_entry(path: str, changefreq: str, priority: str, lastmod: str | None = None) -> str:
         lm = lastmod or data_date
@@ -538,18 +574,18 @@ async def sitemap_xml():
     ]
 
     # CY dam pages (default country, no prefix) — queried from database
+    # because the Cyprus provider has no static dam list.
     cy_db = COUNTRY_DB_PATHS.get("cy", settings.db_path)
     cy_dams = get_all_dams_with_current_stats(db_path=cy_db)
     for dam in cy_dams:
         xml_parts.append(url_entry(f"/dam/{quote(dam.name_en, safe='')}", "daily", "0.8"))
 
-    for post in [p for p in blog_posts if not getattr(p, "country", None) or p.country == "cy"]:
+    for post in posts_by_country.get("cy", []):
         xml_parts.append(url_entry(f"/blog/{post.slug}", "monthly", "0.6", lastmod=post.date.isoformat()))
 
     # Per-country pages for every enabled non-default country
     for country in settings.get_enabled_countries():
         if country == "cy":
-            # Already handled above as the default (no prefix) country
             continue
         prefix = f"/{country}"
         xml_parts.append(url_entry(f"{prefix}/", "daily", "0.9"))
@@ -557,78 +593,11 @@ async def sitemap_xml():
         xml_parts.append(url_entry(f"{prefix}/about", "monthly", "0.3"))
         xml_parts.append(url_entry(f"{prefix}/blog", "weekly", "0.7"))
 
-        # Greece dam names come from the provider's static metadata so the
-        # sitemap is correct even when the gr database hasn't been seeded yet.
-        # For future countries, fall back to querying their own database.
-        if country == "gr":
-            from app.providers.greece import _GREECE_DAMS as _gr_dams
-            for dam_info in _gr_dams:
-                xml_parts.append(
-                    url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
-                )
-        elif country == "es":
-            from app.providers.spain import _SPAIN_DAMS as _es_dams
-            for dam_info in _es_dams:
-                xml_parts.append(
-                    url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
-                )
-        elif country == "pt":
-            from app.providers.portugal import _PORTUGAL_DAMS as _pt_dams
-            for dam_info in _pt_dams:
-                xml_parts.append(
-                    url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
-                )
-        elif country == "cz":
-            from app.providers.czech import _CZECH_DAMS as _cz_dams
-            for dam_info in _cz_dams:
-                xml_parts.append(
-                    url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
-                )
-        elif country == "at":
-            from app.providers.austria import _AUSTRIA_DAMS as _at_dams
-            for dam_info in _at_dams:
-                xml_parts.append(
-                    url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
-                )
-        elif country == "it":
-            from app.providers.italy import _ITALY_DAMS as _it_dams
-            for dam_info in _it_dams:
-                xml_parts.append(
-                    url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
-                )
-        elif country == "fi":
-            from app.providers.finland import _FINLAND_DAMS as _fi_dams
-            for dam_info in _fi_dams:
-                xml_parts.append(
-                    url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
-                )
-        elif country == "no":
-            from app.providers.norway import _NORWAY_DAMS as _no_dams
-            for dam_info in _no_dams:
-                xml_parts.append(
-                    url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
-                )
-        elif country == "ch":
-            from app.providers.switzerland import _SWITZERLAND_DAMS as _ch_dams
-            for dam_info in _ch_dams:
-                xml_parts.append(
-                    url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
-                )
-        elif country == "bg":
-            from app.providers.bulgaria import _BULGARIA_DAMS as _bg_dams
-            for dam_info in _bg_dams:
-                xml_parts.append(
-                    url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
-                )
-        elif country == "de":
-            from app.providers.germany import _GERMANY_DAMS as _de_dams
-            for dam_info in _de_dams:
-                xml_parts.append(
-                    url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
-                )
-        elif country == "pl":
-            from app.providers.poland import _POLAND_DAMS as _pl_dams
-            for dam_info in _pl_dams:
+        # Dam pages: use static provider lists (no DB query needed).
+        # Falls back to DB query only for countries not yet in the registry.
+        dam_list = _SITEMAP_DAM_LISTS.get(country)
+        if dam_list is not None:
+            for dam_info in dam_list:
                 xml_parts.append(
                     url_entry(f"{prefix}/dam/{quote(dam_info.name_en, safe='')}", "daily", "0.8")
                 )
@@ -641,8 +610,7 @@ async def sitemap_xml():
                         url_entry(f"{prefix}/dam/{quote(dam.name_en, safe='')}", "daily", "0.8")
                     )
 
-        # Blog posts belonging to this country
-        for post in [p for p in blog_posts if getattr(p, "country", None) == country]:
+        for post in posts_by_country.get(country, []):
             xml_parts.append(
                 url_entry(f"{prefix}/blog/{post.slug}", "monthly", "0.6", lastmod=post.date.isoformat())
             )
@@ -652,10 +620,9 @@ async def sitemap_xml():
     return Response(
         content="\n".join(xml_parts),
         media_type="application/xml",
+        headers={"Cache-Control": "public, max-age=86400"},
     )
 
-
-import re
 
 _SAFE_REDIRECT_RE = re.compile(r"^/[^/\\]")
 
