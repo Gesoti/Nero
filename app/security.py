@@ -12,25 +12,15 @@ import secrets
 from fastapi import Request
 from starlette.responses import Response
 
-_GOOGLE_FONTS_CSS = "https://fonts.googleapis.com"
-_GOOGLE_FONTS_TTF = "https://fonts.gstatic.com"
-
-_CDN_ADSENSE_FRAME = (
-    "https://googleads.g.doubleclick.net "
-    "https://tpc.googlesyndication.com"
-)
-
-_CDN_JSDELIVR = "https://cdn.jsdelivr.net"
-
 _CSP_TEMPLATE = (
     "upgrade-insecure-requests; "
     "default-src 'self'; "
     "script-src 'nonce-{nonce}' 'strict-dynamic'; "
-    "style-src 'self' 'unsafe-inline' {fonts_css} {cdn_jsdelivr}; "
-    "font-src {fonts_ttf}; "
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; "
+    "font-src https://fonts.gstatic.com; "
     "img-src 'self' data: https:; "
     "connect-src 'self' https:; "
-    "frame-src {adsense_frame}; "
+    "frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com; "
     "frame-ancestors 'none'; "
     "base-uri 'self'; "
     "form-action 'self'; "
@@ -44,28 +34,16 @@ _PERMISSIONS = (
 )
 
 
-def _generate_nonce() -> str:
-    """Generate a cryptographically random base64 nonce (24 bytes → 32 chars)."""
-    return secrets.token_urlsafe(24)
-
-
 async def security_headers_middleware(request: Request, call_next) -> Response:
     """Inject security headers into every response with a per-request CSP nonce."""
-    nonce = _generate_nonce()
+    nonce = secrets.token_urlsafe(24)
     request.state.csp_nonce = nonce
 
     response = await call_next(request)
-    h = response.headers
-    h["X-Content-Type-Options"] = "nosniff"
-    h["X-Frame-Options"]        = "DENY"
-    h["Referrer-Policy"]        = "strict-origin-when-cross-origin"
-    h["Permissions-Policy"]     = _PERMISSIONS
-    h["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-    h["Content-Security-Policy"] = _CSP_TEMPLATE.format(
-        nonce=nonce,
-        fonts_css=_GOOGLE_FONTS_CSS,
-        fonts_ttf=_GOOGLE_FONTS_TTF,
-        adsense_frame=_CDN_ADSENSE_FRAME,
-        cdn_jsdelivr=_CDN_JSDELIVR,
-    )
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = _PERMISSIONS
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["Content-Security-Policy"] = _CSP_TEMPLATE.format(nonce=nonce)
     return response

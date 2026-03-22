@@ -71,8 +71,5 @@ class CountryPrefixMiddleware:
             scope["state"]["country_prefix"] = (
                 "" if country == self.default_country else f"/{country}"
             )
-        else:
-            # Outer middleware already set country — only update path, not metadata.
-            pass
 
         await self.app(scope, receive, send)
