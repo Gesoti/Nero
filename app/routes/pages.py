@@ -10,13 +10,17 @@ Per-request wiring (G10):
 """
 from __future__ import annotations
 
+import calendar
 import json
 import logging
 import re
 from collections import defaultdict
+from dataclasses import dataclass
 from datetime import date as date_type
+from typing import Callable
 from urllib.parse import quote
 
+import mistune
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
@@ -101,33 +105,48 @@ def _breadcrumbs(*items: tuple[str, str]) -> list[dict[str, str]]:
     return crumbs
 
 
+_DESCRIPTION_REGISTRY: dict[str, Callable[[str], str]] = {
+    "gr": get_gr_dam_description,
+    "es": get_es_dam_description,
+    "pt": get_pt_dam_description,
+    "cz": get_cz_dam_description,
+    "at": get_at_dam_description,
+    "it": get_it_dam_description,
+    "fi": get_fi_dam_description,
+    "no": get_no_dam_description,
+    "de": get_de_dam_description,
+    "pl": get_pl_dam_description,
+    "bg": get_bg_dam_description,
+    "ch": get_ch_dam_description,
+}
+
+# Leaflet zoom level that best fits each country's geographic extent.
+# Cyprus (cy) uses the default fallback of 9.
+_MAP_ZOOM: dict[str, int] = {
+    "cy": 9, "gr": 7, "es": 6, "pt": 7, "cz": 7,
+    "at": 7, "it": 8, "fi": 5, "no": 5, "ch": 8,
+    "bg": 7, "de": 6, "pl": 7,
+}
+
+# Reusable markdown renderer for auto-generated monthly reports.
+_md = mistune.create_markdown(escape=True)
+
+
+@dataclass(frozen=True)
+class _ReportPost:
+    """Lightweight stand-in for BlogPost used by auto-generated monthly reports."""
+    title: str
+    slug: str
+    date: date_type
+    description: str
+    author: str
+    content_html: str
+
+
 def _get_dam_description_for_country(country: str, name_en: str) -> str:
-    """Return the dam description from the correct country module."""
-    if country == "gr":
-        return get_gr_dam_description(name_en)
-    if country == "es":
-        return get_es_dam_description(name_en)
-    if country == "pt":
-        return get_pt_dam_description(name_en)
-    if country == "cz":
-        return get_cz_dam_description(name_en)
-    if country == "at":
-        return get_at_dam_description(name_en)
-    if country == "it":
-        return get_it_dam_description(name_en)
-    if country == "fi":
-        return get_fi_dam_description(name_en)
-    if country == "no":
-        return get_no_dam_description(name_en)
-    if country == "de":
-        return get_de_dam_description(name_en)
-    if country == "pl":
-        return get_pl_dam_description(name_en)
-    if country == "bg":
-        return get_bg_dam_description(name_en)
-    if country == "ch":
-        return get_ch_dam_description(name_en)
-    return get_dam_description(name_en)
+    """Dispatch to the correct country description module."""
+    fn = _DESCRIPTION_REGISTRY.get(country, get_dam_description)
+    return fn(name_en)
 
 
 def _build_hreflang_alternates(country: str, request_path: str) -> list[dict[str, str]]:
@@ -205,12 +224,14 @@ def _render_ctx(request: Request, extra: dict) -> dict:
     if country_prefix and current_path.startswith(country_prefix):
         page_path = current_path[len(country_prefix):] or "/"
 
+    def _country_href(cc: str) -> str:
+        """Build the navigation href for a country, preserving the current page path."""
+        if cc == "cy":
+            return page_path if page_path != "/" else "/"
+        return f"/{cc}{page_path}" if page_path != "/" else f"/{cc}/"
+
     country_nav = [
-        {
-            "code": cc,
-            "label": COUNTRY_LABELS.get(cc, cc.upper()),
-            "href": (f"/{cc}{page_path}" if cc != "cy" else page_path) if page_path != "/" else (f"/{cc}/" if cc != "cy" else "/"),
-        }
+        {"code": cc, "label": COUNTRY_LABELS.get(cc, cc.upper()), "href": _country_href(cc)}
         for cc in enabled
     ] if len(enabled) > 1 else []
 
@@ -225,8 +246,7 @@ def _render_ctx(request: Request, extra: dict) -> dict:
         "current_lang_label": LANGUAGE_LABELS.get(lang, "English"),
         "current_lang_flag": LANGUAGE_FLAGS.get(lang, lang),
         "available_langs": available_langs,
-        # hreflang_alternates is a list of {lang, href} dicts for cross-country links.
-        # Empty for single-country deployments; populated when multiple countries enabled.
+        # Empty for single-country deployments so templates can skip the <link> tags.
         "hreflang_alternates": _build_hreflang_alternates(country, request.url.path),
         "adsense_pub_id": settings.adsense_pub_id,
     }
@@ -316,9 +336,6 @@ async def map_view(request: Request):
         {**dam.__dict__, "severity": get_severity(dam.percentage)}
         for dam in dams_raw
     ]
-    # Zoom level 8 suits the compact extent of Cyprus; Greece's reservoirs
-    # are more spread out so zoom 7 fits better.
-    map_zoom: dict[str, int] = {"cy": 9, "gr": 7, "es": 6, "pt": 7, "cz": 7, "at": 7, "it": 8, "fi": 5, "no": 5, "ch": 8, "bg": 7, "de": 6, "pl": 7}
     centre = COUNTRY_MAP_CENTRES.get(country, COUNTRY_MAP_CENTRES["cy"])
     return templates.TemplateResponse(
         request,
@@ -327,7 +344,7 @@ async def map_view(request: Request):
             "dams_json": json.dumps(dams),
             "map_center_lat": centre[0],
             "map_center_lng": centre[1],
-            "map_zoom": map_zoom.get(country, 9),
+            "map_zoom": _MAP_ZOOM.get(country, 9),
             "canonical_url": _canonical("/map"),
         }),
     )
@@ -353,9 +370,6 @@ async def privacy(request: Request):
 
 @router.get("/blog")
 async def blog_index(request: Request):
-    import calendar
-    from datetime import date as date_type
-
     posts = load_all_posts()
 
     # Generate available monthly report links (from 2024-01 to current month)
@@ -388,10 +402,6 @@ async def blog_index(request: Request):
 @router.get("/blog/water-report-{year:int}-{month:int}")
 async def monthly_report(request: Request, year: int, month: int):
     """Auto-generated monthly water report from DB data."""
-    import calendar
-    from dataclasses import dataclass as dc
-    from datetime import date as date_type
-
     if month < 1 or month > 12 or year < 2009:
         raise HTTPException(status_code=404, detail="Invalid report date")
 
@@ -432,18 +442,6 @@ async def monthly_report(request: Request, year: int, month: int):
         f"*Data sourced from the Water Development Department of Cyprus. "
         f"Updated every 6 hours.*"
     )
-
-    import mistune
-    _md = mistune.create_markdown(escape=True)
-
-    @dc(frozen=True)
-    class _ReportPost:
-        title: str
-        slug: str
-        date: date_type
-        description: str
-        author: str
-        content_html: str
 
     post = _ReportPost(
         title=f"Water Report — {month_name} {year}",
