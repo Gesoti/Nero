@@ -31,13 +31,12 @@ from datetime import date
 import httpx
 
 from app.providers.base import (
+    BaseProvider,
     DamInfo,
     DamPercentage,
     DamStatistic,
     DateStatistics,
-    MonthlyInflow,
     PercentageSnapshot,
-    WaterEvent,
 )
 
 logger = logging.getLogger(__name__)
@@ -431,16 +430,13 @@ def _parse_pod_page(html: str, capacity_map: dict[str, float]) -> dict[str, floa
 
 # ── Provider class ─────────────────────────────────────────────────────────────
 
-class CzechProvider:
+class CzechProvider(BaseProvider):
     """DataProvider for Czech Republic reservoir data.
 
     Fetches live fill-level data from 5 Povodí (basin authority) portals.
     If any portal is unreachable or returns unparseable HTML, those dams fall
     back to 0.0 — the remaining portals are unaffected.
     """
-
-    def __init__(self, client: httpx.AsyncClient) -> None:
-        self._client = client
 
     async def fetch_dams(self) -> list[DamInfo]:
         return list(_CZECH_DAMS)
@@ -543,18 +539,3 @@ class CzechProvider:
         ]
         return DateStatistics(date=target_date, dam_statistics=dam_statistics)
 
-    async def fetch_timeseries(self) -> list[PercentageSnapshot]:
-        # Czech portals expose only current data; timeseries builds via the scheduler.
-        return []
-
-    async def fetch_monthly_inflows(self) -> list[MonthlyInflow]:
-        return []
-
-    async def fetch_events(
-        self, date_from: date, date_until: date
-    ) -> list[WaterEvent]:
-        return []
-
-    async def close(self) -> None:
-        if self._client and not self._client.is_closed:
-            await self._client.aclose()

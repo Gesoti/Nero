@@ -24,13 +24,12 @@ from typing import Any
 import httpx
 
 from app.providers.base import (
+    BaseProvider,
     DamInfo,
     DamPercentage,
     DamStatistic,
     DateStatistics,
-    MonthlyInflow,
     PercentageSnapshot,
-    WaterEvent,
 )
 
 logger = logging.getLogger(__name__)
@@ -227,7 +226,7 @@ def _water_level_to_percentage(level_cm: float, capacity_mcm: float) -> float:
     return 0.70 if level_cm > 0 else 0.0
 
 
-class FinlandProvider:
+class FinlandProvider(BaseProvider):
     """DataProvider implementation for SYKE Finnish hydrology OData API.
 
     Fetches current water level readings for Finland's 15 largest regulated
@@ -238,9 +237,6 @@ class FinlandProvider:
     the API is unavailable, all percentages default to 0.0 — the scheduler
     will retry at the next sync interval.
     """
-
-    def __init__(self, client: httpx.AsyncClient) -> None:
-        self._client = client
 
     async def fetch_dams(self) -> list[DamInfo]:
         return list(_FINLAND_DAMS)
@@ -321,19 +317,3 @@ class FinlandProvider:
 
         return DateStatistics(date=target_date, dam_statistics=dam_statistics)
 
-    async def fetch_timeseries(self) -> list[PercentageSnapshot]:
-        # SYKE historical data is not consumed in MVP; incremental sync builds
-        # the timeseries over time via the scheduler.
-        return []
-
-    async def fetch_monthly_inflows(self) -> list[MonthlyInflow]:
-        return []
-
-    async def fetch_events(
-        self, date_from: date, date_until: date
-    ) -> list[WaterEvent]:
-        return []
-
-    async def close(self) -> None:
-        if self._client and not self._client.is_closed:
-            await self._client.aclose()

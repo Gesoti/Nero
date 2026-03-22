@@ -27,13 +27,14 @@ from typing import Any
 import httpx
 
 from app.providers.base import (
+    BaseProvider,
     DamInfo,
     DamPercentage,
     DamStatistic,
     DateStatistics,
-    MonthlyInflow,
     PercentageSnapshot,
-    WaterEvent,
+    zero_fill_date_statistics,
+    zero_fill_snapshot,
 )
 
 logger = logging.getLogger(__name__)
@@ -143,34 +144,13 @@ _OMRNR_TO_NAME: dict[int, str] = {
     5: "NO5-West",
 }
 
+# Reverse map: name_en → omrnr for O(1) dam→zone lookups
+_NAME_TO_OMRNR: dict[str, int] = {v: k for k, v in _OMRNR_TO_NAME.items()}
+
 _TOTAL_CAPACITY_MCM: float = sum(d.capacity_mcm for d in _NORWAY_DAMS)
 
 
-def _zero_fill_snapshot(target_date: date) -> PercentageSnapshot:
-    """Return an all-zeros snapshot for all 5 zones. Used on API failure."""
-    return PercentageSnapshot(
-        date=target_date,
-        dam_percentages=[
-            DamPercentage(dam_name_en=d.name_en, percentage=0.0)
-            for d in _NORWAY_DAMS
-        ],
-        total_percentage=0.0,
-        total_capacity_mcm=_TOTAL_CAPACITY_MCM,
-    )
-
-
-def _zero_fill_date_statistics(target_date: date) -> DateStatistics:
-    """Return zero-fill date statistics for all 5 zones. Used on API failure."""
-    return DateStatistics(
-        date=target_date,
-        dam_statistics=[
-            DamStatistic(dam_name_en=d.name_en, storage_mcm=0.0, inflow_mcm=0.0)
-            for d in _NORWAY_DAMS
-        ],
-    )
-
-
-class NorwayProvider:
+class NorwayProvider(BaseProvider):
     """DataProvider implementation for NVE Magasinstatistikk weekly reservoir data.
 
     Fetches the latest weekly fill percentages for Norway's 5 electricity price
@@ -179,9 +159,6 @@ class NorwayProvider:
     directly as Nero's internal percentage. On any API error, all zones default
     to 0.0 — the scheduler will retry at the next sync interval.
     """
-
-    def __init__(self, client: httpx.AsyncClient) -> None:
-        self._client = client
 
     async def fetch_dams(self) -> list[DamInfo]:
         return list(_NORWAY_DAMS)
@@ -208,7 +185,7 @@ class NorwayProvider:
     async def fetch_percentages(self, target_date: date) -> PercentageSnapshot:
         data = await self._fetch_latest_json()
         if data is None:
-            return _zero_fill_snapshot(target_date)
+            return zero_fill_snapshot(_NORWAY_DAMS, _TOTAL_CAPACITY_MCM, target_date)
 
         # Filter to EL zone records only; omrType="NO" is the national aggregate
         el_records: dict[int, float] = {}
@@ -228,9 +205,7 @@ class NorwayProvider:
         total_volume_mcm = 0.0
 
         for dam in _NORWAY_DAMS:
-            omrnr = next(
-                (k for k, v in _OMRNR_TO_NAME.items() if v == dam.name_en), None
-            )
+            omrnr = _NAME_TO_OMRNR.get(dam.name_en)
             pct = el_records.get(omrnr, 0.0) if omrnr is not None else 0.0
             # Clamp to [0, 1] — API values should already be in range, but guard
             pct = max(0.0, min(1.0, pct))
@@ -251,7 +226,7 @@ class NorwayProvider:
     async def fetch_date_statistics(self, target_date: date) -> DateStatistics:
         data = await self._fetch_latest_json()
         if data is None:
-            return _zero_fill_date_statistics(target_date)
+            return zero_fill_date_statistics(_NORWAY_DAMS, target_date)
 
         # Build a map of omrnr → fylling_TWh for storage_mcm calculation
         el_twh: dict[int, float] = {}
@@ -269,9 +244,7 @@ class NorwayProvider:
 
         dam_statistics: list[DamStatistic] = []
         for dam in _NORWAY_DAMS:
-            omrnr = next(
-                (k for k, v in _OMRNR_TO_NAME.items() if v == dam.name_en), None
-            )
+            omrnr = _NAME_TO_OMRNR.get(dam.name_en)
             twh = el_twh.get(omrnr, 0.0) if omrnr is not None else 0.0
             # Convert TWh → hm³ using the Norwegian hydropower approximation
             storage_mcm = twh * _TWH_TO_HM3
@@ -363,14 +336,3 @@ class NorwayProvider:
 
         return snapshots
 
-    async def fetch_monthly_inflows(self) -> list[MonthlyInflow]:
-        return []
-
-    async def fetch_events(
-        self, date_from: date, date_until: date
-    ) -> list[WaterEvent]:
-        return []
-
-    async def close(self) -> None:
-        if self._client and not self._client.is_closed:
-            await self._client.aclose()

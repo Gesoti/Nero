@@ -24,14 +24,13 @@ from datetime import date, datetime
 import httpx
 
 from app.providers.base import (
+    BaseProvider,
     DamInfo,
     DamPercentage,
     DamStatistic,
     DateStatistics,
-    MonthlyInflow,
     PercentageSnapshot,
     UpstreamAPIError,
-    WaterEvent,
 )
 
 logger = logging.getLogger(__name__)
@@ -149,24 +148,6 @@ _ITALY_DAMS: list[DamInfo] = [
     ),
 ]
 
-# Map name_en → upstream CSV "nome_diga" field (as it appears in the CSV).
-# The CSV uses Italian dam names; some match our name_en exactly, others differ.
-_UPSTREAM_NAME_MAP: dict[str, str] = {
-    "Ancipa": "Ancipa",
-    "Pozzillo": "Pozzillo",
-    "Ogliastro": "Ogliastro",
-    "Prizzi": "Prizzi",
-    "Fanaco": "Fanaco",
-    "Gammauta": "Gammauta",
-    "Leone": "Leone",
-    "Garcia": "Garcia",
-    "Piana degli Albanesi": "Piana degli Albanesi",
-    "Scanzano": "Scanzano",
-    "Rosamarina": "Rosamarina",
-    "Cimia": "Cimia",
-    "Ragoleto": "Ragoleto",
-}
-
 _CAPACITY_MAP: dict[str, float] = {d.name_en: d.capacity_mcm for d in _ITALY_DAMS}
 _TOTAL_CAPACITY_MCM: float = sum(d.capacity_mcm for d in _ITALY_DAMS)
 
@@ -191,25 +172,10 @@ _HISTORICAL_CSV_URL = (
     "/refs/heads/main/risorse/sicilia_dighe_volumi.csv"
 )
 
-# Maps the monthly CSV's "diga" column value → our tracked name_en.
-# All 13 tracked dams have identical names in both CSVs, so this is a 1:1 mapping.
-# Untracked dams (the other 16 out of 29) simply won't appear in this dict and
-# will be skipped during timeseries parsing.
-_HISTORICAL_NAME_MAP: dict[str, str] = {
-    "Ancipa": "Ancipa",
-    "Pozzillo": "Pozzillo",
-    "Ogliastro": "Ogliastro",
-    "Prizzi": "Prizzi",
-    "Fanaco": "Fanaco",
-    "Gammauta": "Gammauta",
-    "Leone": "Leone",
-    "Garcia": "Garcia",
-    "Piana degli Albanesi": "Piana degli Albanesi",
-    "Scanzano": "Scanzano",
-    "Rosamarina": "Rosamarina",
-    "Cimia": "Cimia",
-    "Ragoleto": "Ragoleto",
-}
+# Set of name_en values for the 13 tracked dams — used to filter the historical CSV.
+# The monthly CSV "diga" column matches name_en exactly for all tracked dams.
+# Untracked dams (the other 16 out of 29) are simply absent from this set.
+_TRACKED_NAMES: frozenset[str] = frozenset(d.name_en for d in _ITALY_DAMS)
 
 
 def _parse_it_volume_mc(raw: str) -> float:
@@ -237,11 +203,11 @@ def _parse_csv(text: str) -> dict[str, dict[str, str]]:
     return result
 
 
-class ItalyProvider:
+class ItalyProvider(BaseProvider):
     """DataProvider implementation for OpenData Sicilia CSV (Sicily reservoir data)."""
 
     def __init__(self, client: httpx.AsyncClient) -> None:
-        self._client = client
+        super().__init__(client)
         # Cache CSV data within a single sync cycle to avoid re-fetching for
         # both fetch_percentages and fetch_date_statistics calls.
         self._cached_rows: dict[str, dict[str, str]] | None = None
@@ -277,8 +243,7 @@ class ItalyProvider:
         total_volume_mcm = 0.0
 
         for dam in _ITALY_DAMS:
-            upstream_name = _UPSTREAM_NAME_MAP.get(dam.name_en, dam.name_en)
-            row = rows.get(upstream_name)
+            row = rows.get(dam.name_en)
 
             pct = 0.0
             volume_mcm = 0.0
@@ -320,8 +285,7 @@ class ItalyProvider:
         dam_statistics: list[DamStatistic] = []
 
         for dam in _ITALY_DAMS:
-            upstream_name = _UPSTREAM_NAME_MAP.get(dam.name_en, dam.name_en)
-            row = rows.get(upstream_name)
+            row = rows.get(dam.name_en)
 
             storage_mcm = 0.0
             if row:
@@ -371,10 +335,10 @@ class ItalyProvider:
         reader = csv.DictReader(io.StringIO(response.text))
         for row in reader:
             diga = row.get("diga", "").strip()
-            name_en = _HISTORICAL_NAME_MAP.get(diga)
-            if name_en is None:
+            if diga not in _TRACKED_NAMES:
                 # Not one of our 13 tracked dams — skip.
                 continue
+            name_en = diga
 
             raw_date = row.get("data", "").strip()
             raw_volume = row.get("volume", "").strip()
@@ -422,14 +386,3 @@ class ItalyProvider:
 
         return sorted(snapshots, key=lambda s: s.date)
 
-    async def fetch_monthly_inflows(self) -> list[MonthlyInflow]:
-        return []
-
-    async def fetch_events(
-        self, date_from: date, date_until: date
-    ) -> list[WaterEvent]:
-        return []
-
-    async def close(self) -> None:
-        if self._client and not self._client.is_closed:
-            await self._client.aclose()

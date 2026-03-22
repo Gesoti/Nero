@@ -31,18 +31,18 @@ import csv
 import io
 import logging
 from datetime import date
-from typing import Optional
 
 import httpx
 
 from app.providers.base import (
+    BaseProvider,
     DamInfo,
     DamPercentage,
     DamStatistic,
     DateStatistics,
-    MonthlyInflow,
     PercentageSnapshot,
-    WaterEvent,
+    zero_fill_date_statistics,
+    zero_fill_snapshot,
 )
 
 logger = logging.getLogger(__name__)
@@ -137,33 +137,10 @@ _TOTAL_CAPACITY_MCM: float = sum(d.capacity_mcm for d in _SWITZERLAND_DAMS)
 _NAME_TO_DAM: dict[str, DamInfo] = {d.name_en: d for d in _SWITZERLAND_DAMS}
 
 
-def _zero_fill_snapshot(target_date: date) -> PercentageSnapshot:
-    """Return an all-zeros snapshot for all 4 regions. Used on fetch failure."""
-    return PercentageSnapshot(
-        date=target_date,
-        dam_percentages=[
-            DamPercentage(dam_name_en=d.name_en, percentage=0.0)
-            for d in _SWITZERLAND_DAMS
-        ],
-        total_percentage=0.0,
-        total_capacity_mcm=_TOTAL_CAPACITY_MCM,
-    )
-
-
-def _zero_fill_date_statistics(target_date: date) -> DateStatistics:
-    """Return zero-fill date statistics for all 4 regions. Used on fetch failure."""
-    return DateStatistics(
-        date=target_date,
-        dam_statistics=[
-            DamStatistic(dam_name_en=d.name_en, storage_mcm=0.0, inflow_mcm=0.0)
-            for d in _SWITZERLAND_DAMS
-        ],
-    )
-
 
 def _parse_snapshot_from_row(
     row: dict[str, str], target_date: date
-) -> Optional[PercentageSnapshot]:
+) -> PercentageSnapshot | None:
     """Parse a single CSV row into a PercentageSnapshot. Returns None on parse failure."""
     dam_percentages: list[DamPercentage] = []
     total_volume_mcm = 0.0
@@ -201,7 +178,7 @@ def _parse_snapshot_from_row(
 
 def _parse_date_statistics_from_row(
     row: dict[str, str], target_date: date
-) -> Optional[DateStatistics]:
+) -> DateStatistics | None:
     """Parse a single CSV row into a DateStatistics. Returns None on parse failure."""
     dam_statistics: list[DamStatistic] = []
 
@@ -225,7 +202,7 @@ def _parse_date_statistics_from_row(
     return DateStatistics(date=target_date, dam_statistics=dam_statistics)
 
 
-class SwitzerlandProvider:
+class SwitzerlandProvider(BaseProvider):
     """DataProvider implementation for BFE Speicherseen OGD CSV weekly reservoir data.
 
     Fetches the full historical CSV from BFE and parses the last row for current
@@ -234,13 +211,10 @@ class SwitzerlandProvider:
     all regions default to 0.0 — the scheduler will retry at the next interval.
     """
 
-    def __init__(self, client: httpx.AsyncClient) -> None:
-        self._client = client
-
     async def fetch_dams(self) -> list[DamInfo]:
         return list(_SWITZERLAND_DAMS)
 
-    async def _fetch_csv_text(self) -> Optional[str]:
+    async def _fetch_csv_text(self) -> str | None:
         """Fetch the BFE CSV. Returns None on any HTTP or network error."""
         try:
             response = await self._client.get(_CSV_PATH)
@@ -262,34 +236,34 @@ class SwitzerlandProvider:
     async def fetch_percentages(self, target_date: date) -> PercentageSnapshot:
         csv_text = await self._fetch_csv_text()
         if csv_text is None:
-            return _zero_fill_snapshot(target_date)
+            return zero_fill_snapshot(_SWITZERLAND_DAMS, _TOTAL_CAPACITY_MCM, target_date)
 
         rows = self._parse_all_rows(csv_text)
         if not rows:
             logger.warning("BFE CSV contained no data rows")
-            return _zero_fill_snapshot(target_date)
+            return zero_fill_snapshot(_SWITZERLAND_DAMS, _TOTAL_CAPACITY_MCM, target_date)
 
         # Use the last row — CSV is sorted oldest-first, latest data is at the end
         last_row = rows[-1]
         snapshot = _parse_snapshot_from_row(last_row, target_date)
         if snapshot is None:
-            return _zero_fill_snapshot(target_date)
+            return zero_fill_snapshot(_SWITZERLAND_DAMS, _TOTAL_CAPACITY_MCM, target_date)
 
         return snapshot
 
     async def fetch_date_statistics(self, target_date: date) -> DateStatistics:
         csv_text = await self._fetch_csv_text()
         if csv_text is None:
-            return _zero_fill_date_statistics(target_date)
+            return zero_fill_date_statistics(_SWITZERLAND_DAMS, target_date)
 
         rows = self._parse_all_rows(csv_text)
         if not rows:
-            return _zero_fill_date_statistics(target_date)
+            return zero_fill_date_statistics(_SWITZERLAND_DAMS, target_date)
 
         last_row = rows[-1]
         stats = _parse_date_statistics_from_row(last_row, target_date)
         if stats is None:
-            return _zero_fill_date_statistics(target_date)
+            return zero_fill_date_statistics(_SWITZERLAND_DAMS, target_date)
 
         return stats
 
@@ -318,16 +292,3 @@ class SwitzerlandProvider:
 
         return snapshots
 
-    async def fetch_monthly_inflows(self) -> list[MonthlyInflow]:
-        # BFE does not publish monthly inflow data in this OGD dataset
-        return []
-
-    async def fetch_events(
-        self, date_from: date, date_until: date
-    ) -> list[WaterEvent]:
-        # BFE does not publish dam events
-        return []
-
-    async def close(self) -> None:
-        if self._client and not self._client.is_closed:
-            await self._client.aclose()

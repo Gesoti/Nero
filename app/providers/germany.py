@@ -20,13 +20,13 @@ import httpx
 from bs4 import BeautifulSoup
 
 from app.providers.base import (
+    BaseProvider,
     DamInfo,
     DamPercentage,
     DamStatistic,
     DateStatistics,
-    MonthlyInflow,
     PercentageSnapshot,
-    WaterEvent,
+    zero_fill_date_statistics,
 )
 
 logger = logging.getLogger(__name__)
@@ -252,18 +252,8 @@ def _build_snapshot(target_date: date, parsed: dict[str, float]) -> PercentageSn
     )
 
 
-def _zero_fill_date_statistics(target_date: date) -> DateStatistics:
-    """Return zero-fill date statistics for all 15 dams."""
-    return DateStatistics(
-        date=target_date,
-        dam_statistics=[
-            DamStatistic(dam_name_en=d.name_en, storage_mcm=0.0, inflow_mcm=0.0)
-            for d in _GERMANY_DAMS
-        ],
-    )
 
-
-class GermanyProvider:
+class GermanyProvider(BaseProvider):
     """DataProvider for German reservoir data.
 
     Live fill percentages are fetched from the Talsperrenleitzentrale Ruhr
@@ -271,9 +261,6 @@ class GermanyProvider:
     parsers are added. All errors fall back gracefully to zero-fill so the
     scheduler always produces a valid snapshot.
     """
-
-    def __init__(self, client: httpx.AsyncClient) -> None:
-        self._client = client
 
     async def fetch_dams(self) -> list[DamInfo]:
         return list(_GERMANY_DAMS)
@@ -299,20 +286,4 @@ class GermanyProvider:
         return _build_snapshot(target_date, parsed)
 
     async def fetch_date_statistics(self, target_date: date) -> DateStatistics:
-        return _zero_fill_date_statistics(target_date)
-
-    async def fetch_timeseries(self) -> list[PercentageSnapshot]:
-        # Historical data not consumed in MVP stub.
-        return []
-
-    async def fetch_monthly_inflows(self) -> list[MonthlyInflow]:
-        return []
-
-    async def fetch_events(
-        self, date_from: date, date_until: date
-    ) -> list[WaterEvent]:
-        return []
-
-    async def close(self) -> None:
-        if self._client and not self._client.is_closed:
-            await self._client.aclose()
+        return zero_fill_date_statistics(_GERMANY_DAMS, target_date)
