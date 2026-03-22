@@ -28,13 +28,12 @@ from datetime import date, timedelta
 import httpx
 
 from app.providers.base import (
+    BaseProvider,
     DamInfo,
-    DamPercentage,
-    DamStatistic,
     DateStatistics,
-    MonthlyInflow,
     PercentageSnapshot,
-    WaterEvent,
+    zero_fill_date_statistics,
+    zero_fill_snapshot,
 )
 
 logger = logging.getLogger(__name__)
@@ -220,30 +219,6 @@ _BULGARIA_DAMS: list[DamInfo] = [
 _TOTAL_CAPACITY_MCM: float = sum(d.capacity_mcm for d in _BULGARIA_DAMS)
 
 
-def _zero_fill_snapshot(target_date: date) -> PercentageSnapshot:
-    """Return all-zeros snapshot for all 20 dams. Used when download fails or parsing TBD."""
-    return PercentageSnapshot(
-        date=target_date,
-        dam_percentages=[
-            DamPercentage(dam_name_en=d.name_en, percentage=0.0)
-            for d in _BULGARIA_DAMS
-        ],
-        total_percentage=0.0,
-        total_capacity_mcm=_TOTAL_CAPACITY_MCM,
-    )
-
-
-def _zero_fill_date_statistics(target_date: date) -> DateStatistics:
-    """Return zero-fill date statistics for all 20 dams. Used on any failure."""
-    return DateStatistics(
-        date=target_date,
-        dam_statistics=[
-            DamStatistic(dam_name_en=d.name_en, storage_mcm=0.0, inflow_mcm=0.0)
-            for d in _BULGARIA_DAMS
-        ],
-    )
-
-
 def _find_latest_bulletin_url(target_date: date) -> str:
     """Return the MOEW bulletin URL for the most recent business day.
 
@@ -263,7 +238,7 @@ def _find_latest_bulletin_url(target_date: date) -> str:
     return _BULLETIN_URL_TEMPLATE.format(date=target_date.strftime("%d%m%Y"))
 
 
-class BulgariaProvider:
+class BulgariaProvider(BaseProvider):
     """DataProvider stub for MOEW Bulgaria daily water bulletin.
 
     The upstream source publishes a .doc (Word 97-2003 binary) file each
@@ -282,7 +257,7 @@ class BulgariaProvider:
     """
 
     def __init__(self, client: httpx.AsyncClient) -> None:
-        self._client = client
+        super().__init__(client)
 
     async def fetch_dams(self) -> list[DamInfo]:
         return list(_BULGARIA_DAMS)
@@ -318,25 +293,9 @@ class BulgariaProvider:
         # Parsing is TBD — return 0.0 fallback for all dams regardless of
         # download success, because we cannot yet extract the values.
         await self._download_bulletin(target_date)
-        return _zero_fill_snapshot(target_date)
+        return zero_fill_snapshot(_BULGARIA_DAMS, _TOTAL_CAPACITY_MCM, target_date)
 
     async def fetch_date_statistics(self, target_date: date) -> DateStatistics:
         # Mirrors fetch_percentages — stub returns zeros, parsing is TBD.
         await self._download_bulletin(target_date)
-        return _zero_fill_date_statistics(target_date)
-
-    async def fetch_timeseries(self) -> list[PercentageSnapshot]:
-        # Historical data via .doc archives is not consumed in MVP.
-        return []
-
-    async def fetch_monthly_inflows(self) -> list[MonthlyInflow]:
-        return []
-
-    async def fetch_events(
-        self, date_from: date, date_until: date
-    ) -> list[WaterEvent]:
-        return []
-
-    async def close(self) -> None:
-        if self._client and not self._client.is_closed:
-            await self._client.aclose()
+        return zero_fill_date_statistics(_BULGARIA_DAMS, target_date)

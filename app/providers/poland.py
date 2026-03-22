@@ -19,13 +19,12 @@ from datetime import date
 import httpx
 
 from app.providers.base import (
+    BaseProvider,
     DamInfo,
-    DamPercentage,
-    DamStatistic,
     DateStatistics,
-    MonthlyInflow,
     PercentageSnapshot,
-    WaterEvent,
+    zero_fill_date_statistics,
+    zero_fill_snapshot,
 )
 
 logger = logging.getLogger(__name__)
@@ -166,31 +165,7 @@ _TOTAL_CAPACITY_MCM: float = sum(d.capacity_mcm for d in _POLAND_DAMS)
 _IMGW_PDF_PATH = "/products/hydro/monitor-lite-products/BIULETYN_CODZIENNY.pdf"
 
 
-def _zero_fill_snapshot(target_date: date) -> PercentageSnapshot:
-    """Return an all-zeros snapshot for all 15 dams. Used until PDF parsing is implemented."""
-    return PercentageSnapshot(
-        date=target_date,
-        dam_percentages=[
-            DamPercentage(dam_name_en=d.name_en, percentage=0.0)
-            for d in _POLAND_DAMS
-        ],
-        total_percentage=0.0,
-        total_capacity_mcm=_TOTAL_CAPACITY_MCM,
-    )
-
-
-def _zero_fill_date_statistics(target_date: date) -> DateStatistics:
-    """Return zero-fill date statistics for all 15 dams."""
-    return DateStatistics(
-        date=target_date,
-        dam_statistics=[
-            DamStatistic(dam_name_en=d.name_en, storage_mcm=0.0, inflow_mcm=0.0)
-            for d in _POLAND_DAMS
-        ],
-    )
-
-
-class PolandProvider:
+class PolandProvider(BaseProvider):
     """DataProvider stub for Polish reservoir data (IMGW PDF bulletin).
 
     Probes the IMGW PDF endpoint to verify upstream connectivity and logs the
@@ -201,7 +176,7 @@ class PolandProvider:
     """
 
     def __init__(self, client: httpx.AsyncClient) -> None:
-        self._client = client
+        super().__init__(client)
 
     async def fetch_dams(self) -> list[DamInfo]:
         return list(_POLAND_DAMS)
@@ -221,23 +196,7 @@ class PolandProvider:
     async def fetch_percentages(self, target_date: date) -> PercentageSnapshot:
         # Probe upstream to log connectivity; actual PDF parsing deferred to future sprint.
         await self._probe_upstream()
-        return _zero_fill_snapshot(target_date)
+        return zero_fill_snapshot(_POLAND_DAMS, _TOTAL_CAPACITY_MCM, target_date)
 
     async def fetch_date_statistics(self, target_date: date) -> DateStatistics:
-        return _zero_fill_date_statistics(target_date)
-
-    async def fetch_timeseries(self) -> list[PercentageSnapshot]:
-        # Historical data not consumed in MVP stub.
-        return []
-
-    async def fetch_monthly_inflows(self) -> list[MonthlyInflow]:
-        return []
-
-    async def fetch_events(
-        self, date_from: date, date_until: date
-    ) -> list[WaterEvent]:
-        return []
-
-    async def close(self) -> None:
-        if self._client and not self._client.is_closed:
-            await self._client.aclose()
+        return zero_fill_date_statistics(_POLAND_DAMS, target_date)

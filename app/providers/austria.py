@@ -22,14 +22,13 @@ from datetime import date
 import httpx
 
 from app.providers.base import (
+    BaseProvider,
     DamInfo,
-    DamPercentage,
-    DamStatistic,
     DateStatistics,
-    MonthlyInflow,
     PercentageSnapshot,
     UpstreamAPIError,
-    WaterEvent,
+    zero_fill_date_statistics,
+    zero_fill_snapshot,
 )
 
 logger = logging.getLogger(__name__)
@@ -171,7 +170,7 @@ _TOTAL_CAPACITY_MCM: float = sum(d.capacity_mcm for d in _AUSTRIA_DAMS)
 _EHYD_URL = "https://ehyd.gv.at"
 
 
-class AustriaProvider:
+class AustriaProvider(BaseProvider):
     """DataProvider implementation for eHYD (Austria Federal Hydrographic Service).
 
     eHYD does not provide a simple JSON or parseable HTML API for reservoir
@@ -181,7 +180,7 @@ class AustriaProvider:
     """
 
     def __init__(self, client: httpx.AsyncClient) -> None:
-        self._client = client
+        super().__init__(client)
 
     async def fetch_dams(self) -> list[DamInfo]:
         return list(_AUSTRIA_DAMS)
@@ -208,47 +207,9 @@ class AustriaProvider:
         # Probe upstream to surface connectivity failures; if it returns 200
         # but no parseable data, we fall back gracefully to 0.0 for all dams.
         await self._probe_upstream()
-
-        dam_percentages: list[DamPercentage] = [
-            DamPercentage(dam_name_en=dam.name_en, percentage=0.0)
-            for dam in _AUSTRIA_DAMS
-        ]
-
-        return PercentageSnapshot(
-            date=target_date,
-            dam_percentages=dam_percentages,
-            total_percentage=0.0,
-            total_capacity_mcm=_TOTAL_CAPACITY_MCM,
-        )
+        return zero_fill_snapshot(_AUSTRIA_DAMS, _TOTAL_CAPACITY_MCM, target_date)
 
     async def fetch_date_statistics(self, target_date: date) -> DateStatistics:
         # Same probe pattern: surface HTTP errors, fall back to 0.0 otherwise.
         await self._probe_upstream()
-
-        dam_statistics: list[DamStatistic] = [
-            DamStatistic(
-                dam_name_en=dam.name_en,
-                storage_mcm=0.0,
-                inflow_mcm=0.0,
-            )
-            for dam in _AUSTRIA_DAMS
-        ]
-
-        return DateStatistics(date=target_date, dam_statistics=dam_statistics)
-
-    async def fetch_timeseries(self) -> list[PercentageSnapshot]:
-        # eHYD has no historical timeseries API; data builds up over time
-        # via the scheduler's incremental_sync calls.
-        return []
-
-    async def fetch_monthly_inflows(self) -> list[MonthlyInflow]:
-        return []
-
-    async def fetch_events(
-        self, date_from: date, date_until: date
-    ) -> list[WaterEvent]:
-        return []
-
-    async def close(self) -> None:
-        if self._client and not self._client.is_closed:
-            await self._client.aclose()
+        return zero_fill_date_statistics(_AUSTRIA_DAMS, target_date)
