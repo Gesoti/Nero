@@ -24,19 +24,7 @@ from fastapi.templating import Jinja2Templates
 from app.blog import load_all_posts, load_post
 from app.config import settings
 from app.country_config import COUNTRY_DB_PATHS, COUNTRY_LABELS, COUNTRY_LOCALE_MAP, COUNTRY_MAP_CENTRES
-from app.at_dam_descriptions import get_at_dam_description
-from app.bg_dam_descriptions import get_bg_dam_description
-from app.ch_dam_descriptions import get_ch_dam_description
-from app.cz_dam_descriptions import get_cz_dam_description
-from app.dam_descriptions import get_dam_description
-from app.de_dam_descriptions import get_de_dam_description
-from app.es_dam_descriptions import get_es_dam_description
-from app.fi_dam_descriptions import get_fi_dam_description
-from app.it_dam_descriptions import get_it_dam_description
-from app.no_dam_descriptions import get_no_dam_description
-from app.pl_dam_descriptions import get_pl_dam_description
-from app.pt_dam_descriptions import get_pt_dam_description
-from app.gr_dam_descriptions import get_gr_dam_description
+from app.dam_description_registry import get_description as _get_dam_description
 from app.i18n import install_i18n, get_translations, SUPPORTED_LOCALES, LANGUAGE_FLAGS, LANGUAGE_LABELS
 
 from app.db import (
@@ -102,32 +90,12 @@ def _breadcrumbs(*items: tuple[str, str]) -> list[dict[str, str]]:
 
 
 def _get_dam_description_for_country(country: str, name_en: str) -> str:
-    """Return the dam description from the correct country module."""
-    if country == "gr":
-        return get_gr_dam_description(name_en)
-    if country == "es":
-        return get_es_dam_description(name_en)
-    if country == "pt":
-        return get_pt_dam_description(name_en)
-    if country == "cz":
-        return get_cz_dam_description(name_en)
-    if country == "at":
-        return get_at_dam_description(name_en)
-    if country == "it":
-        return get_it_dam_description(name_en)
-    if country == "fi":
-        return get_fi_dam_description(name_en)
-    if country == "no":
-        return get_no_dam_description(name_en)
-    if country == "de":
-        return get_de_dam_description(name_en)
-    if country == "pl":
-        return get_pl_dam_description(name_en)
-    if country == "bg":
-        return get_bg_dam_description(name_en)
-    if country == "ch":
-        return get_ch_dam_description(name_en)
-    return get_dam_description(name_en)
+    """Return the dam description from the correct country module.
+
+    Delegates to the centralised DESCRIPTION_REGISTRY so adding a new country
+    requires updating only dam_description_registry.py, not this file.
+    """
+    return _get_dam_description(country, name_en)
 
 
 def _build_hreflang_alternates(country: str, request_path: str) -> list[dict[str, str]]:
