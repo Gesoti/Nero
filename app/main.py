@@ -1,8 +1,4 @@
-"""
-FastAPI application factory.
-Lifespan handles: data dir creation, DB schema init, initial seed or
-incremental sync on restart, and APScheduler for background refresh.
-"""
+"""FastAPI application factory with lifespan-managed DB init, sync, and scheduler."""
 from __future__ import annotations
 
 import logging
@@ -48,118 +44,57 @@ logger = logging.getLogger(__name__)
 _templates = Jinja2Templates(directory="app/templates")
 install_i18n(_templates.env)
 
-# Provider registry: country_code → (provider, db_path)
-# Built at startup, used by lifespan and scheduler
+# Provider registry: country_code → (provider_instance, db_path)
 _provider_registry: dict[str, tuple[DataProvider, str]] = {}
+
+# Maps each country code to its upstream base URL and provider class.
+# Cyprus uses a configurable URL; all others are fixed.
+_PROVIDER_SPECS: dict[str, tuple[type[DataProvider], str]] = {
+    "cy": (CyprusProvider, settings.upstream_base_url),
+    "gr": (GreeceProvider, "https://opendata-api-eydap.growthfund.gr"),
+    "es": (SpainProvider, "https://www.embalses.net"),
+    "pt": (PortugalProvider, "https://infoagua.apambiente.pt"),
+    "cz": (CzechProvider, "https://hydro.chmi.cz"),
+    "at": (AustriaProvider, "https://ehyd.gv.at"),
+    "it": (ItalyProvider, "https://raw.githubusercontent.com"),
+    "fi": (FinlandProvider, "https://rajapinnat.ymparisto.fi"),
+    "no": (NorwayProvider, "https://biapi.nve.no"),
+    "ch": (SwitzerlandProvider, "https://uvek-gis.admin.ch"),
+    "bg": (BulgariaProvider, "https://www.moew.government.bg"),
+    "de": (GermanyProvider, "https://www.talsperrenleitzentrale-ruhr.de"),
+    "pl": (PolandProvider, "https://res2.imgw.pl"),
+}
+
+# Cyprus retains its original user-agent for backwards compatibility with the upstream API.
+_USER_AGENTS: dict[str, str] = {
+    "cy": "CyprusWaterDashboard/1.0",
+}
+_DEFAULT_USER_AGENT = "NeroWaterDashboard/1.0"
 
 
 def _build_provider_registry() -> dict[str, tuple[DataProvider, str]]:
     """Construct a provider instance + db_path for each enabled country."""
+    timeout = httpx.Timeout(
+        connect=5.0,
+        read=settings.upstream_timeout_seconds,
+        write=5.0,
+        pool=5.0,
+    )
+
     registry: dict[str, tuple[DataProvider, str]] = {}
-
     for cc in settings.get_enabled_countries():
-        db_path = f"data/{cc}/water.db"
-
-        _timeout = httpx.Timeout(
-            connect=5.0,
-            read=settings.upstream_timeout_seconds,
-            write=5.0,
-            pool=5.0,
-        )
-
-        if cc == "cy":
-            client = httpx.AsyncClient(
-                base_url=settings.upstream_base_url,
-                headers={"User-Agent": "CyprusWaterDashboard/1.0"},
-                timeout=_timeout,
-            )
-            registry[cc] = (CyprusProvider(client=client), db_path)
-        elif cc == "gr":
-            client = httpx.AsyncClient(
-                base_url="https://opendata-api-eydap.growthfund.gr",
-                headers={"User-Agent": "NeroWaterDashboard/1.0"},
-                timeout=_timeout,
-            )
-            registry[cc] = (GreeceProvider(client=client), db_path)
-        elif cc == "es":
-            client = httpx.AsyncClient(
-                base_url="https://www.embalses.net",
-                headers={"User-Agent": "NeroWaterDashboard/1.0"},
-                timeout=_timeout,
-            )
-            registry[cc] = (SpainProvider(client=client), db_path)
-        elif cc == "pt":
-            client = httpx.AsyncClient(
-                base_url="https://infoagua.apambiente.pt",
-                headers={"User-Agent": "NeroWaterDashboard/1.0"},
-                timeout=_timeout,
-            )
-            registry[cc] = (PortugalProvider(client=client), db_path)
-        elif cc == "cz":
-            client = httpx.AsyncClient(
-                base_url="https://hydro.chmi.cz",
-                headers={"User-Agent": "NeroWaterDashboard/1.0"},
-                timeout=_timeout,
-            )
-            registry[cc] = (CzechProvider(client=client), db_path)
-        elif cc == "at":
-            client = httpx.AsyncClient(
-                base_url="https://ehyd.gv.at",
-                headers={"User-Agent": "NeroWaterDashboard/1.0"},
-                timeout=_timeout,
-            )
-            registry[cc] = (AustriaProvider(client=client), db_path)
-        elif cc == "it":
-            client = httpx.AsyncClient(
-                base_url="https://raw.githubusercontent.com",
-                headers={"User-Agent": "NeroWaterDashboard/1.0"},
-                timeout=_timeout,
-            )
-            registry[cc] = (ItalyProvider(client=client), db_path)
-        elif cc == "fi":
-            client = httpx.AsyncClient(
-                base_url="https://rajapinnat.ymparisto.fi",
-                headers={"User-Agent": "NeroWaterDashboard/1.0"},
-                timeout=_timeout,
-            )
-            registry[cc] = (FinlandProvider(client=client), db_path)
-        elif cc == "no":
-            client = httpx.AsyncClient(
-                base_url="https://biapi.nve.no",
-                headers={"User-Agent": "NeroWaterDashboard/1.0"},
-                timeout=_timeout,
-            )
-            registry[cc] = (NorwayProvider(client=client), db_path)
-        elif cc == "ch":
-            client = httpx.AsyncClient(
-                base_url="https://uvek-gis.admin.ch",
-                headers={"User-Agent": "NeroWaterDashboard/1.0"},
-                timeout=_timeout,
-            )
-            registry[cc] = (SwitzerlandProvider(client=client), db_path)
-        elif cc == "bg":
-            client = httpx.AsyncClient(
-                base_url="https://www.moew.government.bg",
-                headers={"User-Agent": "NeroWaterDashboard/1.0"},
-                timeout=_timeout,
-            )
-            registry[cc] = (BulgariaProvider(client=client), db_path)
-        elif cc == "de":
-            client = httpx.AsyncClient(
-                base_url="https://www.talsperrenleitzentrale-ruhr.de",
-                headers={"User-Agent": "NeroWaterDashboard/1.0"},
-                timeout=_timeout,
-            )
-            registry[cc] = (GermanyProvider(client=client), db_path)
-        elif cc == "pl":
-            client = httpx.AsyncClient(
-                base_url="https://res2.imgw.pl",
-                headers={"User-Agent": "NeroWaterDashboard/1.0"},
-                timeout=_timeout,
-            )
-            registry[cc] = (PolandProvider(client=client), db_path)
-        else:
+        if cc not in _PROVIDER_SPECS:
             logger.warning("No provider implemented for country '%s' — skipping", cc)
+            continue
+
+        provider_class, base_url = _PROVIDER_SPECS[cc]
+        user_agent = _USER_AGENTS.get(cc, _DEFAULT_USER_AGENT)
+        client = httpx.AsyncClient(
+            base_url=base_url,
+            headers={"User-Agent": user_agent},
+            timeout=timeout,
+        )
+        registry[cc] = (provider_class(client=client), f"data/{cc}/water.db")
 
     return registry
 
@@ -177,12 +112,9 @@ async def _sync_all_countries() -> None:
 async def lifespan(app: FastAPI):
     global _provider_registry
 
-    # Ensure data directory exists before SQLite opens the file
     Path("data").mkdir(exist_ok=True)
-
     _provider_registry = _build_provider_registry()
 
-    # Init + seed/sync each enabled country
     for cc, (provider, db_path) in _provider_registry.items():
         init_database(db_path=db_path)
 
@@ -218,8 +150,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Cyprus Water Levels", lifespan=lifespan)
 
-# Country-prefix middleware must run first so that route matching sees the
-# stripped path. Security headers middleware wraps it on the outside.
+# CountryPrefixMiddleware must run first so route matching sees the stripped path.
+# security_headers_middleware wraps it on the outside.
 app.add_middleware(
     CountryPrefixMiddleware,
     enabled_countries=settings.get_enabled_countries(),
@@ -252,7 +184,6 @@ async def not_found(request: Request, exc: Exception) -> HTMLResponse:
                 {"code": c, "label": l, "flag": LANGUAGE_FLAGS.get(c, c)}
                 for c, l in LANGUAGE_LABELS.items()
             ],
-            # Simplified lists for 404 — no dam navigation needed
             "country_nav": [],
             "hreflang_alternates": [],
         },
