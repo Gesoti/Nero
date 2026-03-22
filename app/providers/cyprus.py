@@ -12,6 +12,7 @@ from datetime import date, datetime, timezone
 import httpx
 
 from app.providers.base import (
+    BaseProvider,
     DamInfo,
     DamPercentage,
     DamStatistic,
@@ -56,11 +57,11 @@ def _parse_pct_entry(date_key: str, entry: dict) -> PercentageSnapshot:
     )
 
 
-class CyprusProvider:
+class CyprusProvider(BaseProvider):
     """DataProvider implementation for the Cyprus Water Development Department API."""
 
     def __init__(self, client: httpx.AsyncClient) -> None:
-        self._client = client
+        super().__init__(client)
 
     async def fetch_dams(self) -> list[DamInfo]:
         """GET /dams → list of 17 DamInfo objects."""
@@ -194,6 +195,3 @@ class CyprusProvider:
         logger.info("Fetched %d events", len(events))
         return events
 
-    async def close(self) -> None:
-        if self._client and not self._client.is_closed:
-            await self._client.aclose()

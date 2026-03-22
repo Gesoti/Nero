@@ -8,19 +8,18 @@ Mornos, Yliki, Evinos, Marathon.
 from __future__ import annotations
 
 import logging
-from datetime import date, timedelta
+from datetime import date
 
 import httpx
 
 from app.providers.base import (
+    BaseProvider,
     DamInfo,
     DamPercentage,
     DamStatistic,
     DateStatistics,
-    MonthlyInflow,
     PercentageSnapshot,
     UpstreamAPIError,
-    WaterEvent,
 )
 
 logger = logging.getLogger(__name__)
@@ -86,11 +85,11 @@ def _parse_eydap_volume(raw: str) -> int:
     return int(raw.strip().replace(".", ""))
 
 
-class GreeceProvider:
+class GreeceProvider(BaseProvider):
     """DataProvider implementation for the EYDAP OpenData API (Athens water supply)."""
 
     def __init__(self, client: httpx.AsyncClient) -> None:
-        self._client = client
+        super().__init__(client)
 
     async def fetch_dams(self) -> list[DamInfo]:
         return list(_GREECE_DAMS)
@@ -255,12 +254,3 @@ class GreeceProvider:
         snapshots.sort(key=lambda s: s.date)
         return snapshots
 
-    async def fetch_monthly_inflows(self) -> list[MonthlyInflow]:
-        return []
-
-    async def fetch_events(self, date_from: date, date_until: date) -> list[WaterEvent]:
-        return []
-
-    async def close(self) -> None:
-        if self._client and not self._client.is_closed:
-            await self._client.aclose()

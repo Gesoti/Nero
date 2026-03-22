@@ -14,14 +14,13 @@ from datetime import date
 import httpx
 
 from app.providers.base import (
+    BaseProvider,
     DamInfo,
     DamPercentage,
     DamStatistic,
     DateStatistics,
-    MonthlyInflow,
     PercentageSnapshot,
     UpstreamAPIError,
-    WaterEvent,
 )
 
 logger = logging.getLogger(__name__)
@@ -257,11 +256,11 @@ def _parse_es_percentage(raw: str) -> float:
     return float(raw)
 
 
-class SpainProvider:
+class SpainProvider(BaseProvider):
     """DataProvider implementation for embalses.net (Spain reservoir data)."""
 
     def __init__(self, client: httpx.AsyncClient) -> None:
-        self._client = client
+        super().__init__(client)
         # Per-sync cache: avoids re-scraping when fetch_date_statistics and
         # fetch_percentages are called back-to-back during the same sync cycle.
         self._page_cache: dict[str, tuple[float, float]] = {}
@@ -374,19 +373,3 @@ class SpainProvider:
 
         return DateStatistics(date=target_date, dam_statistics=dam_statistics)
 
-    async def fetch_timeseries(self) -> list[PercentageSnapshot]:
-        # embalses.net has no historical API; timeseries builds up
-        # over time via the scheduler's incremental_sync calls.
-        return []
-
-    async def fetch_monthly_inflows(self) -> list[MonthlyInflow]:
-        return []
-
-    async def fetch_events(
-        self, date_from: date, date_until: date
-    ) -> list[WaterEvent]:
-        return []
-
-    async def close(self) -> None:
-        if self._client and not self._client.is_closed:
-            await self._client.aclose()

@@ -14,14 +14,13 @@ from datetime import date
 import httpx
 
 from app.providers.base import (
+    BaseProvider,
     DamInfo,
     DamPercentage,
     DamStatistic,
     DateStatistics,
-    MonthlyInflow,
     PercentageSnapshot,
     UpstreamAPIError,
-    WaterEvent,
 )
 
 logger = logging.getLogger(__name__)
@@ -258,11 +257,11 @@ def _extract_json_array(html: str, var_name: str) -> str:
     return ""
 
 
-class PortugalProvider:
+class PortugalProvider(BaseProvider):
     """DataProvider implementation for infoagua.apambiente.pt (Portugal reservoir data)."""
 
     def __init__(self, client: httpx.AsyncClient) -> None:
-        self._client = client
+        super().__init__(client)
         self._cached_data: dict[str, dict[str, str | float]] | None = None
 
     def _clear_cache(self) -> None:
@@ -369,19 +368,3 @@ class PortugalProvider:
 
         return DateStatistics(date=target_date, dam_statistics=dam_statistics)
 
-    async def fetch_timeseries(self) -> list[PercentageSnapshot]:
-        # infoagua has no historical API; timeseries builds up
-        # over time via the scheduler's incremental_sync calls.
-        return []
-
-    async def fetch_monthly_inflows(self) -> list[MonthlyInflow]:
-        return []
-
-    async def fetch_events(
-        self, date_from: date, date_until: date
-    ) -> list[WaterEvent]:
-        return []
-
-    async def close(self) -> None:
-        if self._client and not self._client.is_closed:
-            await self._client.aclose()
