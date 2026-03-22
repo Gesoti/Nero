@@ -1,0 +1,4 @@
+# Force LF line endings for shell scripts regardless of platform.
+# core.autocrlf=true on Windows/WSL would otherwise convert these to CRLF,
+# breaking bash execution on Linux.
+*.sh text eol=lf
