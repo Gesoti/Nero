@@ -267,17 +267,7 @@
 {% endif %}
 {% endblock %}
 
-{% block chart_scripts %}
-<script nonce="{{ request.state.csp_nonce }}"
-        src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"
-        integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ"
-        crossorigin="anonymous" defer></script>
-<script nonce="{{ request.state.csp_nonce }}"
-        src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"
-        integrity="sha384-cVMg8E3QFwTvGCDuK+ET4PD341jF3W8nO1auiXfuZNQkzbUUiBGLsIQUE+b1mxws"
-        crossorigin="anonymous" defer></script>
-<script nonce="{{ request.state.csp_nonce }}" src="/static/js/charts.js?v=3" defer></script>
-{% endblock %}
+{% block chart_scripts %}{% include "_chart_scripts.html" %}{% endblock %}
 
 {% block scripts %}
 <script nonce="{{ request.state.csp_nonce }}">
@@ -352,21 +342,6 @@ function setDamGranularity(gran) {
     });
     updateSparseWarning(damHistoryData, 'dam-yoy-year-a', 'dam-yoy-year-b', '.dam-gran-btn', 'dam-yoy-sparse-hint');
     renderDamChart();
-}
-
-function updateSparseWarning(data, selAId, selBId, granBtnSelector, hintId) {
-    const yearA = parseInt(document.getElementById(selAId).value, 10);
-    const yearB = parseInt(document.getElementById(selBId).value, 10);
-    const sparse = isYearSparse(data, yearA) || isYearSparse(data, yearB);
-    const hint = document.getElementById(hintId);
-    if (hint) hint.style.display = sparse ? 'inline' : 'none';
-    document.querySelectorAll(granBtnSelector).forEach(btn => {
-        if (btn.textContent.trim().toLowerCase() === 'day') {
-            btn.disabled = sparse;
-            btn.style.opacity = sparse ? '0.4' : '1';
-            btn.style.cursor = sparse ? 'not-allowed' : 'pointer';
-        }
-    });
 }
 
 function renderDamChart() {

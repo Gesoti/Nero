@@ -35,6 +35,31 @@ function isYearSparse(data, year) {
 }
 
 /**
+ * Show/hide the sparse-data hint and disable the Day granularity button when
+ * either selected year has sparse data. Called whenever year selects change.
+ * Shared by dashboard.html and dam_detail.html — defined here to avoid duplication.
+ * @param {Array<{date: string, value: number}>} data  Full dataset
+ * @param {string} selAId  ID of the "year A" <select> element
+ * @param {string} selBId  ID of the "year B" <select> element
+ * @param {string} granBtnSelector  CSS selector for granularity buttons
+ * @param {string} hintId  ID of the sparse-data hint element
+ */
+function updateSparseWarning(data, selAId, selBId, granBtnSelector, hintId) {
+    const yearA = parseInt(document.getElementById(selAId).value, 10);
+    const yearB = parseInt(document.getElementById(selBId).value, 10);
+    const sparse = isYearSparse(data, yearA) || isYearSparse(data, yearB);
+    const hint = document.getElementById(hintId);
+    if (hint) hint.style.display = sparse ? 'inline' : 'none';
+    document.querySelectorAll(granBtnSelector).forEach(btn => {
+        if (btn.textContent.trim().toLowerCase() === 'day') {
+            btn.disabled = sparse;
+            btn.style.opacity = sparse ? '0.4' : '1';
+            btn.style.cursor = sparse ? 'not-allowed' : 'pointer';
+        }
+    });
+}
+
+/**
  * Convert the [{date, value}] format from the server to Chart.js {x, y} points.
  * @param {Array<{date: string, value: number}>} data
  * @returns {Array<{x: string, y: number}>}

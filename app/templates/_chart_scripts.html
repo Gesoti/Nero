@@ -1,0 +1,13 @@
+{# Shared Chart.js CDN scripts — included by dashboard.html and dam_detail.html.
+   Both pages use the same Chart.js version, adapter, and local charts.js build.
+   Keeping them in one place means SRI hashes and cache-buster version only need
+   updating in a single location. #}
+<script nonce="{{ request.state.csp_nonce }}"
+        src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"
+        integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ"
+        crossorigin="anonymous" defer></script>
+<script nonce="{{ request.state.csp_nonce }}"
+        src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"
+        integrity="sha384-cVMg8E3QFwTvGCDuK+ET4PD341jF3W8nO1auiXfuZNQkzbUUiBGLsIQUE+b1mxws"
+        crossorigin="anonymous" defer></script>
+<script nonce="{{ request.state.csp_nonce }}" src="/static/js/charts.js?v=3" defer></script>
