@@ -7,11 +7,11 @@ from __future__ import annotations
 
 import logging
 import sqlite3
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
 from pathlib import Path
-
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Generator
 
 from app.config import settings
 from app.utils import slugify
@@ -88,13 +88,22 @@ def _get_connection(db_path: str = "") -> sqlite3.Connection:
     return conn
 
 
+@contextmanager
+def _connect(db_path: str = "") -> Generator[sqlite3.Connection, None, None]:
+    """Open a connection, yield it, and close on exit — replaces try/finally boilerplate."""
+    conn = _get_connection(db_path)
+    try:
+        yield conn
+    finally:
+        conn.close()
+
+
 # ── Schema initialisation ─────────────────────────────────────────────────────
 def init_database(db_path: str = "") -> None:
     """Create all tables and indexes if they do not already exist."""
     path = db_path or settings.db_path
     Path(path).parent.mkdir(parents=True, exist_ok=True)
-    conn = _get_connection(db_path)
-    try:
+    with _connect(db_path) as conn:
         with conn:
             conn.executescript("""
                 CREATE TABLE IF NOT EXISTS dams (
@@ -167,8 +176,6 @@ def init_database(db_path: str = "") -> None:
             """)
         # Migrate existing databases: add slug column if missing
         _migrate_add_slug(conn)
-    finally:
-        conn.close()
     logger.info("Database initialised at %s", path)
 
 
@@ -178,8 +185,6 @@ def _migrate_add_slug(conn: sqlite3.Connection) -> None:
     if "slug" not in cols:
         conn.execute("ALTER TABLE dams ADD COLUMN slug TEXT NOT NULL DEFAULT ''")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_dams_slug ON dams(slug)")
-        # Backfill slugs for existing rows
-        from app.utils import slugify
         rows = conn.execute("SELECT name_en FROM dams").fetchall()
         for row in rows:
             conn.execute("UPDATE dams SET slug = ? WHERE name_en = ?",
@@ -189,18 +194,14 @@ def _migrate_add_slug(conn: sqlite3.Connection) -> None:
 
 def is_database_empty(db_path: str = "") -> bool:
     """Return True if sync_log has no rows (first-run detection)."""
-    conn = _get_connection(db_path)
-    try:
+    with _connect(db_path) as conn:
         row = conn.execute("SELECT COUNT(*) AS cnt FROM sync_log").fetchone()
         return row["cnt"] == 0
-    finally:
-        conn.close()
 
 
 # ── Upsert functions (called by sync.py) ─────────────────────────────────────
 def upsert_dams(dams: list[DamInfo], db_path: str = "") -> None:
-    conn = _get_connection(db_path)
-    try:
+    with _connect(db_path) as conn:
         with conn:
             conn.executemany(
                 """
@@ -227,15 +228,12 @@ def upsert_dams(dams: list[DamInfo], db_path: str = "") -> None:
                     for d in dams
                 ],
             )
-    finally:
-        conn.close()
     logger.debug("Upserted %d dams", len(dams))
 
 
 def upsert_percentage_snapshot(snapshot, db_path: str = "") -> None:
     date_str = snapshot.date.isoformat()
-    conn = _get_connection(db_path)
-    try:
+    with _connect(db_path) as conn:
         with conn:
             conn.executemany(
                 """
@@ -255,14 +253,11 @@ def upsert_percentage_snapshot(snapshot, db_path: str = "") -> None:
                 """,
                 (date_str, snapshot.total_percentage, snapshot.total_capacity_mcm),
             )
-    finally:
-        conn.close()
 
 
 def upsert_date_statistics(stats, db_path: str = "") -> None:
     date_str = stats.date.isoformat()
-    conn = _get_connection(db_path)
-    try:
+    with _connect(db_path) as conn:
         with conn:
             conn.executemany(
                 """
@@ -274,13 +269,10 @@ def upsert_date_statistics(stats, db_path: str = "") -> None:
                 """,
                 [(date_str, s.dam_name_en, s.storage_mcm, s.inflow_mcm) for s in stats.dam_statistics],
             )
-    finally:
-        conn.close()
 
 
 def upsert_monthly_inflows(inflows, db_path: str = "") -> None:
-    conn = _get_connection(db_path)
-    try:
+    with _connect(db_path) as conn:
         with conn:
             conn.executemany(
                 """
@@ -292,13 +284,10 @@ def upsert_monthly_inflows(inflows, db_path: str = "") -> None:
                 """,
                 [(i.year, i.period, i.period_order, i.inflow_mcm) for i in inflows],
             )
-    finally:
-        conn.close()
 
 
 def upsert_events(events, db_path: str = "") -> None:
-    conn = _get_connection(db_path)
-    try:
+    with _connect(db_path) as conn:
         with conn:
             conn.executemany(
                 """
@@ -315,14 +304,11 @@ def upsert_events(events, db_path: str = "") -> None:
                     for e in events
                 ],
             )
-    finally:
-        conn.close()
 
 
 def update_sync_log(data_type: str, last_date: date, db_path: str = "") -> None:
     now = datetime.now(timezone.utc).isoformat()
-    conn = _get_connection(db_path)
-    try:
+    with _connect(db_path) as conn:
         with conn:
             conn.execute(
                 """
@@ -334,8 +320,6 @@ def update_sync_log(data_type: str, last_date: date, db_path: str = "") -> None:
                 """,
                 (data_type, now, last_date.isoformat()),
             )
-    finally:
-        conn.close()
 
 
 # ── Query functions (called by route handlers) ────────────────────────────────
@@ -348,8 +332,7 @@ def get_all_dams_with_current_stats(db_path: str = "") -> list[DamOverview]:
     Agia Marina is silently excluded. This is intentional — the upstream
     API provides no metadata (capacity, coordinates) for it.
     """
-    conn = _get_connection(db_path)
-    try:
+    with _connect(db_path) as conn:
         rows = conn.execute("""
             SELECT
                 d.name_en, d.name_el, d.capacity_mcm, d.lat, d.lng,
@@ -380,13 +363,10 @@ def get_all_dams_with_current_stats(db_path: str = "") -> list[DamOverview]:
             )
             for r in rows
         ]
-    finally:
-        conn.close()
 
 
 def get_system_totals(db_path: str = "") -> SystemTotals | None:
-    conn = _get_connection(db_path)
-    try:
+    with _connect(db_path) as conn:
         row = conn.execute("""
             SELECT
                 dt.date,
@@ -410,13 +390,10 @@ def get_system_totals(db_path: str = "") -> SystemTotals | None:
             date=row["date"],
             dam_count=row["dam_count"],
         )
-    finally:
-        conn.close()
 
 
 def get_dam_detail(name_en: str, db_path: str = "") -> DamDetail | None:
-    conn = _get_connection(db_path)
-    try:
+    with _connect(db_path) as conn:
         row = conn.execute("""
             SELECT
                 d.name_en, d.name_el, d.capacity_mcm, d.lat, d.lng,
@@ -453,28 +430,22 @@ def get_dam_detail(name_en: str, db_path: str = "") -> DamDetail | None:
             inflow_mcm=row["inflow_mcm"],
             current_date=row["current_date"],
         )
-    finally:
-        conn.close()
 
 
 def get_system_history(db_path: str = "") -> list[dict]:
     """System percentage history as chart-ready dicts (0-100 scale)."""
-    conn = _get_connection(db_path)
-    try:
+    with _connect(db_path) as conn:
         rows = conn.execute("""
             SELECT date, total_percentage AS value
             FROM daily_totals
             ORDER BY date ASC
         """).fetchall()
         return [{"date": r["date"], "value": round(r["value"] * 100, 2)} for r in rows]
-    finally:
-        conn.close()
 
 
 def get_dam_history(name_en: str, db_path: str = "") -> list[dict]:
     """Per-dam percentage history as chart-ready dicts (0-100 scale)."""
-    conn = _get_connection(db_path)
-    try:
+    with _connect(db_path) as conn:
         rows = conn.execute("""
             SELECT date, percentage AS value
             FROM daily_percentages
@@ -482,16 +453,11 @@ def get_dam_history(name_en: str, db_path: str = "") -> list[dict]:
             ORDER BY date ASC
         """, (name_en,)).fetchall()
         return [{"date": r["date"], "value": round(r["value"] * 100, 2)} for r in rows]
-    finally:
-        conn.close()
 
 
 def get_last_sync_time(db_path: str = "") -> str | None:
-    conn = _get_connection(db_path)
-    try:
+    with _connect(db_path) as conn:
         row = conn.execute(
             "SELECT last_synced FROM sync_log ORDER BY last_synced DESC LIMIT 1"
         ).fetchone()
         return row["last_synced"] if row else None
-    finally:
-        conn.close()

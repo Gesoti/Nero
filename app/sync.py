@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import logging
 from datetime import date
+from typing import Any, Callable, Coroutine, TypeVar
 
 import httpx
 from tenacity import (
@@ -30,12 +31,19 @@ from app.db import (
 logger = logging.getLogger(__name__)
 
 # Shared retry config: 3 attempts, exponential back-off 2s → 30s cap
-_retry_kwargs = dict(
-    retry=retry_if_exception_type((httpx.HTTPError, UpstreamAPIError)),
-    stop=stop_after_attempt(3),
-    wait=wait_exponential(multiplier=1, min=2, max=30),
-    reraise=True,
-)
+_RETRY_KWARGS = {
+    "retry": retry_if_exception_type((httpx.HTTPError, UpstreamAPIError)),
+    "stop": stop_after_attempt(3),
+    "wait": wait_exponential(multiplier=1, min=2, max=30),
+    "reraise": True,
+}
+
+_T = TypeVar("_T")
+
+
+def _retried(fn: Callable[..., Coroutine[Any, Any, _T]]) -> Callable[..., Coroutine[Any, Any, _T]]:
+    """Wrap an async callable with the shared tenacity retry policy."""
+    return retry(**_RETRY_KWARGS)(fn)  # type: ignore[return-value]
 
 
 async def initial_seed(provider: DataProvider, db_path: str) -> None:
@@ -46,30 +54,30 @@ async def initial_seed(provider: DataProvider, db_path: str) -> None:
     today = date.today()
     logger.info("Starting initial seed for %s", today)
 
-    logger.info("  1/6 Fetching dam metadata")
-    dams = await retry(**_retry_kwargs)(provider.fetch_dams)()
+    logger.info("Fetching dam metadata")
+    dams = await _retried(provider.fetch_dams)()
     upsert_dams(dams, db_path=db_path)
 
-    logger.info("  2/6 Fetching historical timeseries (~133 snapshots)")
-    snapshots = await retry(**_retry_kwargs)(provider.fetch_timeseries)()
+    logger.info("Fetching historical timeseries")
+    snapshots = await _retried(provider.fetch_timeseries)()
     for snap in snapshots:
         upsert_percentage_snapshot(snap, db_path=db_path)
-    logger.info("       Stored %d snapshots", len(snapshots))
+    logger.info("Stored %d snapshots", len(snapshots))
 
-    logger.info("  3/6 Fetching monthly inflows")
-    inflows = await retry(**_retry_kwargs)(provider.fetch_monthly_inflows)()
+    logger.info("Fetching monthly inflows")
+    inflows = await _retried(provider.fetch_monthly_inflows)()
     upsert_monthly_inflows(inflows, db_path=db_path)
 
-    logger.info("  4/6 Fetching events since Oct 2009")
-    events = await retry(**_retry_kwargs)(provider.fetch_events)(date(2009, 10, 1), today)
+    logger.info("Fetching events since Oct 2009")
+    events = await _retried(provider.fetch_events)(date(2009, 10, 1), today)
     upsert_events(events, db_path=db_path)
 
-    logger.info("  5/6 Fetching today's statistics (%s)", today)
-    stats = await retry(**_retry_kwargs)(provider.fetch_date_statistics)(today)
+    logger.info("Fetching today's statistics (%s)", today)
+    stats = await _retried(provider.fetch_date_statistics)(today)
     upsert_date_statistics(stats, db_path=db_path)
 
-    logger.info("  6/6 Fetching today's percentages (%s)", today)
-    pcts = await retry(**_retry_kwargs)(provider.fetch_percentages)(today)
+    logger.info("Fetching today's percentages (%s)", today)
+    pcts = await _retried(provider.fetch_percentages)(today)
     upsert_percentage_snapshot(pcts, db_path=db_path)
 
     update_sync_log("seed", today, db_path=db_path)
@@ -84,16 +92,16 @@ async def incremental_sync(provider: DataProvider, db_path: str) -> None:
     today = date.today()
     logger.info("Incremental sync: %s", today)
 
-    pcts = await retry(**_retry_kwargs)(provider.fetch_percentages)(today)
+    pcts = await _retried(provider.fetch_percentages)(today)
     upsert_percentage_snapshot(pcts, db_path=db_path)
 
-    stats = await retry(**_retry_kwargs)(provider.fetch_date_statistics)(today)
+    stats = await _retried(provider.fetch_date_statistics)(today)
     upsert_date_statistics(stats, db_path=db_path)
 
-    inflows = await retry(**_retry_kwargs)(provider.fetch_monthly_inflows)()
+    inflows = await _retried(provider.fetch_monthly_inflows)()
     upsert_monthly_inflows(inflows, db_path=db_path)
 
-    events = await retry(**_retry_kwargs)(provider.fetch_events)(date(2009, 10, 1), today)
+    events = await _retried(provider.fetch_events)(date(2009, 10, 1), today)
     upsert_events(events, db_path=db_path)
 
     update_sync_log("incremental", today, db_path=db_path)
