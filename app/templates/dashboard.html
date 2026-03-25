@@ -79,7 +79,7 @@
 
         <div class="mb-8">
             <span class="text-7xl font-black tracking-tight {{ hero_num }}">{{ pct_display }}{% if totals %}%{% endif %}</span>
-            <p class="text-slate-400 mt-1">{{ _("of total capacity remaining") }}</p>
+            <p class="text-slate-400 mt-1">{{ _("of total capacity") }}</p>
         </div>
 
         <!-- System progress bar -->
@@ -114,6 +114,13 @@
                 </p>
             </div>
         </div>
+
+        {% if country in ("gr", "at", "bg", "de", "pl") %}
+        <p class="text-slate-500 text-xs mt-6">
+            <span class="text-amber-400">&#9888;</span>
+            {{ _("Data for this country may be incomplete. We are actively working with the appropriate authorities to improve coverage.") }}
+        </p>
+        {% endif %}
     </div>
 </section>
 

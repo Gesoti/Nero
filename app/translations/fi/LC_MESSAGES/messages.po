@@ -422,8 +422,12 @@ msgid "dam levels — latest data & analysis"
 msgstr "Kyproksen patojen tasot — reaaliaikaiset tiedot ja analyysit"
 
 #: app/templates/dashboard.html:82
-msgid "of total capacity remaining"
-msgstr "kokonaiskapasiteetista jäljellä"
+msgid "of total capacity"
+msgstr "kokonaiskapasiteetista"
+
+#: app/templates/dashboard.html:120
+msgid "Data for this country may be incomplete. We are actively working with the appropriate authorities to improve coverage."
+msgstr "Tämän maan tiedot voivat olla puutteellisia. Työskentelemme aktiivisesti asianomaisten viranomaisten kanssa kattavuuden parantamiseksi."
 
 #: app/templates/dashboard.html:104
 msgid "Total Capacity"

@@ -409,8 +409,12 @@ msgid "dam levels — latest data & analysis"
 msgstr "Нива на язовирите в Кипър — данни на живо и анализ"
 
 #: app/templates/dashboard.html:82
-msgid "of total capacity remaining"
-msgstr "от общия оставащ капацитет"
+msgid "of total capacity"
+msgstr "от общия капацитет"
+
+#: app/templates/dashboard.html:120
+msgid "Data for this country may be incomplete. We are actively working with the appropriate authorities to improve coverage."
+msgstr "Данните за тази държава може да са непълни. Активно работим с компетентните органи за подобряване на покритието."
 
 #: app/templates/dashboard.html:104
 msgid "Total Capacity"

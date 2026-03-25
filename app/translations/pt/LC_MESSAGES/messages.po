@@ -406,8 +406,12 @@ msgid "dam levels — latest data & analysis"
 msgstr "Níveis das barragens — dados em tempo real e análise"
 
 #: app/templates/dashboard.html:82
-msgid "of total capacity remaining"
-msgstr "da capacidade total restante"
+msgid "of total capacity"
+msgstr "da capacidade total"
+
+#: app/templates/dashboard.html:120
+msgid "Data for this country may be incomplete. We are actively working with the appropriate authorities to improve coverage."
+msgstr "Os dados deste país podem estar incompletos. Estamos a trabalhar ativamente com as autoridades competentes para melhorar a cobertura."
 
 #: app/templates/dashboard.html:104
 msgid "Total Capacity"

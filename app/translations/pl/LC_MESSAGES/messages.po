@@ -422,8 +422,12 @@ msgid "dam levels — latest data & analysis"
 msgstr "Poziomy zapór na Cyprze — dane na żywo i analiza"
 
 #: app/templates/dashboard.html:82
-msgid "of total capacity remaining"
-msgstr "całkowitej pojemności pozostało"
+msgid "of total capacity"
+msgstr "całkowitej pojemności"
+
+#: app/templates/dashboard.html:120
+msgid "Data for this country may be incomplete. We are actively working with the appropriate authorities to improve coverage."
+msgstr "Dane dla tego kraju mogą być niekompletne. Aktywnie współpracujemy z odpowiednimi władzami w celu poprawy pokrycia."
 
 #: app/templates/dashboard.html:104
 msgid "Total Capacity"

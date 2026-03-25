@@ -408,8 +408,12 @@ msgid "dam levels — latest data & analysis"
 msgstr "Niveles de presas de Chipre — datos en vivo y análisis"
 
 #: app/templates/dashboard.html:82
-msgid "of total capacity remaining"
-msgstr "de la capacidad total restante"
+msgid "of total capacity"
+msgstr "de la capacidad total"
+
+#: app/templates/dashboard.html:120
+msgid "Data for this country may be incomplete. We are actively working with the appropriate authorities to improve coverage."
+msgstr "Los datos de este país pueden estar incompletos. Estamos trabajando activamente con las autoridades correspondientes para mejorar la cobertura."
 
 #: app/templates/dashboard.html:104
 msgid "Total Capacity"

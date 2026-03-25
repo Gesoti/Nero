@@ -427,8 +427,12 @@ msgid "dam levels — latest data & analysis"
 msgstr "Zyperns Staudamm-Füllstände — Live-Daten & Analyse"
 
 #: app/templates/dashboard.html:82
-msgid "of total capacity remaining"
-msgstr "der Gesamtkapazität verbleibend"
+msgid "of total capacity"
+msgstr "der Gesamtkapazität"
+
+#: app/templates/dashboard.html:120
+msgid "Data for this country may be incomplete. We are actively working with the appropriate authorities to improve coverage."
+msgstr "Die Daten für dieses Land sind möglicherweise unvollständig. Wir arbeiten aktiv mit den zuständigen Behörden zusammen, um die Abdeckung zu verbessern."
 
 #: app/templates/dashboard.html:104
 msgid "Total Capacity"

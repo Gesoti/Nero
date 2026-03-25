@@ -421,8 +421,12 @@ msgid "dam levels — latest data & analysis"
 msgstr "Hladiny přehrad na Kypru — živá data a analýzy"
 
 #: app/templates/dashboard.html:82
-msgid "of total capacity remaining"
-msgstr "celkové kapacity zbývá"
+msgid "of total capacity"
+msgstr "celkové kapacity"
+
+#: app/templates/dashboard.html:120
+msgid "Data for this country may be incomplete. We are actively working with the appropriate authorities to improve coverage."
+msgstr "Údaje pro tuto zemi mohou být neúplné. Aktivně spolupracujeme s příslušnými úřady na zlepšení pokrytí."
 
 #: app/templates/dashboard.html:104
 msgid "Total Capacity"

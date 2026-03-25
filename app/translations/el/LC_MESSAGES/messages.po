@@ -402,8 +402,12 @@ msgid "dam levels — latest data & analysis"
 msgstr "Στάθμες φραγμάτων — ζωντανά δεδομένα & ανάλυση"
 
 #: app/templates/dashboard.html:82
-msgid "of total capacity remaining"
-msgstr "υπολειπόμενης συνολικής χωρητικότητας"
+msgid "of total capacity"
+msgstr "της συνολικής χωρητικότητας"
+
+#: app/templates/dashboard.html:120
+msgid "Data for this country may be incomplete. We are actively working with the appropriate authorities to improve coverage."
+msgstr "Τα δεδομένα για αυτή τη χώρα ενδέχεται να είναι ελλιπή. Εργαζόμαστε ενεργά με τις αρμόδιες αρχές για τη βελτίωση της κάλυψης."
 
 #: app/templates/dashboard.html:104
 msgid "Total Capacity"

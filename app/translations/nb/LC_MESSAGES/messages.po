@@ -421,8 +421,12 @@ msgid "dam levels — latest data & analysis"
 msgstr "Demningsnivåer på Kypros — live data og analyse"
 
 #: app/templates/dashboard.html:82
-msgid "of total capacity remaining"
-msgstr "av total kapasitet gjenstår"
+msgid "of total capacity"
+msgstr "av total kapasitet"
+
+#: app/templates/dashboard.html:120
+msgid "Data for this country may be incomplete. We are actively working with the appropriate authorities to improve coverage."
+msgstr "Dataene for dette landet kan være ufullstendige. Vi jobber aktivt med de relevante myndighetene for å forbedre dekningen."
 
 #: app/templates/dashboard.html:104
 msgid "Total Capacity"

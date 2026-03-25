@@ -423,8 +423,12 @@ msgid "dam levels — latest data & analysis"
 msgstr "Livelli delle dighe di Cipro — dati in tempo reale e analisi"
 
 #: app/templates/dashboard.html:82
-msgid "of total capacity remaining"
-msgstr "della capacità totale rimanente"
+msgid "of total capacity"
+msgstr "della capacità totale"
+
+#: app/templates/dashboard.html:120
+msgid "Data for this country may be incomplete. We are actively working with the appropriate authorities to improve coverage."
+msgstr "I dati per questo paese potrebbero essere incompleti. Stiamo lavorando attivamente con le autorità competenti per migliorare la copertura."
 
 #: app/templates/dashboard.html:104
 msgid "Total Capacity"
