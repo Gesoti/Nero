@@ -90,11 +90,10 @@
   {% if adsense_pub_id %}
   function loadAdSense() {
     // AdSense publisher script — injected only after user consent.
-    if (document.querySelector('script[data-adsense]')) return; // already loaded
+    if (document.querySelector('script[src*="adsbygoogle"]')) return; // already loaded
     var s = document.createElement('script');
     s.async = true;
     s.crossOrigin = 'anonymous';
-    s.dataset.adsense = '1';
     s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'
            + '?client={{ adsense_pub_id }}';
     document.head.appendChild(s);
